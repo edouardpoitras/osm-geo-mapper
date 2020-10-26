@@ -1,0 +1,40 @@
+[package]
+name = "osm-geo-mapper"
+version = "0.1.0"
+authors = ["Edouard Poitras <edouardpoitras@gmail.com>"]
+edition = "2018"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/edouardpoitras/osm-geo-mapper"
+homepage = "https://crates.io/crates/osm-geo-mapper"
+description = """
+Navigate OpenStreetMap data in the terminal.
+"""
+keywords = ["openstreetmap", "osm", "geojson"]
+include = ["src/", "LICENSE", "README.md"]
+
+[lib]
+name = "osm_geo_mapper"
+path = "src/lib.rs"
+
+[[bin]]
+name = "osm-geo-mapper"
+path = "src/main.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tui = { version = "0.9.5", default-features = false, features = ["crossterm"] }
+crossterm = "0.17.5"
+noise = "0.6.0"
+geo-types = "0.6.0"
+geojson = { version = "0.19.0", features = ["geo-types"] }
+geo = "0.14.0"
+log = "0.4.8"
+osmpbfreader = "0.13.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+structopt = "0.3.15"
+reqwest = { version = "0.10.6", features = ["json"] }
+tokio = { version = "0.2.13", features = ["full"] }
+uuid = { version = "0.8.1", features = ["v4"] }

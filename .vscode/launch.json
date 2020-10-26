@@ -1,0 +1,65 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'osm_geo_mapper'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=osm_geo_mapper"
+                ],
+                "filter": {
+                    "name": "osm_geo_mapper",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'osm-geo-mapper'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=osm-geo-mapper",
+                    "--package=osm_geo_mapper"
+                ],
+                "filter": {
+                    "name": "osm_geo_mapper",
+                    "kind": "bin"
+                }
+            },
+            "program": "${workspaceRoot}/target/debug/osm-geo-mapper",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'osm-geo-mapper'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=osm-geo-mapper",
+                    "--package=osm_geo_mapper"
+                ],
+                "filter": {
+                    "name": "osm-geo-mapper",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
