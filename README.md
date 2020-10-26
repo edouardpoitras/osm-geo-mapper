@@ -33,6 +33,8 @@ Usage
 
     ./osm-geo-mapper --address "110 laurier avenue west ottawa ontario"
 
+![OSM Geo Mapper](/osm-geo-mapper.png?raw=true)
+
 ## Library
 
     TBD
