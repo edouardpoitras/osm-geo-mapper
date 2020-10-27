@@ -111,9 +111,22 @@ pub enum GeoTile {
         width: Option<String>,
     },
     Boundary {
+        admin_level: Option<String>,
+        area: Option<String>,
+        border_type: Option<String>,
         boundary_type: BoundaryType,
+        description: Option<String>,
+        format: Option<String>,
         geometry: Geometry,
+        inscription: Option<String>,
+        material: Option<String>,
+        name: Option<String>,
         osm_id: String,
+        political_division:  Option<String>,
+        population:  Option<String>,
+        postal_code: Option<String>,
+        protect_class: Option<String>,
+        protection_title: Option<String>,
     },
     Building {
         access: Option<String>,
@@ -535,8 +548,16 @@ pub enum BarrierType {
 
 #[derive(Debug, Clone, Copy)]
 pub enum BoundaryType {
+    AboriginalLands,
     Administrative,
+    Maritime,
+    Marker,
+    NationalPark,
     Political,
+    PostalCode,
+    ProtectedArea,
+    UserDefined,
+    Unclassified,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -800,11 +821,71 @@ pub enum RouteType {
 impl fmt::Display for GeoTile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            GeoTile::Aerialway { .. } => write!(f, "Aerialway"),
-            GeoTile::Aeroway { .. } => write!(f, "Aeroway"),
-            GeoTile::Amenity { .. } => write!(f, "Amenity",),
-            GeoTile::Barrier { .. } => write!(f, "Barrier",),
-            GeoTile::Boundary { .. } => write!(f, "Boundary",),
+            GeoTile::Aerialway { .. } => write!(f, "Aerialway\n"),
+            GeoTile::Aeroway { .. } => write!(f, "Aeroway\n"),
+            GeoTile::Amenity { .. } => write!(f, "Amenity\n",),
+            GeoTile::Barrier { .. } => write!(f, "Barrier\n",),
+            GeoTile::Boundary {
+                admin_level,
+                area,
+                border_type,
+                boundary_type,
+                description,
+                format,
+                geometry: _,
+                inscription,
+                material,
+                name,
+                osm_id: _,
+                political_division,
+                population,
+                postal_code,
+                protect_class,
+                protection_title,
+            } => {
+                write!(f, "Feature: Boundary\n")?;
+                write!(f, "Type: {:?}\n", boundary_type)?;
+                if let Some(admin_level) = admin_level {
+                    write!(f, "Admin Level: {}\n", admin_level)?;
+                }
+                if let Some(area) = area {
+                    write!(f, "Area: {}\n", area)?;
+                }
+                if let Some(border_type) = border_type {
+                    write!(f, "Border Type: {}\n", border_type)?;
+                }
+                if let Some(description) = description {
+                    write!(f, "Description: {}\n", description)?;
+                }
+                if let Some(format) = format {
+                    write!(f, "Format: {}\n", format)?;
+                }
+                if let Some(inscription) = inscription {
+                    write!(f, "Inscription: {}\n", inscription)?;
+                }
+                if let Some(material) = material {
+                    write!(f, "Material: {}\n", material)?;
+                }
+                if let Some(name) = name {
+                    write!(f, "Name: {}\n", name)?;
+                }
+                if let Some(political_division) = political_division{
+                    write!(f, "Political Division: {}\n", political_division)?;
+                }
+                if let Some(population) = population {
+                    write!(f, "Population: {}\n", population)?;
+                }
+                if let Some(postal_code) = postal_code {
+                    write!(f, "Postal Code: {}\n", postal_code)?;
+                }
+                if let Some(protect_class) = protect_class {
+                    write!(f, "Protect Class: {}\n", protect_class)?;
+                }
+                if let Some(protection_title) = protection_title{
+                    write!(f, "Protection Title: {}\n", protection_title)?;
+                }
+                Ok(())
+            }
             GeoTile::Building {
                 access,
                 address,
@@ -874,9 +955,9 @@ impl fmt::Display for GeoTile {
                 }
                 Ok(())
             }
-            GeoTile::Craft { .. } => write!(f, "Craft",),
-            GeoTile::Emergency { .. } => write!(f, "Emergency",),
-            GeoTile::Geological { .. } => write!(f, "Geological",),
+            GeoTile::Craft { .. } => write!(f, "Craft\n",),
+            GeoTile::Emergency { .. } => write!(f, "Emergency\n",),
+            GeoTile::Geological { .. } => write!(f, "Geological\n",),
             GeoTile::Highway {
                 abutters,
                 access,
@@ -990,11 +1071,11 @@ impl fmt::Display for GeoTile {
                 }
                 Ok(())
             }
-            GeoTile::Historic { .. } => write!(f, "Historic",),
-            GeoTile::Landuse { .. } => write!(f, "Landuse",),
-            GeoTile::Leisure { .. } => write!(f, "Leisure",),
-            GeoTile::ManMade { .. } => write!(f, "ManMade",),
-            GeoTile::Military { .. } => write!(f, "Military",),
+            GeoTile::Historic { .. } => write!(f, "Historic\n",),
+            GeoTile::Landuse { .. } => write!(f, "Landuse\n",),
+            GeoTile::Leisure { .. } => write!(f, "Leisure\n",),
+            GeoTile::ManMade { .. } => write!(f, "ManMade\n",),
+            GeoTile::Military { .. } => write!(f, "Military\n",),
             GeoTile::Natural {
                 access,
                 circumference,
@@ -1076,18 +1157,18 @@ impl fmt::Display for GeoTile {
                 }
                 Ok(())
             }
-            GeoTile::Office { .. } => write!(f, "Office",),
-            GeoTile::Place { .. } => write!(f, "Place",),
-            GeoTile::Power { .. } => write!(f, "Power",),
-            GeoTile::PublicTransport { .. } => write!(f, "PublicTransport",),
-            GeoTile::Railway { .. } => write!(f, "Railway",),
-            GeoTile::Route { .. } => write!(f, "Route",),
-            GeoTile::Shop { .. } => write!(f, "Shop",),
-            GeoTile::Sport { .. } => write!(f, "Sport",),
-            GeoTile::Telecom { .. } => write!(f, "Telecom",),
-            GeoTile::Tourism { .. } => write!(f, "Tourism",),
-            GeoTile::Waterway { .. } => write!(f, "Waterway",),
-            GeoTile::Unclassified { .. } => write!(f, "Unclassified",),
+            GeoTile::Office { .. } => write!(f, "Office\n",),
+            GeoTile::Place { .. } => write!(f, "Place\n",),
+            GeoTile::Power { .. } => write!(f, "Power\n",),
+            GeoTile::PublicTransport { .. } => write!(f, "PublicTransport\n",),
+            GeoTile::Railway { .. } => write!(f, "Railway\n",),
+            GeoTile::Route { .. } => write!(f, "Route\n",),
+            GeoTile::Shop { .. } => write!(f, "Shop\n",),
+            GeoTile::Sport { .. } => write!(f, "Sport\n",),
+            GeoTile::Telecom { .. } => write!(f, "Telecom\n",),
+            GeoTile::Tourism { .. } => write!(f, "Tourism\n",),
+            GeoTile::Waterway { .. } => write!(f, "Waterway\n",),
+            GeoTile::Unclassified { .. } => write!(f, "Unclassified\n",),
         }
     }
 }
