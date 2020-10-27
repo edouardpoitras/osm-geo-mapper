@@ -31,10 +31,10 @@
                 "args": [
                     "build",
                     "--bin=osm-geo-mapper",
-                    "--package=osm_geo_mapper"
+                    "--package=osm-geo-mapper"
                 ],
                 "filter": {
-                    "name": "osm_geo_mapper",
+                    "name": "osm-geo-mapper",
                     "kind": "bin"
                 }
             },
