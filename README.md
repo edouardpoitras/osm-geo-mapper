@@ -42,6 +42,7 @@ Usage
 TODO
 ====
 
+- Desperately need to improve performance
 - Implement logic to choose a lat/lon in the middle of a geojson file if none is provided via command line
 - Implement lazy-loading of more map data
 - Implement (binary?) serialization of map data to be loaded/cached
