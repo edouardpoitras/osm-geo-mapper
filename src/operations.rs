@@ -4,6 +4,7 @@ use std::convert::TryInto;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::rc::Rc;
+use log::warn;
 
 use crate::{
     features::{Address, GeoTileProperties, GeoTilesDataStructure},
@@ -89,7 +90,7 @@ pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
                         &mut data_structure,
                     )
                 } else {
-                    panic!("Found feature from features without properties or geometry");
+                    warn!("Found feature from features without properties or geometry");
                 }
             }
         }
@@ -102,13 +103,13 @@ pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
                     &mut data_structure,
                 )
             } else {
-                panic!("Found feature without properties or geometry");
+                warn!("Found feature without properties or geometry");
             }
         }
         gj::GeoJson::Geometry(_) => {
             // For now, ignore hanging geometry types.
             //match_geometry(geometry, terrain_type, terrain_manager)
-            panic!("Found top-level geometry")
+            warn!("Found top-level geometry")
         }
     }
     data_structure
