@@ -85,20 +85,34 @@ pub struct CLIOptions {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt = CLIOptions::from_args();
-    //let opt = CLIOptions {
-        //amenity: false,
-        //landuse: false,
-        //leisure: false,
-        //boundary: false,
-        //geojson_file: None,
-        //latitude: None,
-        //longitude: None,
-        //size: Some(0.002),
-        //address: Some("ottawa ontario".to_string()),
-    //};
     let stdout = io::stdout();
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend).unwrap();
     terminal.hide_cursor().unwrap();
     viewer::run_crossterm(terminal, opt).await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_stuff() {
+        let opt = CLIOptions {
+            amenity: false,
+            landuse: false,
+            leisure: false,
+            boundary: false,
+            geojson_file: None,
+            latitude: None,
+            longitude: None,
+            size: Some(0.0002),
+            address: Some("ottawa ontario".to_string()),
+        };
+        let stdout = io::stdout();
+        let backend = CrosstermBackend::new(stdout);
+        let mut terminal = Terminal::new(backend).unwrap();
+        terminal.hide_cursor().unwrap();
+        viewer::run_crossterm(terminal, opt).await;
+    }
 }
