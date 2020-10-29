@@ -4,16 +4,23 @@ use crate::{
         boundary_feature::get_boundary_geo_tile, building_feature::get_building_geo_tile,
         landuse_feature::get_landuse_geo_tile, leisure_feature::get_leisure_geo_tile,
         natural_feature::get_natural_geo_tile, GeoTile, GeoTileProperties, GeoTilesDataStructure,
-        Geometry, TILE_SCALE,
+        Geometry,
     },
-    operations::line_string_operations::line_string_to_i32,
+    operations::{
+        self,
+        line_string_operations::line_string_to_i32,
+    }
 };
-use geo::algorithm::{bounding_rect::BoundingRect, contains::Contains};
+use geo::algorithm::bounding_rect::BoundingRect;
 use geo_types as gt;
 use log::warn;
 use std::rc::Rc;
 
-// This function requires the f64 version of polygon because the contains() method does not work with integers.
+// Inspired and adapted from https://www.alienryderflex.com/polygon_fill/
+// TOTO: Need to create proper unit tests with custom Polygons.
+//       This will confirm whether or not we're missing the surrounding layer of
+//       polygons (may need to apply the full linestring exterior of the polygon).
+// Also need to think about the interior linestrings and how we'll handle those...
 pub fn draw_polygon(
     poly: &gt::Polygon<f64>,
     geo_tile: Rc<GeoTile>,
@@ -46,19 +53,51 @@ pub fn draw_polygon(
     }
     // Establish coordinate system first.
     let bounding_rect = poly.bounding_rect().unwrap();
-    let min_x = (bounding_rect.min().x * TILE_SCALE) as i32;
-    let max_x = (bounding_rect.max().x * TILE_SCALE) as i32;
-    let min_y = (bounding_rect.min().y * TILE_SCALE) as i32;
-    let max_y = (bounding_rect.max().y * TILE_SCALE) as i32;
-    // Iterate over the entire bounding rect
-    for x in min_x..max_x + 1 {
-        for y in min_y..max_y + 1 {
-            // Contains method only works with f64 apparently.
-            if poly.contains(&gt::Point::new(
-                (x as f64) / TILE_SCALE,
-                (y as f64) / TILE_SCALE,
-            )) {
-                data_structure.insert(gt::Coordinate { x, y }, geo_tile.clone());
+    let min_x = operations::to_tile_scale(bounding_rect.min().x) - 1;
+    let max_x = operations::to_tile_scale(bounding_rect.max().x) + 1;
+    let min_y = operations::to_tile_scale(bounding_rect.min().y) - 1;
+    let max_y = operations::to_tile_scale(bounding_rect.max().y) + 1;
+
+    let mut previous_poly_corner: Option<gt::Point<f64>> = None; // The trailing corner that was last checked.
+    let mut first_poly_corner: gt::Point<f64> = gt::Point::new(0_f64, 0_f64);
+    // Iterate through horizontal lines in the polygon.
+    for y in min_y..max_y + 1 {
+        let yf64 = operations::from_tile_scale(y);
+        let mut x_intersections: Vec<i32> = Vec::new();
+        for poly_corner in poly.exterior().points_iter() {
+            if let Some(previous_corner) = previous_poly_corner {
+                if (poly_corner.y() < yf64 && previous_corner.y() >= yf64) || (previous_corner.y() < yf64 && poly_corner.y() >= yf64) {
+                    // The horizontal line is between the two polygon corners (linestring passes through).
+                    let x_intersection: i32 = operations::to_tile_scale(poly_corner.x() + (yf64 - poly_corner.y()) / (previous_corner.y() - poly_corner.y()) * (previous_corner.x() - poly_corner.x()));
+                    x_intersections.push(x_intersection);
+                }
+            } else { // First iteration, keep track of the first corner.
+                first_poly_corner = poly_corner;
+            }
+            previous_poly_corner = Some(poly_corner.clone());
+        }
+        // Need to do one last check from the last poly corner to the first poly corner.
+        let previous_corner: gt::Point<f64> = previous_poly_corner.unwrap();
+        if (first_poly_corner.y() < yf64 && previous_corner.y() >= yf64) || (previous_corner.y() < yf64 && first_poly_corner.y() >= yf64) {
+            // The horizontal line is between the two polygon corners (linestring passes through).
+            let x_intersection: i32 = operations::to_tile_scale(first_poly_corner.x() + (yf64 - first_poly_corner.y()) / (previous_corner.y() - first_poly_corner.y()) * (previous_corner.x() - first_poly_corner.x()));
+            x_intersections.push(x_intersection);
+        }
+        // Sort our intersections from left to right.
+        if x_intersections.len() < 2 { continue ; }
+        x_intersections.sort();
+        // Add all points between node pairs.
+        for i in (0..x_intersections.len() - 1).step_by(2) {
+            let mut corner1 = x_intersections[i];
+            let mut corner2 = x_intersections[i + 1];
+            if corner1 >= max_x { break; } // Not sure how this could ever happen...
+            if corner2 > min_x { // Not sure why this is necessary...
+                if corner1 < min_x { corner1 = min_x; }
+                if corner2 > max_x { corner2 = max_x; }
+                // We have our two corners that need geotiles in-between.
+                for x in corner1..corner2 { // Do we need to use (corner2 + 1) here?
+                    data_structure.insert(gt::Coordinate { x, y }, geo_tile.clone());
+                }
             }
         }
     }

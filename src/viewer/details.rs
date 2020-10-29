@@ -1,13 +1,13 @@
 use geo_types as gt;
 
 use super::viewport::Viewport;
-use crate::features::TILE_SCALE;
+use crate::operations;
 
 pub fn coord_to_lat_long_string(coord: &gt::Coordinate<i32>) -> String {
     format!(
         "Lat: {}, Long: {}",
-        coord.y as f64 / TILE_SCALE,
-        coord.x as f64 / TILE_SCALE
+        operations::from_tile_scale(coord.y),
+        operations::from_tile_scale(coord.x),
     )
 }
 

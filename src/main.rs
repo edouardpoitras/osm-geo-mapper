@@ -97,7 +97,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_stuff() {
+    async fn test() {
         let opt = CLIOptions {
             amenity: false,
             landuse: false,

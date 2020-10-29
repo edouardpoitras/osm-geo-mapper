@@ -7,7 +7,7 @@ use std::rc::Rc;
 use log::warn;
 
 use crate::{
-    features::{Address, GeoTileProperties, GeoTilesDataStructure},
+    features::{Address, GeoTileProperties, GeoTilesDataStructure, TILE_SCALE},
     operations::{
         line_string_operations::{draw_line_string, line_string_feature_to_geo_tile},
         point_operations::{draw_point, point_feature_to_geo_tile},
@@ -18,6 +18,24 @@ use crate::{
 pub mod line_string_operations;
 pub mod point_operations;
 pub mod polygon_operations;
+
+// Takes a lat/lon unit (f64) and converts it to a 2d grid coordinate unit using i32.
+// This is a lossy operation.
+pub fn to_tile_scale(unit: f64) -> i32 {
+    return (unit * TILE_SCALE).round() as i32
+}
+
+// Takes a tile-scaled i32 unit and converts it back to a lat/lon scale unit (f64).
+// This is not technically a lossy operation, but the initial convertion to tile scale would have been,
+// therefor you can't expect to be able to convert back-and-forth without losing fidelity.
+pub fn from_tile_scale(unit : i32) -> f64 {
+    return (unit as f64) / TILE_SCALE;
+}
+
+// Same as from_tile_scale(i32) except takes a u8.
+pub fn from_tile_scale_u8(unit : u8) -> f64 {
+    return (unit as f64) / TILE_SCALE;
+}
 
 pub fn property_to_option_string(props: &GeoTileProperties, key: &str) -> Option<String> {
     match props.get(key) {

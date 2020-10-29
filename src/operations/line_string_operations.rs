@@ -1,13 +1,16 @@
-use crate::features::{
-    aeroway_feature::{draw_aeroway_line_string, get_aeroway_geo_tile},
-    amenity_feature::{draw_amenity_line_string, get_amenity_geo_tile},
-    barrier_feature::{draw_barrier_line_string, get_barrier_geo_tile},
-    highway_feature::{draw_highway_line_string, get_highway_geo_tile},
-    landuse_feature::{draw_landuse_line_string, get_landuse_geo_tile},
-    leisure_feature::{draw_leisure_line_string, get_leisure_geo_tile},
-    natural_feature::{draw_natural_line_string, get_natural_geo_tile},
-    route_feature::{draw_route_line_string, get_route_geo_tile},
-    GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
+use crate::{
+    operations,
+    features::{
+        aeroway_feature::{draw_aeroway_line_string, get_aeroway_geo_tile},
+        amenity_feature::{draw_amenity_line_string, get_amenity_geo_tile},
+        barrier_feature::{draw_barrier_line_string, get_barrier_geo_tile},
+        highway_feature::{draw_highway_line_string, get_highway_geo_tile},
+        landuse_feature::{draw_landuse_line_string, get_landuse_geo_tile},
+        leisure_feature::{draw_leisure_line_string, get_leisure_geo_tile},
+        natural_feature::{draw_natural_line_string, get_natural_geo_tile},
+        route_feature::{draw_route_line_string, get_route_geo_tile},
+        GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
+    }
 };
 
 use geo_types as gt;
@@ -164,8 +167,8 @@ pub fn line_string_to_i32(line_string: &gt::LineString<f64>) -> gt::LineString<i
     let mut points: Vec<gt::Coordinate<i32>> = Vec::new();
     for point in line_string.points_iter() {
         points.push(gt::Coordinate {
-            x: (point.x() * TILE_SCALE) as i32,
-            y: (point.y() * TILE_SCALE) as i32,
+            x: operations::to_tile_scale(point.x()),
+            y: operations::to_tile_scale(point.y()),
         });
     }
     points.into()
@@ -258,8 +261,8 @@ fn draw_line_north_of(
     data_structure: &mut GeoTilesDataStructure,
 ) {
     draw_line(
-        &gt::Point::new(start.x(), start.y() - (distance as f64 / TILE_SCALE)),
-        &gt::Point::new(end.x(), end.y() - (distance as f64 / TILE_SCALE)),
+        &gt::Point::new(start.x(), start.y() - operations::from_tile_scale_u8(distance)),
+        &gt::Point::new(end.x(), end.y() - operations::from_tile_scale_u8(distance)),
         1,
         geo_tile,
         data_structure,
@@ -274,8 +277,8 @@ fn draw_line_south_of(
     data_structure: &mut GeoTilesDataStructure,
 ) {
     draw_line(
-        &gt::Point::new(start.x(), start.y() + (distance as f64 / TILE_SCALE)),
-        &gt::Point::new(end.x(), end.y() + (distance as f64 / TILE_SCALE)),
+        &gt::Point::new(start.x(), start.y() + operations::from_tile_scale_u8(distance)),
+        &gt::Point::new(end.x(), end.y() + operations::from_tile_scale_u8(distance)),
         1,
         geo_tile,
         data_structure,
@@ -290,8 +293,8 @@ fn draw_line_east_of(
     data_structure: &mut GeoTilesDataStructure,
 ) {
     draw_line(
-        &gt::Point::new(start.x() + (distance as f64 / TILE_SCALE), start.y()),
-        &gt::Point::new(end.x() + (distance as f64 / TILE_SCALE), end.y()),
+        &gt::Point::new(start.x() + operations::from_tile_scale_u8(distance), start.y()),
+        &gt::Point::new(end.x() + operations::from_tile_scale_u8(distance), end.y()),
         1,
         geo_tile,
         data_structure,
@@ -306,8 +309,8 @@ fn draw_line_west_of(
     data_structure: &mut GeoTilesDataStructure,
 ) {
     draw_line(
-        &gt::Point::new(start.x() - (distance as f64 / TILE_SCALE), start.y()),
-        &gt::Point::new(end.x() - (distance as f64 / TILE_SCALE), end.y()),
+        &gt::Point::new(start.x() - operations::from_tile_scale_u8(distance), start.y()),
+        &gt::Point::new(end.x() - operations::from_tile_scale_u8(distance), end.y()),
         1,
         geo_tile,
         data_structure,

@@ -7,7 +7,7 @@ use tui::{
 };
 
 use crate::{
-    features::TILE_SCALE, nominatim, openstreetmap, operations, osmtogeojson,
+    nominatim, openstreetmap, operations, osmtogeojson,
     viewer::details::geo_tile_text_lines, CLIOptions,
 };
 
@@ -60,8 +60,8 @@ pub async fn run_crossterm(
     let geojson = operations::parse_geojson_file(&geojson_file);
     let data_structure = operations::process_geojson(&geojson);
     let coordinates = gt::Coordinate {
-        x: (lon * TILE_SCALE) as i32,
-        y: (lat * TILE_SCALE) as i32,
+        x: operations::to_tile_scale(lon),
+        y: operations::to_tile_scale(lat),
     };
     let zoom = 1;
     let mut viewport = viewport::Viewport {

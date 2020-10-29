@@ -1,7 +1,10 @@
-use crate::features::{
-    barrier_feature::get_barrier_geo_tile, highway_feature::get_highway_geo_tile,
-    natural_feature::get_natural_geo_tile, GeoTile, GeoTileProperties, GeoTilesDataStructure,
-    Geometry, TILE_SCALE,
+use crate::{
+    operations,
+    features::{
+        barrier_feature::get_barrier_geo_tile, highway_feature::get_highway_geo_tile,
+        natural_feature::get_natural_geo_tile, GeoTile, GeoTileProperties, GeoTilesDataStructure,
+        Geometry,
+    }
 };
 use geo_types as gt;
 use log::warn;
@@ -39,14 +42,14 @@ pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Poin
 
 pub fn point_to_i32(point: &gt::Point<f64>) -> gt::Point<i32> {
     gt::Point::new(
-        (point.x() * TILE_SCALE) as i32,
-        (point.y() * TILE_SCALE) as i32,
+        operations::to_tile_scale(point.x()),
+        operations::to_tile_scale(point.y()),
     )
 }
 
 fn point_to_coordinates(point: &gt::Point<f64>) -> gt::Coordinate<i32> {
     gt::Coordinate {
-        x: (point.x() * TILE_SCALE) as i32,
-        y: (point.y() * TILE_SCALE) as i32,
+        x: operations::to_tile_scale(point.x()),
+        y: operations::to_tile_scale(point.y()),
     }
 }
