@@ -175,3 +175,14 @@ fn process_feature(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_and_process_geojson_file() {
+        let geojson = parse_geojson_file("resources/ottawa.xml.geojson");
+        process_geojson(&geojson);
+    }
+}
