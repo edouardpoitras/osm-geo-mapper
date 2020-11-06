@@ -46,4 +46,5 @@ criterion = "0.3.3"
 
 [[bench]]
 name = "operations"
+path = "benches/operations.rs"
 harness = false
