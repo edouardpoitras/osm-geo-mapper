@@ -42,10 +42,6 @@ Usage
 TODO
 ====
 
-- Desperately need to improve performance
-    1) Identify performance bottlenecks
-    2) Setup targetted unit tests to reproduce performance issue
-    3) Refine/optimize code
 - Implement logic to choose a lat/lon in the middle of a geojson file if none is provided via command line
 - Implement lazy-loading of more map data
 - Implement (binary?) serialization of map data to be loaded/cached
