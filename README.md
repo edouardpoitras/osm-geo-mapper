@@ -2,7 +2,7 @@ OSM Geo Mapper
 ==============
 
 Navigate OpenStreetMap data in the terminal.
-Will fetch OSM data using the latitude/longitude provided, convert to GeoJSON (requires dependencies), and display the resulting lines/points/polygons in the terminal.
+Will fetch OSM data using the address or latitude/longitude provided, convert to GeoJSON (requires dependencies), and display the resulting lines/points/polygons in the terminal.
 
 You can optionally provide a GeoJSON file directly for viewing.
 
@@ -22,7 +22,7 @@ Eventually this library will expose a read-only data structure used for querying
 
 ## Warning
 
-This library isn't complete yet. There are OSM features/properties/details that I haven't encountered yet and that could result in the program panicking (by design for now). If you encounter such a case, please submit a issue with the address or geojsonfile attempted and I'll fix those issues as they arise.
+This library isn't complete yet. There are OSM features/properties/details that I haven't implemented yet and results in unclassified/missing data. If you encounter such a case, please submit a issue with the address/lat/lon or geojsonfile attempted and I'll fix those issues as they arise.
 
 Usage
 =====
@@ -30,6 +30,26 @@ Usage
 ## CLI
 
     ./osm-geo-mapper --help
+
+    Will fetch OpenStreetMap data, convert to GeoJSON, and display the resulting lines/points/polygons in the terminal.
+
+    USAGE:
+        osm-geo-mapper.exe [FLAGS] [OPTIONS]
+
+    FLAGS:
+            --show-amenities     Display all amenities - can take a while and cover up overlapping features like buildings
+            --show-boundaries    Display all boundaries - can take a while and cover up overlapping features like roads
+        -h, --help               Prints help information
+            --show-landuse       Display all landuse areas - can take a while and cover up overlapping features like buildings
+            --show-leisure       Display all leisure areas - can cover up overlapping features like buildings
+        -V, --version            Prints version information
+    
+    OPTIONS:
+        -a, --address <address>              The address that will be used when fetching OpenStreetMap data
+        -g, --geojson-file <geojson-file>    Optionally provide a geojson file directly to be parsed and displayed in the terminal
+            --latitude <latitude>            The latitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
+            --longitude <longitude>          The longitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
+        -s, --size <size>                    The square area of land to display in degrees lat/lon - defaults to area of 0.002 latitude by 0.002 longitude. Significantly impacts loading times
 
     ./osm-geo-mapper --address "110 laurier avenue west ottawa ontario"
 
