@@ -7,8 +7,7 @@ use tui::{
 };
 
 use crate::{
-    nominatim, openstreetmap, operations, osmtogeojson,
-    viewer::details::geo_tile_text_lines, CLIOptions,
+    nominatim, operations, viewer::details::geo_tile_text_lines, CLIOptions,
 };
 
 mod actions;
@@ -17,23 +16,7 @@ mod input;
 mod theme;
 mod viewport;
 
-async fn get_geojson_file_by_lat_lon(
-    lat: f64,
-    lon: f64,
-    size: Option<f64>,
-) -> Result<String, Box<dyn std::error::Error>> {
-    let sizef = size.unwrap_or(0.005);
-    let left = lon - sizef;
-    let bottom = lat - sizef;
-    let right = lon + sizef;
-    let top = lat + sizef;
-    let osm_file = openstreetmap::download_osm_data_by_bbox(left, bottom, right, top).await?;
-    let geojson_file = format!("{}.geojson", osm_file);
-    osmtogeojson::convert_osm_to_geojson(osm_file, geojson_file.clone())?;
-    Ok(geojson_file)
-}
-
-pub async fn run_crossterm(
+pub fn run_crossterm(
     mut terminal: Terminal<CrosstermBackend<std::io::Stdout>>,
     options: CLIOptions,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -47,13 +30,13 @@ pub async fn run_crossterm(
     } else if options.latitude.is_some() && options.longitude.is_some() {
         lat = options.latitude.unwrap();
         lon = options.longitude.unwrap();
-        geojson_file = get_geojson_file_by_lat_lon(lat, lon, options.size).await?;
+        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, options.size)?;
     } else if options.address.is_some() {
         let (latitude, longitude) =
-            nominatim::get_address_lat_lon(options.address.unwrap()).await?;
+            nominatim::get_address_lat_lon(options.address.unwrap())?;
         lat = latitude;
         lon = longitude;
-        geojson_file = get_geojson_file_by_lat_lon(lat, lon, Some(0.002)).await?;
+        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, Some(0.002))?;
     } else {
         panic!("Need to provide one of geojson_file, latitude/longitude, or address")
     };

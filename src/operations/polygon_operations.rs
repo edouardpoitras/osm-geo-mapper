@@ -17,7 +17,7 @@ use log::warn;
 use std::rc::Rc;
 
 // Inspired and adapted from https://www.alienryderflex.com/polygon_fill/
-// TOTO: Need to create proper unit tests with custom Polygons.
+// TODO: Need to create proper unit tests with custom Polygons.
 //       This will confirm whether or not we're missing the surrounding layer of
 //       polygons (may need to apply the full linestring exterior of the polygon).
 // Also need to think about the interior linestrings and how we'll handle those...

@@ -82,22 +82,20 @@ pub struct CLIOptions {
     size: Option<f64>,
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt = CLIOptions::from_args();
     let stdout = io::stdout();
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend).unwrap();
     terminal.hide_cursor().unwrap();
-    viewer::run_crossterm(terminal, opt).await
+    viewer::run_crossterm(terminal, opt)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test() {
+    fn test() {
         let opt = CLIOptions {
             amenity: false,
             landuse: false,
@@ -113,6 +111,6 @@ mod tests {
         let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend).unwrap();
         terminal.hide_cursor().unwrap();
-        viewer::run_crossterm(terminal, opt).await;
+        viewer::run_crossterm(terminal, opt);
     }
 }

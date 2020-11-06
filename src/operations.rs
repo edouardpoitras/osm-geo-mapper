@@ -13,6 +13,8 @@ use crate::{
         point_operations::{draw_point, point_feature_to_geo_tile},
         polygon_operations::{draw_polygon, polygon_feature_to_geo_tile},
     },
+    openstreetmap,
+    osmtogeojson,
 };
 
 pub mod line_string_operations;
@@ -75,6 +77,22 @@ pub fn address_from_properties(props: &GeoTileProperties) -> Option<Address> {
     } else {
         None
     }
+}
+
+pub fn get_geojson_file_by_lat_lon(
+    lat: f64,
+    lon: f64,
+    size: Option<f64>,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let sizef = size.unwrap_or(0.005);
+    let left = lon - sizef;
+    let bottom = lat - sizef;
+    let right = lon + sizef;
+    let top = lat + sizef;
+    let osm_file = openstreetmap::download_osm_data_by_bbox(left, bottom, right, top)?;
+    let geojson_file = format!("{}.geojson", osm_file);
+    osmtogeojson::convert_osm_to_geojson(osm_file, geojson_file.clone())?;
+    Ok(geojson_file)
 }
 
 pub fn parse_geojson_file(geojson_file: &str) -> gj::GeoJson {

@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::Write;
 use uuid::Uuid;
 
-pub async fn download_osm_data_by_bbox(
+pub fn download_osm_data_by_bbox(
     left: f64,
     bottom: f64,
     right: f64,
@@ -13,12 +13,11 @@ pub async fn download_osm_data_by_bbox(
         "https://overpass-api.de/api/map?bbox={},{},{},{}",
         left, bottom, right, top
     );
-    let client = reqwest::Client::builder()
+    let client = reqwest::blocking::Client::builder()
         .user_agent("osm-geo-mapper")
         .build()?;
-    let response = client.get(&query).send().await?;
-    let result = response.text().await?;
-
+    let response = client.get(&query).send()?;
+    let result = response.text()?;
     let mut tempfile = temp_dir();
     tempfile.push(Uuid::new_v4().to_string());
     tempfile.set_extension("xml");
