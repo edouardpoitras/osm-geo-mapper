@@ -7,18 +7,20 @@ use tui::{
 };
 
 use crate::{
-    nominatim, operations, viewer::details::geo_tile_text_lines, CLIOptions,
+    nominatim, operations, viewer::details::geo_tile_text_lines
 };
 
 mod actions;
 mod details;
 mod input;
-mod theme;
 mod viewport;
+
+pub mod cli;
+pub mod theme;
 
 pub fn run_crossterm(
     mut terminal: Terminal<CrosstermBackend<std::io::Stdout>>,
-    options: CLIOptions,
+    options: cli::CLIOptions,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let geojson_file: String;
     let lat: f64;
