@@ -34,7 +34,7 @@ Usage
     Will fetch OpenStreetMap data, convert to GeoJSON, and display the resulting lines/points/polygons in the terminal.
 
     USAGE:
-        osm-geo-mapper.exe [FLAGS] [OPTIONS]
+        osm-geo-mapper [FLAGS] [OPTIONS]
 
     FLAGS:
             --show-amenities     Display all amenities - can take a while and cover up overlapping features like buildings
@@ -49,7 +49,7 @@ Usage
         -g, --geojson-file <geojson-file>    Optionally provide a geojson file directly to be parsed and displayed in the terminal
             --latitude <latitude>            The latitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
             --longitude <longitude>          The longitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
-        -s, --size <size>                    The square area of land to display in degrees lat/lon - defaults to area of 0.002 latitude by 0.002 longitude. Significantly impacts loading times
+        -r, --radius <radius>                The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times
 
     ./osm-geo-mapper --address "110 laurier avenue west ottawa ontario"
 
@@ -57,7 +57,33 @@ Usage
 
 ## Library
 
-    TBD
+See the tests/ folder for example usage, but it boils down to the following functions:
+
+    pub fn address_to_mapper(address: String, radius: Option<u32>) -> Result<operations::Mapper, Box<dyn std::error::Error>>
+
+`address_to_mapper` takes an address string and optionally a radius (in 100,000th of a degree, or roughly a meter) and returns a Mapper object.
+
+    pub fn lat_lon_to_mapper(latitude: f64, longitude: f64, radius: Option<u32>) -> Result<operations::Mapper, Box<dyn std::error::Error>>
+
+`lat_lon_to_mapper` does the same thing as above except it takes a latitude and longitude instead of an address.
+
+    pub fn geojson_file_to_mapper(geojson_file: String, location: Option<operations::Location>) -> Result<operations::Mapper, Box<dyn std::error::Error>>
+
+`geojson_file_to_mapper` takes a geojson file path directly and also returns a Mapper object. The `location` optional parameter is not useful yet.
+
+The `Mapper` type is defined as follows:
+
+    pub struct Mapper {
+        pub data_structure: HashMap<gt::Coordinate<i32>, Rc<GeoTile>>;
+        pub coordinates: gt::Coordinate<i32>
+    }
+
+`data_structure` is used to access the various GeoTiles by coordinates.
+`coordinates` holds x/y coordinates of the address (if `address_to_mapper` was used) or to the lat/lon initially provided. They are no longer in the original lat/lon format but in the data structure's coordinate system (each step is 100,000th of a degree, or roughly one meter).
+
+If you wanted to get the GeoTile at the real-world lat/lon of -75.690308/45.421106, you would get the tile in the data structure at geo_types::Coordinate { x: -7569031, y: 4542111 }). You can directly convert from lat/lon to x/y by multipling by 100,000 and converting to a signed 32-bit integer. You can also use the helper methods `osm_geo_mapper::operations::to_tile_scale(f64) -> i32` and `osm_geo_mapper::operations::from_tile_scale(i32) -> f64`.
+
+A GeoTile can be many many things - see `features.rs`.
 
 TODO
 ====

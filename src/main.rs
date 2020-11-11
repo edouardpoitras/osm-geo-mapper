@@ -22,27 +22,3 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     terminal.hide_cursor().unwrap();
     viewer::run_crossterm(terminal, opt)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn test() {
-        let opt = viewer::cli::CLIOptions {
-            amenity: false,
-            landuse: false,
-            leisure: false,
-            boundary: false,
-            geojson_file: None,
-            latitude: None,
-            longitude: None,
-            size: Some(0.0002),
-            address: Some("ottawa ontario".to_string()),
-        };
-        let stdout = io::stdout();
-        let backend = CrosstermBackend::new(stdout);
-        let mut terminal = Terminal::new(backend).unwrap();
-        terminal.hide_cursor().unwrap();
-        viewer::run_crossterm(terminal, opt);
-    }
-}

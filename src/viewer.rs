@@ -1,4 +1,4 @@
-use geo_types as gt;
+use std::{error::Error, fmt};
 use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout},
@@ -18,13 +18,25 @@ mod viewport;
 pub mod cli;
 pub mod theme;
 
-pub fn run_crossterm(
-    mut terminal: Terminal<CrosstermBackend<std::io::Stdout>>,
-    options: cli::CLIOptions,
-) -> Result<(), Box<dyn std::error::Error>> {
+#[derive(Debug)]
+struct MissingConfigurationError;
+impl Error for MissingConfigurationError {}
+impl fmt::Display for MissingConfigurationError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Need to provide one of geojson_file, latitude/longitude, or address")
+    }
+}
+
+pub fn cli_options_to_mapper(options: cli::CLIOptions) -> Result<operations::Mapper, Box<dyn std::error::Error>> {
     let geojson_file: String;
     let lat: f64;
     let lon: f64;
+    let radius: u32;
+    if let Some(r) = options.radius {
+        radius = r;
+    } else {
+        radius = 200;
+    }
     if options.geojson_file.is_some() {
         lat = options.latitude.unwrap();
         lon = options.longitude.unwrap();
@@ -32,26 +44,36 @@ pub fn run_crossterm(
     } else if options.latitude.is_some() && options.longitude.is_some() {
         lat = options.latitude.unwrap();
         lon = options.longitude.unwrap();
-        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, options.size)?;
+        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, operations::from_tile_scale(radius as i32))?;
     } else if options.address.is_some() {
         let (latitude, longitude) =
             nominatim::get_address_lat_lon(options.address.unwrap())?;
         lat = latitude;
         lon = longitude;
-        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, Some(0.002))?;
+        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, operations::from_tile_scale(radius as i32))?;
     } else {
-        panic!("Need to provide one of geojson_file, latitude/longitude, or address")
-    };
-    let geojson = operations::parse_geojson_file(&geojson_file);
-    let data_structure = operations::process_geojson(&geojson);
-    let coordinates = gt::Coordinate {
-        x: operations::to_tile_scale(lon),
-        y: operations::to_tile_scale(lat),
-    };
+        return Err(Box::new(MissingConfigurationError));
+    }
+    operations::get_mapper_from_geojson_file(
+        geojson_file,
+        Some(
+            operations::Location::Coordinates {
+                latitude: lat,
+                longitude: lon
+            }
+        )
+    )
+}
+
+pub fn run_crossterm(
+    mut terminal: Terminal<CrosstermBackend<std::io::Stdout>>,
+    options: cli::CLIOptions,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mapper_configuration = cli_options_to_mapper(options)?;
     let zoom = 1;
     let mut viewport = viewport::Viewport {
-        data_structure: &data_structure,
-        coordinates,
+        data_structure: &mapper_configuration.data_structure,
+        coordinates: mapper_configuration.coordinates,
         zoom,
     };
     terminal.clear()?;

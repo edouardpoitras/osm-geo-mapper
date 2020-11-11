@@ -61,9 +61,9 @@ pub struct CLIOptions {
     pub address: Option<String>,
 
     #[structopt(
-        short = "s",
-        long = "size",
-        help = "The square area of land to display in degrees lat/lon - defaults to area of 0.002 latitude by 0.002 longitude. Significantly impacts loading times"
+        short = "r",
+        long = "radius",
+        help = "The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times"
     )]
-    pub size: Option<f64>,
+    pub radius: Option<u32>,
 }

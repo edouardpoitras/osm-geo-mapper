@@ -1147,7 +1147,7 @@ dependencies = [
 
 [[package]]
 name = "osm-geo-mapper"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "criterion",
  "crossterm 0.18.2",
