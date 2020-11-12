@@ -19,11 +19,13 @@ pub mod cli;
 pub mod theme;
 
 #[derive(Debug)]
-struct MissingConfigurationError;
+struct MissingConfigurationError {
+    message: String
+}
 impl Error for MissingConfigurationError {}
 impl fmt::Display for MissingConfigurationError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Need to provide one of geojson_file, latitude/longitude, or address")
+        write!(f, "{}", self.message)
     }
 }
 
@@ -52,10 +54,11 @@ pub fn cli_options_to_mapper(options: cli::CLIOptions) -> Result<operations::Map
         lon = longitude;
         geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, operations::from_tile_scale(radius as i32))?;
     } else {
-        return Err(Box::new(MissingConfigurationError));
+        return Err(Box::new(MissingConfigurationError { message: "Need to provide one of geojson_file, latitude/longitude, or address (try --help)".to_string() }));
     }
     operations::get_mapper_from_geojson_file(
         geojson_file,
+        radius,
         Some(
             operations::Location::Coordinates {
                 latitude: lat,
@@ -69,16 +72,17 @@ pub fn run_crossterm(
     mut terminal: Terminal<CrosstermBackend<std::io::Stdout>>,
     options: cli::CLIOptions,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mapper_configuration = cli_options_to_mapper(options)?;
-    let zoom = 1;
-    let mut viewport = viewport::Viewport {
-        data_structure: &mapper_configuration.data_structure,
-        coordinates: mapper_configuration.coordinates,
-        zoom,
-    };
+    let mut mapper = cli_options_to_mapper(options)?;
+    let mut zoom = 1;
     terminal.clear()?;
     // Display loop.
     loop {
+        // Create our viewport with mapper data.
+        let mut viewport = viewport::Viewport {
+            data_structure: &mapper.data_structure,
+            coordinates: mapper.coordinates,
+            zoom,
+        };
         // Redraw entities in terminal.
         terminal.draw(|mut f| {
             // Get current geo tile text.
@@ -101,11 +105,24 @@ pub fn run_crossterm(
         // User input loop.
         loop {
             if let Some(input_action) = input::process_user_input(&mut viewport) {
+                // Store our new coordinates in the mapper again and update our zoom level.
+                mapper.coordinates = viewport.coordinates;
+                zoom = viewport.zoom;
                 // Valid user input received and processed.
                 if input_action == actions::PlayerAction::Quit {
                     // User asking to quit.
                     println!("Exiting");
                     return Ok(());
+                }
+                // Check if we need to load more data
+                else if input_action == actions::PlayerAction::LoadMoreData {
+                    let geojson_file = operations::get_geojson_file_by_lat_lon(
+                        operations::from_tile_scale(mapper.coordinates.y),
+                        operations::from_tile_scale(mapper.coordinates.x),
+                        operations::from_tile_scale(mapper.radius as i32)
+                    )?;
+                    let geojson = operations::parse_geojson_file(&geojson_file.to_string());
+                    operations::process_geojson_with_data_structure(&geojson, &mut mapper.data_structure);
                 }
                 // Back to draw loop.
                 break;

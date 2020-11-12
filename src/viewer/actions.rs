@@ -11,6 +11,7 @@ pub enum PlayerAction {
     MoveRight,
     MoveRight10,
     ZoomToggle,
+    LoadMoreData,
     Quit,
 }
 
@@ -62,6 +63,10 @@ pub fn from_input(code: KeyCode, modifiers: KeyModifiers) -> Option<PlayerAction
             return Some(PlayerAction::MoveRight10);
         }
         return Some(PlayerAction::MoveRight);
+    }
+    // Handle request to load more data.
+    if let KeyCode::Enter = code {
+        return Some(PlayerAction::LoadMoreData);
     }
     // Handle quitting.
     if let KeyCode::Esc = code {

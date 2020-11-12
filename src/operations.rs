@@ -24,7 +24,8 @@ pub mod polygon_operations;
 #[derive(Debug, Clone)]
 pub struct Mapper {
     pub data_structure: GeoTilesDataStructure,
-    pub coordinates: gt::Coordinate<i32>
+    pub coordinates: gt::Coordinate<i32>,
+    pub radius: u32
 }
 
 #[derive(Debug, Clone)]
@@ -94,7 +95,7 @@ pub fn address_from_properties(props: &GeoTileProperties) -> Option<Address> {
     }
 }
 
-pub fn get_mapper_from_geojson_file(geojson_file: String, location: Option<Location>) -> Result<Mapper, Box<dyn std::error::Error>> {
+pub fn get_mapper_from_geojson_file(geojson_file: String, radius: u32, location: Option<Location>) -> Result<Mapper, Box<dyn std::error::Error>> {
     let geojson = parse_geojson_file(&geojson_file);
     let data_structure = process_geojson(&geojson);
     let coordinates = match location {
@@ -110,7 +111,7 @@ pub fn get_mapper_from_geojson_file(geojson_file: String, location: Option<Locat
         },
         None => gt::Coordinate { x: 0, y: 0 }
     };
-    Ok(Mapper { data_structure, coordinates })
+    Ok(Mapper { data_structure, coordinates, radius })
 }
 
 pub fn get_geojson_file_by_lat_lon(
@@ -148,6 +149,11 @@ pub fn parse_geojson_file(geojson_file: &str) -> gj::GeoJson {
 
 pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
     let mut data_structure = GeoTilesDataStructure::new();
+    process_geojson_with_data_structure(geojson, &mut data_structure);
+    data_structure
+}
+
+pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure: &mut GeoTilesDataStructure) {
     match *geojson {
         gj::GeoJson::FeatureCollection(ref ctn) => {
             for feature in &ctn.features {
@@ -156,7 +162,7 @@ pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
                     process_feature(
                         &feature.properties.as_ref().unwrap(),
                         &feature.geometry.as_ref().unwrap(),
-                        &mut data_structure,
+                        data_structure,
                     )
                 } else {
                     warn!("Found feature from features without properties or geometry");
@@ -169,7 +175,7 @@ pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
                 process_feature(
                     &feature.properties.as_ref().unwrap(),
                     &feature.geometry.as_ref().unwrap(),
-                    &mut data_structure,
+                    data_structure,
                 )
             } else {
                 warn!("Found feature without properties or geometry");
@@ -181,7 +187,6 @@ pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
             warn!("Found top-level geometry")
         }
     }
-    data_structure
 }
 
 fn process_feature(

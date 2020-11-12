@@ -4,13 +4,13 @@ use std::process::Command;
 use std::{error::Error, fmt};
 
 #[derive(Debug)]
-struct ConvertError;
+struct ConvertError { message: String }
 
 impl Error for ConvertError {}
 
 impl fmt::Display for ConvertError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Failed to convert osm file to geojson file - ensure you have the osmtogeojson tool installed (npm install -g osmtogeojson)")
+        write!(f, "{}", self.message)
     }
 }
 
@@ -38,5 +38,5 @@ pub fn convert_osm_to_geojson(
             Result::Err(err) => return Err(Box::new(err)),
         };
     }
-    Err(Box::new(ConvertError))
+    Err(Box::new(ConvertError { message: "Failed to convert osm file to geojson file - ensure you have the osmtogeojson tool installed (npm install -g osmtogeojson)".to_string() }))
 }

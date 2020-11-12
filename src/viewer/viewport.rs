@@ -53,13 +53,18 @@ impl Widget for &mut Viewport<'_> {
                     style = theme.style;
                 }
                 buf.get_mut(x + left, y + top)
-                    .set_char(character)
-                    .set_style(style);
+                   .set_char(character)
+                   .set_style(style);
             }
         }
         // Redraw the center cursor (necessary when zoomed).
+        // TODO/BUG: Sometimes the center cursor appears one unit below where it should be.
+        //           Previously I had fixed it by doing `top - 1 - (height / 2) as u16` below.
+        //           However, it would eventually start working normally again and offset the
+        //           cursor by one above. Need to figure out why this is happening.
+        //           May be related to the data received by OpenStreetMap.
         buf.get_mut(left + (width / 2) as u16, top + (height / 2) as u16)
-            .set_char('+')
-            .set_style(Style::default().fg(Color::Red));
+           .set_char('+')
+           .set_style(Style::default().fg(Color::Red));
     }
 }
