@@ -1,4 +1,5 @@
 target
+osm-geo-mapper.log
 *.osm
 *.pbf
 *.ndjson

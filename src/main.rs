@@ -6,6 +6,7 @@ use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 use structopt::StructOpt;
+#[cfg(debug_assertions)] use log4rs;
 
 pub mod features;
 pub mod nominatim;
@@ -15,6 +16,7 @@ pub mod osmtogeojson;
 pub mod viewer;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(debug_assertions)] log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
     let opt = viewer::cli::CLIOptions::from_args();
     let stdout = io::stdout();
     let backend = CrosstermBackend::new(stdout);

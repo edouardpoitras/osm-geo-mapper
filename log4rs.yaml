@@ -1,0 +1,11 @@
+refresh_rate: 5 seconds
+appenders:
+  requests:
+    kind: file
+    path: "osm-geo-mapper.log"
+    encoder:
+      pattern: "{d} - {m}{n}"
+root:
+  level: info
+  appenders:
+    - requests

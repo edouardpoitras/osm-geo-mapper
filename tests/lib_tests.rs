@@ -1,8 +1,7 @@
 extern crate osm_geo_mapper;
 
 use osm_geo_mapper::{
-    geo_types, address_to_mapper, lat_lon_to_mapper, geojson_file_to_mapper,
-    features,
+    geo_types, address_to_mapper, features
 };
 
 #[test]
