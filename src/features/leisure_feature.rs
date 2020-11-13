@@ -43,7 +43,7 @@ pub fn get_leisure_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         "track" => LeisureType::Track,
         "water_park" => LeisureType::WaterPark,
         _ => {
-            warn!("Unclassified leisure type {}", leisure);
+            warn!("Unclassified leisure type {}: {:?}", leisure, props);
             LeisureType::Unclassified
         }
     };

@@ -32,7 +32,7 @@ pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoT
         "tram" => RouteType::Tram,
         "trolleybus" => RouteType::Trolleybus,
         _ => {
-            warn!("Unclassified route type {}", route);
+            warn!("Unclassified route type {}: {:?}", route, props);
             RouteType::Unclassified
         }
     };

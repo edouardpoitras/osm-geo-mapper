@@ -119,7 +119,9 @@ pub fn polygon_feature_to_geo_tile(
     } else if properties.contains_key("leisure") {
         get_leisure_geo_tile(properties, polygon)
     } else if properties.contains_key("landuse") {
-        get_landuse_geo_tile(properties, polygon)
+        get_landuse_geo_tile(properties, polygon, false)
+    } else if properties.contains_key("landcover") {
+        get_landuse_geo_tile(properties, polygon, true)
     } else if properties.contains_key("amenity") {
         get_amenity_geo_tile(properties, polygon)
     } else if properties.contains_key("building:part") {

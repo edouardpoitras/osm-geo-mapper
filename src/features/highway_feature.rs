@@ -46,7 +46,7 @@ pub fn get_highway_geo_tile(
         "proposed" => HighwayType::Proposed,
         "construction" => HighwayType::Construction,
         _ => {
-            warn!("New highway type {}", highway);
+            warn!("New highway type {}: {:?}", highway, props);
             HighwayType::Unclassified
         }
     };

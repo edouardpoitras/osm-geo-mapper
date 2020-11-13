@@ -50,7 +50,7 @@ pub fn get_natural_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         "sinkhole" => NaturalType::Sinkhole,
         "cave_entrance" => NaturalType::CaveEntrance,
         _ => {
-            warn!("Unclassified natural type {}", natural);
+            warn!("Unclassified natural type {}: {:?}", natural, props);
             NaturalType::Unclassified
         }
     };

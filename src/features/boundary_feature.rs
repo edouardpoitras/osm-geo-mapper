@@ -17,7 +17,7 @@ pub fn get_boundary_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
         "protected_area" => BoundaryType::ProtectedArea,
         "user_defined" => BoundaryType::UserDefined,
         _ => {
-            warn!("Unclassified boundary type {}", boundary);
+            warn!("Unclassified boundary type {}: {:?}", boundary, props);
             BoundaryType::Unclassified
         }
     };

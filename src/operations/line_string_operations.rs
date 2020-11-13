@@ -119,9 +119,9 @@ pub fn draw_line_string(geo_tile: Rc<GeoTile>, data_structure: &mut GeoTilesData
             draw_route_line_string(geo_tile, data_structure, route_type, line_string)
         }
         GeoTile::Unclassified { .. } => {
-            warn!("Trying to draw a line string for an unclassified feature")
+            warn!("Trying to draw a line string for an unclassified feature: {:?}", geo_tile)
         }
-        _ => warn!("Trying to draw line for a feature not yet implemented"),
+        _ => warn!("Trying to draw line for a feature not yet implemented: {:?}", geo_tile),
     }
 }
 
@@ -141,7 +141,9 @@ pub fn line_string_feature_to_geo_tile(
     } else if properties.contains_key("leisure") {
         get_leisure_geo_tile(properties, line_string)
     } else if properties.contains_key("landuse") {
-        get_landuse_geo_tile(properties, line_string)
+        get_landuse_geo_tile(properties, line_string, false)
+    } else if properties.contains_key("landcover") {
+        get_landuse_geo_tile(properties, line_string, true)
     } else if properties.contains_key("barrier") {
         get_barrier_geo_tile(properties, line_string)
     } else if properties.contains_key("natural") {

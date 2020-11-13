@@ -22,7 +22,7 @@ pub fn get_aeroway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         "terminal" => AerowayType::Terminal,
         "windsock" => AerowayType::Windsock,
         _ => {
-            warn!("Unclassified aeroway type {}", aeroway);
+            warn!("Unclassified aeroway type {}: {:?}", aeroway, props);
             AerowayType::Unclassified
         }
     };

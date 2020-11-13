@@ -6,8 +6,13 @@ use geo_types as gt;
 use log::warn;
 use std::rc::Rc;
 
-pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let landuse = props["landuse"].as_str().unwrap();
+pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry, landcover: bool) -> GeoTile {
+    let landuse;
+    if landcover {
+        landuse = props["landcover"].as_str().unwrap();
+    } else {
+        landuse = props["landuse"].as_str().unwrap();
+    }
     let landuse_type = match landuse {
         "allotments" => LanduseType::Allotments,
         "basin" => LanduseType::Basin,
@@ -43,7 +48,7 @@ pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         "village_green" => LanduseType::VillageGreen,
         "vineyard" => LanduseType::Vineyard,
         _ => {
-            warn!("Unclassified landuse type {}", landuse);
+            warn!("Unclassified landuse type {}: {:?}", landuse, props);
             LanduseType::Unclassified
         }
     };

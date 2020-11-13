@@ -122,7 +122,7 @@ pub fn get_amenity_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         "watering_place" => AmenityType::WateringPlace,
         "water_point" => AmenityType::WaterPoint,
         _ => {
-            warn!("Unclassified amenity type {}", amenity);
+            warn!("Unclassified amenity type {}: {:?}", amenity, props);
             AmenityType::Unclassified
         }
     };

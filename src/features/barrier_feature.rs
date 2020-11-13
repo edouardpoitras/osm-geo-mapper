@@ -48,7 +48,7 @@ pub fn get_barrier_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         "toll_booth" => BarrierType::TollBooth,
         "turnstile" => BarrierType::Turnstile,
         _ => {
-            warn!("Unclassified barrier type {}", barrier);
+            warn!("Unclassified barrier type {}: {:?}", barrier, props);
             BarrierType::Unclassified
         }
     };
