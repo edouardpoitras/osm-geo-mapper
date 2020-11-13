@@ -102,5 +102,4 @@ TODO
 
 - Implement logic to choose a lat/lon in the middle of a geojson file if none is provided via command line
 - Implement (binary?) serialization of map data to be loaded/cached
-- Add short-cut key info pane under details pane
 - Continue adding missing properties/details/themes

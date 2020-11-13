@@ -1,7 +1,7 @@
-use std::{error::Error, fmt};
+use std::{error::Error, io::Stdout, fmt};
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     widgets::{Block, Borders, Paragraph, Text},
     Terminal,
 };
@@ -74,6 +74,7 @@ pub fn run_crossterm(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut mapper = cli_options_to_mapper(options)?;
     let mut zoom = 1;
+    let mut loading = false;
     terminal.clear()?;
     // Display loop.
     loop {
@@ -82,26 +83,24 @@ pub fn run_crossterm(
             data_structure: &mapper.data_structure,
             coordinates: mapper.coordinates,
             zoom,
+            loading,
         };
         // Redraw entities in terminal.
         terminal.draw(|mut f| {
-            // Get current geo tile text.
-            let chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .margin(1)
-                .constraints([Constraint::Percentage(25), Constraint::Percentage(75)].as_ref())
-                .split(f.size());
-            let block = Block::default().title("Details").borders(Borders::ALL);
-            let geo_tile_lines = geo_tile_text_lines(&viewport);
-            let geo_tile_text_lines: Vec<Text> = geo_tile_lines.iter().map(Text::raw).collect();
-            let paragraph = Paragraph::new(geo_tile_text_lines.iter())
-                .block(block)
-                .alignment(Alignment::Center)
-                .wrap(true)
-                .scroll(0);
-            f.render_widget(paragraph, chunks[0]);
-            f.render_widget(&mut viewport, chunks[1]);
+            draw(&mut f, &mut viewport);
         })?;
+        // Load more data if requested by user.
+        if loading {
+            let geojson_file = operations::get_geojson_file_by_lat_lon(
+                operations::from_tile_scale(mapper.coordinates.y),
+                operations::from_tile_scale(mapper.coordinates.x),
+                operations::from_tile_scale(mapper.radius as i32)
+            )?;
+            let geojson = operations::parse_geojson_file(&geojson_file.to_string());
+            operations::process_geojson_with_data_structure(&geojson, &mut mapper.data_structure);
+            loading = false;
+            continue; // Go back to drawing with new data.
+        }
         // User input loop.
         loop {
             if let Some(input_action) = input::process_user_input(&mut viewport) {
@@ -116,13 +115,7 @@ pub fn run_crossterm(
                 }
                 // Check if we need to load more data
                 else if input_action == actions::PlayerAction::LoadMoreData {
-                    let geojson_file = operations::get_geojson_file_by_lat_lon(
-                        operations::from_tile_scale(mapper.coordinates.y),
-                        operations::from_tile_scale(mapper.coordinates.x),
-                        operations::from_tile_scale(mapper.radius as i32)
-                    )?;
-                    let geojson = operations::parse_geojson_file(&geojson_file.to_string());
-                    operations::process_geojson_with_data_structure(&geojson, &mut mapper.data_structure);
+                    loading = true;
                 }
                 // Back to draw loop.
                 break;
@@ -131,4 +124,58 @@ pub fn run_crossterm(
             continue;
         }
     }
+}
+
+fn draw(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &mut viewport::Viewport) {
+    // Get current geo tile text.
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .margin(1)
+        .constraints([Constraint::Percentage(25), Constraint::Percentage(75)].as_ref())
+        .split(f.size());
+    draw_left_panel(f, viewport, chunks[0]);
+    f.render_widget(viewport, chunks[1]);
+}
+
+fn draw_left_panel(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &viewport::Viewport, area: Rect) {
+    let chunks = Layout::default()
+        .constraints([Constraint::Percentage(75), Constraint::Percentage(25)].as_ref())
+        .split(area);
+    draw_details_panel(f, viewport, chunks[0]);
+    draw_info_panel(f, viewport, chunks[1]);
+}
+
+fn draw_details_panel(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &viewport::Viewport, area: Rect) {
+    let block = Block::default().title("Details").borders(Borders::ALL);
+    let geo_tile_lines = geo_tile_text_lines(&viewport);
+    let geo_tile_text_lines: Vec<Text> = geo_tile_lines.iter().map(Text::raw).collect();
+    let paragraph = Paragraph::new(geo_tile_text_lines.iter())
+        .block(block)
+        .alignment(Alignment::Center)
+        .wrap(true)
+        .scroll(0);
+    f.render_widget(paragraph, area);
+}
+
+fn draw_info_panel(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &viewport::Viewport, area: Rect) {
+    let block = Block::default().title("Info").borders(Borders::ALL);
+    let lines;
+    if viewport.loading {
+        lines = vec!["Loading more data at current location...\n".to_string()];
+    } else {
+        lines = vec![
+            "Movement: <Up>, <Down>, <Left>, <Right>\n".to_string(),
+            "10x Movement: <Shift> + Movement Key\n".to_string(),
+            "Zoom In/Out: Z\n".to_string(),
+            "Load More Data: <Enter>\n".to_string(),
+            "Quit: Q\n".to_string()
+        ];
+    }
+    let lines: Vec<Text> = lines.iter().map(Text::raw).collect();
+    let paragraph = Paragraph::new(lines.iter())
+        .block(block)
+        .alignment(Alignment::Center)
+        .wrap(true)
+        .scroll(0);
+    f.render_widget(paragraph, area);
 }

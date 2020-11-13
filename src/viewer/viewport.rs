@@ -12,6 +12,7 @@ pub struct Viewport<'a> {
     pub data_structure: &'a GeoTilesDataStructure,
     pub coordinates: gt::Coordinate<i32>,
     pub zoom: u8,
+    pub loading: bool,
 }
 
 impl Viewport<'_> {
