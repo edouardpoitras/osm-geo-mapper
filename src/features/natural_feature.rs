@@ -58,7 +58,7 @@ pub fn get_natural_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let circumference = property_to_option_string(props, "circumference");
     let denotation = property_to_option_string(props, "denotation");
     let direction = property_to_option_string(props, "direction");
-    let ele = property_to_option_string(props, "ele");
+    let elevation = property_to_option_string(props, "ele");
     let height = property_to_option_string(props, "height");
     let intermittent = property_to_option_string(props, "intermittent");
     let genus = property_to_option_string(props, "genus");
@@ -78,7 +78,7 @@ pub fn get_natural_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         circumference,
         denotation,
         direction,
-        ele,
+        elevation,
         height,
         intermittent,
         genus,

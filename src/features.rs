@@ -13,6 +13,7 @@ pub mod building_feature;
 pub mod highway_feature;
 pub mod landuse_feature;
 pub mod leisure_feature;
+pub mod man_made_feature;
 pub mod natural_feature;
 pub mod route_feature;
 
@@ -232,8 +233,58 @@ pub enum GeoTile {
         surface: Option<String>,
     },
     ManMade {
+        access: Option<String>,
+        bridge: Option<String>,
+        capacity: Option<String>,
+        color: Option<String>,
+        content: Option<String>,
+        country: Option<String>,
+        covered: Option<String>,
+        cutline: Option<String>,
+        depth: Option<String>,
+        direction: Option<String>,
+        display: Option<String>,
+        disused: Option<String>,
+        drinking_water: Option<String>,
+        elevation: Option<String>,
+        floating: Option<String>,
         geometry: Geometry,
+        height: Option<String>,
+        headframe: Option<String>,
+        historic: Option<String>,
+        inscription: Option<String>,
+        layer: Option<String>,
+        landuse: Option<String>,
+        length: Option<String>,
+        location: Option<String>,
+        man_made_type: ManMadeType,
+        material: Option<String>,
+        mine: Option<String>,
+        mineshaft_type: Option<String>,
+        monitoring: Option<String>,
+        mooring: Option<String>,
+        natural: Option<String>,
+        name: Option<String>,
+        operator: Option<String>,
         osm_id: String,
+        oven: Option<String>,
+        power: Option<String>,
+        product: Option<String>,
+        pump: Option<String>,
+        pumping_station: Option<String>,
+        resource: Option<String>,
+        species: Option<String>,
+        start_date: Option<String>,
+        street_cabinet: Option<String>,
+        submerged: Option<String>,
+        substance: Option<String>,
+        support: Option<String>,
+        surveillance: Option<String>,
+        survey_point: Option<String>,
+        tidal: Option<String>,
+        tourism: Option<String>,
+        tunnel: Option<String>,
+        width: Option<String>,
     },
     Military {
         geometry: Geometry,
@@ -244,7 +295,7 @@ pub enum GeoTile {
         circumference: Option<String>,
         denotation: Option<String>,
         direction: Option<String>,
-        ele: Option<String>,
+        elevation: Option<String>,
         height: Option<String>,
         intermittent: Option<String>,
         genus: Option<String>,
@@ -793,6 +844,61 @@ pub enum LeisureType {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub enum ManMadeType {
+    Adit,
+    Beacon,
+    Breakwater,
+    Bridge,
+    BunkerSilo,
+    CarpetHanger,
+    Chimney,
+    CommunicationsTower,
+    Crane,
+    Cross,
+    Cutline,
+    Clearcut,
+    Dovecote,
+    Dyke,
+    Embankment,
+    Flagpole,
+    Gasometer,
+    GoodsConveyor,
+    Groyne,
+    Kiln,
+    Lighthouse,
+    Mast,
+    Mineshaft,
+    MonitoringStation,
+    Obelisk,
+    Observatory,
+    OffshorePlatform,
+    PetroleumWell,
+    Pier,
+    Pipeline,
+    PumpingStation,
+    ReservoirCovered,
+    Silo,
+    SnowFence,
+    SnowNet,
+    StorageTank,
+    StreetCabinet,
+    Surveillance,
+    SurveyPoint,
+    Telescope,
+    Tower,
+    Unclassified,
+    WastewaterPlant,
+    Watermill,
+    WaterTower,
+    WaterWell,
+    WaterTap,
+    WaterWorks,
+    WildlifeCrossing,
+    Windmill,
+    Works,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum RouteType {
     Bicycle,
     Bus,
@@ -1075,14 +1181,218 @@ impl fmt::Display for GeoTile {
             GeoTile::Historic { .. } => write!(f, "Historic\n",),
             GeoTile::Landuse { .. } => write!(f, "Landuse\n",),
             GeoTile::Leisure { .. } => write!(f, "Leisure\n",),
-            GeoTile::ManMade { .. } => write!(f, "ManMade\n",),
+            GeoTile::ManMade {
+                access,
+                bridge,
+                capacity,
+                color,
+                content,
+                country,
+                covered,
+                cutline,
+                depth,
+                direction,
+                display,
+                disused,
+                drinking_water,
+                elevation,
+                floating,
+                geometry: _,
+                height,
+                headframe,
+                historic,
+                inscription,
+                layer,
+                landuse,
+                length,
+                location,
+                man_made_type,
+                material,
+                mine,
+                mineshaft_type,
+                monitoring,
+                mooring,
+                natural,
+                name,
+                operator,
+                osm_id: _,
+                oven,
+                power,
+                product,
+                pump,
+                pumping_station,
+                resource,
+                species,
+                start_date,
+                street_cabinet,
+                submerged,
+                substance,
+                support,
+                surveillance,
+                survey_point,
+                tidal,
+                tourism,
+                tunnel,
+                width,
+            } => {
+                write!(f, "Feature: Man Made\n")?;
+                write!(f, "Type: {:?}\n", man_made_type)?;
+                if let Some(name) = name {
+                    write!(f, "Name: {}\n", name)?;
+                }
+                if let Some(access) = access {
+                    write!(f, "Access: {}\n", access)?;
+                }
+                if let Some(bridge) = bridge {
+                    write!(f, "Bridge: {}\n", bridge)?;
+                }
+                if let Some(capacity) = capacity {
+                    write!(f, "Capacity: {}\n", capacity)?;
+                }
+                if let Some(color) = color {
+                    write!(f, "Color: {}\n", color)?;
+                }
+                if let Some(content) = content {
+                    write!(f, "Content: {}\n", content)?;
+                }
+                if let Some(country) = country {
+                    write!(f, "Country: {}\n", country)?;
+                }
+                if let Some(covered) = covered {
+                    write!(f, "Covered: {}\n", covered)?;
+                }
+                if let Some(cutline) = cutline {
+                    write!(f, "Cutline: {}\n", cutline)?;
+                }
+                if let Some(depth) = depth {
+                    write!(f, "Depth: {}\n", depth)?;
+                }
+                if let Some(direction) = direction {
+                    write!(f, "Direction: {}\n", direction)?;
+                }
+                if let Some(display) = display {
+                    write!(f, "Display: {}\n", display)?;
+                }
+                if let Some(disused) = disused {
+                    write!(f, "Disused: {}\n", disused)?;
+                }
+                if let Some(drinking_water) = drinking_water {
+                    write!(f, "Drinking Water: {}\n", drinking_water)?;
+                }
+                if let Some(elevation) = elevation {
+                    write!(f, "Elevation: {}\n", elevation)?;
+                }
+                if let Some(floating) = floating {
+                    write!(f, "Floating: {}\n", floating)?;
+                }
+                if let Some(height) = height {
+                    write!(f, "Height: {}\n", height)?;
+                }
+                if let Some(headframe) = headframe {
+                    write!(f, "Headframe: {}\n", headframe)?;
+                }
+                if let Some(historic) = historic {
+                    write!(f, "Historic: {}\n", historic)?;
+                }
+                if let Some(inscription) = inscription {
+                    write!(f, "Inscription: {}\n", inscription)?;
+                }
+                if let Some(layer) = layer {
+                    write!(f, "Layer: {}\n", layer)?;
+                }
+                if let Some(landuse) = landuse {
+                    write!(f, "Landuse: {}\n", landuse)?;
+                }
+                if let Some(length) = length {
+                    write!(f, "Length: {}\n", length)?;
+                }
+                if let Some(location) = location {
+                    write!(f, "Location: {}\n", location)?;
+                }
+                if let Some(material) = material {
+                    write!(f, "Material: {}\n", material)?;
+                }
+                if let Some(mine) = mine {
+                    write!(f, "Mine: {}\n", mine)?;
+                }
+                if let Some(mineshaft_type) = mineshaft_type {
+                    write!(f, "Mineshaft Type: {}\n", mineshaft_type)?;
+                }
+                if let Some(monitoring) = monitoring {
+                    write!(f, "Monitoring: {}\n", monitoring)?;
+                }
+                if let Some(mooring) = mooring {
+                    write!(f, "Mooring: {}\n", mooring)?;
+                }
+                if let Some(natural) = natural {
+                    write!(f, "Natural: {}\n", natural)?;
+                }
+                if let Some(operator) = operator {
+                    write!(f, "Operator: {}\n", operator)?;
+                }
+                if let Some(oven) = oven {
+                    write!(f, "Oven: {}\n", oven)?;
+                }
+                if let Some(power) = power {
+                    write!(f, "Power: {}\n", power)?;
+                }
+                if let Some(product) = product {
+                    write!(f, "Product: {}\n", product)?;
+                }
+                if let Some(pump) = pump {
+                    write!(f, "Pump: {}\n", pump)?;
+                }
+                if let Some(pumping_station) = pumping_station {
+                    write!(f, "Pumping Station: {}\n", pumping_station)?;
+                }
+                if let Some(resource) = resource {
+                    write!(f, "Resource: {}\n", resource)?;
+                }
+                if let Some(species) = species {
+                    write!(f, "Species: {}\n", species)?;
+                }
+                if let Some(start_date) = start_date {
+                    write!(f, "Start Date: {}\n", start_date)?;
+                }
+                if let Some(street_cabinet) = street_cabinet {
+                    write!(f, "Street Cabinet: {}\n", street_cabinet)?;
+                }
+                if let Some(submerged) = submerged {
+                    write!(f, "Submerged: {}\n", submerged)?;
+                }
+                if let Some(substance) = substance {
+                    write!(f, "Substance: {}\n", substance)?;
+                }
+                if let Some(support) = support {
+                    write!(f, "Support: {}\n", support)?;
+                }
+                if let Some(surveillance) = surveillance {
+                    write!(f, "Surveillance: {}\n", surveillance)?;
+                }
+                if let Some(survey_point) = survey_point {
+                    write!(f, "Survey Point: {}\n", survey_point)?;
+                }
+                if let Some(tidal) = tidal {
+                    write!(f, "Tidal: {}\n", tidal)?;
+                }
+                if let Some(tourism) = tourism {
+                    write!(f, "Tourism: {}\n", tourism)?;
+                }
+                if let Some(tunnel) = tunnel {
+                    write!(f, "Tunnel: {}\n", tunnel)?;
+                }
+                if let Some(width) = width {
+                    write!(f, "Width: {}\n", width)?;
+                }
+                Ok(())
+            },
             GeoTile::Military { .. } => write!(f, "Military\n",),
             GeoTile::Natural {
                 access,
                 circumference,
                 denotation,
                 direction,
-                ele,
+                elevation,
                 height,
                 intermittent,
                 genus,
@@ -1117,8 +1427,8 @@ impl fmt::Display for GeoTile {
                 if let Some(direction) = direction {
                     write!(f, "Direction: {}\n", direction)?;
                 }
-                if let Some(ele) = ele {
-                    write!(f, "Elevation: {}\n", ele)?;
+                if let Some(elevation) = elevation {
+                    write!(f, "Elevation: {}\n", elevation)?;
                 }
                 if let Some(height) = height {
                     write!(f, "Height: {}\n", height)?;

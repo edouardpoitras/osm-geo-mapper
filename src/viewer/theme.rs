@@ -1,4 +1,4 @@
-use crate::features::{BuildingType, GeoTile, NaturalType};
+use crate::features::{BuildingType, GeoTile, ManMadeType, NaturalType};
 use tui::style::{Color, Style};
 
 pub struct GeoTileTheme {
@@ -93,9 +93,15 @@ pub fn get_geo_tile_theme(geo_tile: &GeoTile) -> GeoTileTheme {
             character: ' ',
             style: Style::default().bg(Color::Cyan),
         },
-        GeoTile::ManMade { .. } => GeoTileTheme {
-            character: 'M',
-            style: Style::default(),
+        GeoTile::ManMade { man_made_type, .. } => match man_made_type {
+            ManMadeType::Bridge => GeoTileTheme {
+                character: 'B',
+                style: Style::default(),
+            },
+            _ => GeoTileTheme {
+                character: 'M',
+                style: Style::default(),
+            }
         },
         GeoTile::Military { .. } => GeoTileTheme {
             character: 'M',

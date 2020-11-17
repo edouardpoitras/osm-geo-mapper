@@ -2,8 +2,8 @@ use crate::{
     operations,
     features::{
         barrier_feature::get_barrier_geo_tile, highway_feature::get_highway_geo_tile,
-        natural_feature::get_natural_geo_tile, GeoTile, GeoTileProperties, GeoTilesDataStructure,
-        Geometry,
+        natural_feature::get_natural_geo_tile, man_made_feature::get_man_made_geo_tile,
+        GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry,
     }
 };
 use geo_types as gt;
@@ -23,6 +23,8 @@ pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Poin
     let point = Geometry::Point(point);
     if properties.contains_key("natural") {
         get_natural_geo_tile(properties, point)
+    } else if properties.contains_key("man_made") {
+        get_man_made_geo_tile(properties, point)
     } else if properties.contains_key("highway") {
         get_highway_geo_tile(properties, point, false)
     } else if properties.contains_key("barrier") {

@@ -7,6 +7,7 @@ use crate::{
         highway_feature::{draw_highway_line_string, get_highway_geo_tile},
         landuse_feature::{draw_landuse_line_string, get_landuse_geo_tile},
         leisure_feature::{draw_leisure_line_string, get_leisure_geo_tile},
+        man_made_feature::{draw_man_made_line_string, get_man_made_geo_tile},
         natural_feature::{draw_natural_line_string, get_natural_geo_tile},
         route_feature::{draw_route_line_string, get_route_geo_tile},
         GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
@@ -94,6 +95,18 @@ pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStru
             };
             draw_leisure_line_string(geo_tile, data_structure, leisure_type, line_string)
         }
+        GeoTile::ManMade {
+            geometry,
+            man_made_type,
+            ..
+        } => {
+            let line_string = match geometry {
+                Geometry::LineString(ls) => ls,
+                Geometry::Point(_) => panic!("man made should not be dealing with a point"),
+                Geometry::Polygon(_) => panic!("man made should not be dealing with a polygon"),
+            };
+            draw_man_made_line_string(geo_tile, data_structure, man_made_type, line_string)
+        }
         GeoTile::Natural {
             geometry,
             natural_type,
@@ -148,6 +161,8 @@ pub fn line_string_feature_to_geo_tile(
         get_barrier_geo_tile(properties, line_string)
     } else if properties.contains_key("natural") {
         get_natural_geo_tile(properties, line_string)
+    } else if properties.contains_key("natural") {
+        get_man_made_geo_tile(properties, line_string)
     // Weird corner-cases.
     } else if properties.contains_key("service") && properties["service"] == "driveway" {
         // Driveways are treated as service roads.
