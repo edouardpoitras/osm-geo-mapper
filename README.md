@@ -75,13 +75,15 @@ See the tests/ folder for example usage, but it boils down to the following func
 The `Mapper` type is defined as follows:
 
     pub struct Mapper {
-        pub data_structure: Arc<RwLock<HashMap<gt::Coordinate<i32>, Arc<GeoTile>>>>,
-        pub coordinates: gt::Coordinate<i32>,
+        pub data_structure: Arc<RwLock<HashMap<geo_types::Coordinate<i32>, Arc<GeoTile>>>>,
+        pub coordinates: geo_types::Coordinate<i32>,
         pub radius: u32
     }
 
-`data_structure` is used to access the various GeoTiles by coordinates.
+`data_structure` is used to access the various GeoTiles by coordinates. This data structure is thread-safe due to the `Arc<RwLock<>>` wrapper. Use `data_structure.clone()` when sending it to another thread. Use `data_structure.read()/try_read()` or `data_structure.write()/try_write()` to lock the resource for read/write purposes.
+
 `coordinates` holds x/y coordinates of the address (if `address_to_mapper` was used) or to the lat/lon initially provided. They are no longer in the original lat/lon format but in the data structure's coordinate system (each step is 100,000th of a degree, or roughly one meter).
+
 `radius` is the chosen radius for the original fetching of data (if `address_to_mapper` or `lat_lon_to_mapper` was used).
 
 If you wanted to get the GeoTile at the real-world lat/lon of -75.690308/45.421106, you would get the tile in the data structure at geo_types::Coordinate { x: -7569031, y: 4542111 }). You can directly convert from lat/lon to x/y by multipling by 100,000 and converting to a signed 32-bit integer. You can also use the helper methods `osm_geo_mapper::operations::to_tile_scale(f64) -> i32` and `osm_geo_mapper::operations::from_tile_scale(i32) -> f64`.
@@ -90,11 +92,11 @@ A GeoTile can be many many things - see `features.rs`.
 
 You can also load more data into your `Mapper::data_structure` using one of the following three functions:
 
-    pub fn load_more_geo_data_from_lat_lon(data_structure: &mut features::GeoTilesDataStructure, latitude: f64, longitude: f64, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>>
+    pub fn load_more_geo_data_from_lat_lon(data_structure: features::GeoTilesDataStructure, latitude: f64, longitude: f64, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>>
 
-    pub fn load_more_geo_data_from_address(data_structure: &mut features::GeoTilesDataStructure, address: String, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>>
+    pub fn load_more_geo_data_from_address(data_structure: features::GeoTilesDataStructure, address: String, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>>
 
-    pub fn load_more_geo_data_from_geojson_file(data_structure: &mut features::GeoTilesDataStructure, geojson_file: String) -> Result<(), Box<dyn std::error::Error>>
+    pub fn load_more_geo_data_from_geojson_file(data_structure: features::GeoTilesDataStructure, geojson_file: String) -> Result<(), Box<dyn std::error::Error>>
     
 
 TODO
