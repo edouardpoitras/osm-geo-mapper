@@ -4,7 +4,7 @@ use crate::{
 };
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
 // Driveways are treated specially because some cases only provide the "service" key without the "highway" key.
 pub fn get_highway_geo_tile(
@@ -111,8 +111,8 @@ pub fn get_highway_geo_tile(
 }
 
 pub fn draw_highway_line_string(
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
     highway_type: HighwayType,
     line_string: gt::LineString<f64>,
 ) {
@@ -159,7 +159,7 @@ pub fn draw_highway_line_string(
             &point,
             thickness,
             geo_tile.clone(),
-            data_structure,
+            data_structure.clone(),
         );
         last_point = point;
     }

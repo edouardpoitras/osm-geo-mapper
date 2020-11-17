@@ -4,7 +4,7 @@ use crate::{
 };
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
     let route = props["route"].as_str().unwrap();
@@ -73,8 +73,8 @@ pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoT
 }
 
 pub fn draw_route_line_string(
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
     route_type: RouteType,
     line_string: gt::LineString<f64>,
 ) {
@@ -104,7 +104,7 @@ pub fn draw_route_line_string(
             &point,
             thickness,
             geo_tile.clone(),
-            data_structure,
+            data_structure.clone(),
         );
         last_point = point;
     }

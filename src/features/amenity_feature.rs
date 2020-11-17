@@ -4,7 +4,7 @@ use crate::{
 };
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub fn get_amenity_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
     let amenity = props["amenity"].as_str().unwrap();
@@ -221,8 +221,8 @@ pub fn get_amenity_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
 }
 
 pub fn draw_amenity_line_string(
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
     _amenity_type: AmenityType,
     line_string: gt::LineString<f64>,
 ) {
@@ -234,7 +234,7 @@ pub fn draw_amenity_line_string(
             first_iteration = false;
             continue;
         }
-        draw_line(&last_point, &point, 1, geo_tile.clone(), data_structure);
+        draw_line(&last_point, &point, 1, geo_tile.clone(), data_structure.clone());
         last_point = point;
     }
 }

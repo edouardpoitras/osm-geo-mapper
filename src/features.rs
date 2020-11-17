@@ -3,7 +3,7 @@
 use geo_types as gt;
 use serde_json::{Map, Value as JsonValue};
 use std::collections::HashMap;
-use std::{fmt, rc::Rc};
+use std::{fmt, sync::{Arc, RwLock}};
 
 pub mod aeroway_feature;
 pub mod amenity_feature;
@@ -17,7 +17,7 @@ pub mod natural_feature;
 pub mod route_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
-pub type GeoTilesDataStructure = HashMap<gt::Coordinate<i32>, Rc<GeoTile>>;
+pub type GeoTilesDataStructure = Arc<RwLock<HashMap<gt::Coordinate<i32>, Arc<GeoTile>>>>;
 pub type GeoTileProperties = Map<String, JsonValue>;
 
 // You can find all features at https://wiki.openstreetmap.org/wiki/Map_Features

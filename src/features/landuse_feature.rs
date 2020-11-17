@@ -4,7 +4,7 @@ use crate::{
 };
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry, landcover: bool) -> GeoTile {
     let landuse;
@@ -91,8 +91,8 @@ pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry, landc
 }
 
 pub fn draw_landuse_line_string(
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
     _landuse_type: LanduseType,
     line_string: gt::LineString<f64>,
 ) {
@@ -104,7 +104,7 @@ pub fn draw_landuse_line_string(
             first_iteration = false;
             continue;
         }
-        draw_line(&last_point, &point, 1, geo_tile.clone(), data_structure);
+        draw_line(&last_point, &point, 1, geo_tile.clone(), data_structure.clone());
         last_point = point;
     }
 }

@@ -14,7 +14,7 @@ use crate::{
 use geo::algorithm::bounding_rect::BoundingRect;
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
 // Inspired and adapted from https://www.alienryderflex.com/polygon_fill/
 // TODO: Need to create proper unit tests with custom Polygons.
@@ -23,8 +23,8 @@ use std::rc::Rc;
 // Also need to think about the interior linestrings and how we'll handle those...
 pub fn draw_polygon(
     poly: &gt::Polygon<f64>,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
     landuse: bool,
     leisure: bool,
     amenity: bool,
@@ -61,6 +61,7 @@ pub fn draw_polygon(
     let mut previous_poly_corner: Option<gt::Point<f64>> = None; // The trailing corner that was last checked.
     let mut first_poly_corner: gt::Point<f64> = gt::Point::new(0_f64, 0_f64);
     // Iterate through horizontal lines in the polygon.
+    let mut locked_data_structure = data_structure.write().unwrap();
     for y in min_y..max_y + 1 {
         let yf64 = operations::from_tile_scale(y);
         let mut x_intersections: Vec<i32> = Vec::new();
@@ -96,7 +97,7 @@ pub fn draw_polygon(
                 if corner2 > max_x { corner2 = max_x; }
                 // We have our two corners that need geotiles in-between.
                 for x in corner1..corner2 { // Do we need to use (corner2 + 1) here?
-                    data_structure.insert(gt::Coordinate { x, y }, geo_tile.clone());
+                    locked_data_structure.insert(gt::Coordinate { x, y }, geo_tile.clone());
                 }
             }
         }

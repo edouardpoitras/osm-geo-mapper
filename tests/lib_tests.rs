@@ -10,7 +10,8 @@ fn test_address_to_mapper() {
     assert!(mapper_result.is_ok());
     let mapper = mapper_result.unwrap();
     assert_eq!(mapper.coordinates, geo_types::Coordinate { x: -7569031, y: 4542111 });
-    let some_unclassified = mapper.data_structure.get(&geo_types::Coordinate { x: -7569031, y: 4542111 });
+    let locked_data_structure = mapper.data_structure.read().unwrap();
+    let some_unclassified = locked_data_structure.get(&geo_types::Coordinate { x: -7569031, y: 4542111 });
     assert!(some_unclassified.is_some());
     let unclassified = some_unclassified.unwrap();
     let geotile_string = format!("{:?}", unclassified);
@@ -25,7 +26,7 @@ fn test_address_to_mapper() {
         }
     );
     assert_eq!(geotile_string, geotile_string_test);
-    let some_building = mapper.data_structure.get(&geo_types::Coordinate { x: -7569021, y: 4542101 });
+    let some_building = locked_data_structure.get(&geo_types::Coordinate { x: -7569021, y: 4542101 });
     assert!(some_building.is_some());
     let building = some_building.unwrap();
     assert!(matches!((*building).as_ref(), features::GeoTile::Building { .. }));

@@ -75,7 +75,7 @@ See the tests/ folder for example usage, but it boils down to the following func
 The `Mapper` type is defined as follows:
 
     pub struct Mapper {
-        pub data_structure: HashMap<gt::Coordinate<i32>, Rc<GeoTile>>,
+        pub data_structure: Arc<RwLock<HashMap<gt::Coordinate<i32>, Arc<GeoTile>>>>,
         pub coordinates: gt::Coordinate<i32>,
         pub radius: u32
     }

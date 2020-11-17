@@ -8,15 +8,15 @@ use crate::{
 };
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub fn draw_point(
     point: &gt::Point<f64>,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
 ) {
     let coord = point_to_coordinates(point);
-    data_structure.insert(coord, geo_tile);
+    data_structure.write().unwrap().insert(coord, geo_tile);
 }
 
 pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Point<f64>) -> GeoTile {

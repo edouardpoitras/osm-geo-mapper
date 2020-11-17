@@ -4,7 +4,7 @@ use crate::{
 };
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub fn get_aeroway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
     let aeroway = props["aeroway"].as_str().unwrap();
@@ -47,8 +47,8 @@ pub fn get_aeroway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
 }
 
 pub fn draw_aeroway_line_string(
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
     _aeroway_type: AerowayType,
     line_string: gt::LineString<f64>,
 ) {
@@ -60,7 +60,7 @@ pub fn draw_aeroway_line_string(
             first_iteration = false;
             continue;
         }
-        draw_line(&last_point, &point, 1, geo_tile.clone(), data_structure);
+        draw_line(&last_point, &point, 1, geo_tile.clone(), data_structure.clone());
         last_point = point;
     }
 }

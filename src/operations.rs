@@ -1,9 +1,10 @@
 use geo_types as gt;
 use geojson as gj;
+use std::collections::HashMap;
 use std::convert::TryInto;
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::rc::Rc;
+use std::sync::{Arc, RwLock};
 use log::warn;
 
 use crate::{
@@ -148,12 +149,12 @@ pub fn parse_geojson_file(geojson_file: &str) -> gj::GeoJson {
 }
 
 pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
-    let mut data_structure = GeoTilesDataStructure::new();
-    process_geojson_with_data_structure(geojson, &mut data_structure);
+    let data_structure = GeoTilesDataStructure::new(RwLock::new(HashMap::new()));
+    process_geojson_with_data_structure(geojson, data_structure.clone());
     data_structure
 }
 
-pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure: &mut GeoTilesDataStructure) {
+pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure: GeoTilesDataStructure) {
     match *geojson {
         gj::GeoJson::FeatureCollection(ref ctn) => {
             for feature in &ctn.features {
@@ -162,7 +163,7 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
                     process_feature(
                         &feature.properties.as_ref().unwrap(),
                         &feature.geometry.as_ref().unwrap(),
-                        data_structure,
+                        data_structure.clone(),
                     )
                 } else {
                     warn!("Found feature from features without properties or geometry");
@@ -192,13 +193,13 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
 fn process_feature(
     properties: &GeoTileProperties,
     geometry: &gj::Geometry,
-    data_structure: &mut GeoTilesDataStructure,
+    data_structure: GeoTilesDataStructure,
 ) {
     match geometry.value {
         gj::Value::Polygon(_) => {
             let poly: gt::Polygon<f64> =
                 TryInto::<gt::Polygon<f64>>::try_into(geometry.value.clone()).unwrap();
-            let geo_tile = Rc::new(polygon_feature_to_geo_tile(properties, poly.clone()));
+            let geo_tile = Arc::new(polygon_feature_to_geo_tile(properties, poly.clone()));
             draw_polygon(&poly, geo_tile, data_structure, false, false, false, false);
         }
         gj::Value::MultiPolygon(_) => {
@@ -207,19 +208,19 @@ fn process_feature(
             for polygon in multi_polygon {
                 let poly: gt::Polygon<f64> =
                     TryInto::<gt::Polygon<f64>>::try_into(polygon).unwrap();
-                let geo_tile = Rc::new(polygon_feature_to_geo_tile(properties, poly.clone()));
-                draw_polygon(&poly, geo_tile, data_structure, false, false, false, false);
+                let geo_tile = Arc::new(polygon_feature_to_geo_tile(properties, poly.clone()));
+                draw_polygon(&poly, geo_tile, data_structure.clone(), false, false, false, false);
             }
         }
         gj::Value::GeometryCollection(ref gc) => {
             for geom in gc {
-                process_feature(properties, geom, data_structure)
+                process_feature(properties, geom, data_structure.clone())
             }
         }
         gj::Value::LineString(_) => {
             let line_string: gt::LineString<f64> =
                 TryInto::<gt::LineString<f64>>::try_into(geometry.value.clone()).unwrap();
-            let geo_tile = Rc::new(line_string_feature_to_geo_tile(properties, line_string));
+            let geo_tile = Arc::new(line_string_feature_to_geo_tile(properties, line_string));
             draw_line_string(geo_tile, data_structure);
         }
         gj::Value::MultiLineString(_) => {
@@ -228,14 +229,14 @@ fn process_feature(
             for line_string in multi_line_string {
                 let line_string: gt::LineString<f64> =
                     TryInto::<gt::LineString<f64>>::try_into(line_string).unwrap();
-                let geo_tile = Rc::new(line_string_feature_to_geo_tile(properties, line_string));
-                draw_line_string(geo_tile, data_structure);
+                let geo_tile = Arc::new(line_string_feature_to_geo_tile(properties, line_string));
+                draw_line_string(geo_tile, data_structure.clone());
             }
         }
         gj::Value::Point(_) => {
             let point: gt::Point<f64> =
                 TryInto::<gt::Point<f64>>::try_into(geometry.value.clone()).unwrap();
-            let geo_tile = Rc::new(point_feature_to_geo_tile(properties, point));
+            let geo_tile = Arc::new(point_feature_to_geo_tile(properties, point));
             draw_point(&point, geo_tile, data_structure);
         }
         gj::Value::MultiPoint(_) => {
@@ -243,8 +244,8 @@ fn process_feature(
                 TryInto::<gt::MultiPoint<f64>>::try_into(geometry.value.clone()).unwrap();
             for point in multi_point {
                 let point: gt::Point<f64> = TryInto::<gt::Point<f64>>::try_into(point).unwrap();
-                let geo_tile = Rc::new(point_feature_to_geo_tile(properties, point));
-                draw_point(&point, geo_tile, data_structure);
+                let geo_tile = Arc::new(point_feature_to_geo_tile(properties, point));
+                draw_point(&point, geo_tile, data_structure.clone());
             }
         }
     }

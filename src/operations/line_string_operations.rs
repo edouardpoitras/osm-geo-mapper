@@ -15,9 +15,9 @@ use crate::{
 
 use geo_types as gt;
 use log::warn;
-use std::rc::Rc;
+use std::sync::Arc;
 
-pub fn draw_line_string(geo_tile: Rc<GeoTile>, data_structure: &mut GeoTilesDataStructure) {
+pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStructure) {
     match (*geo_tile).clone() {
         GeoTile::Aeroway {
             aeroway_type,
@@ -180,8 +180,8 @@ pub fn draw_line(
     start: &gt::Point<f64>,
     end: &gt::Point<f64>,
     thickness: u8,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
 ) {
     if thickness < 1 {
         return;
@@ -200,7 +200,7 @@ pub fn draw_line(
                 thickness,
                 true,
                 geo_tile.clone(),
-                data_structure,
+                data_structure.clone(),
             );
         } else {
             // Duplicate lines horizontally
@@ -210,7 +210,7 @@ pub fn draw_line(
                 thickness,
                 false,
                 geo_tile.clone(),
-                data_structure,
+                data_structure.clone(),
             );
         }
     }
@@ -220,12 +220,13 @@ pub fn draw_line(
         .floor();
     let step_x = (end_x - start_x) / number_of_points;
     let step_y = (end_y - start_y) / number_of_points;
+    let mut locked_data_structure = data_structure.write().unwrap();
     for i in 0..number_of_points as u32 {
         let coord = gt::Coordinate {
             x: start_x as i32 + (step_x * (i as f64)) as i32,
             y: start_y as i32 + (step_y * (i as f64)) as i32,
         };
-        data_structure.insert(coord, geo_tile.clone());
+        locked_data_structure.insert(coord, geo_tile.clone());
     }
 }
 
@@ -235,22 +236,22 @@ fn expand_line(
     end: &gt::Point<f64>,
     thickness: u8,
     vertical: bool,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
 ) {
     for i in 1..thickness {
         let distance = (i as f32 / 2.0).ceil() as u8;
         // If it's an even thickness, we expand the road north or east, if it's an odd thickness we expand south or west.
         if i % 2 == 0 {
             if vertical {
-                draw_line_north_of(start, end, distance, geo_tile.clone(), data_structure);
+                draw_line_north_of(start, end, distance, geo_tile.clone(), data_structure.clone());
             } else {
-                draw_line_east_of(start, end, distance, geo_tile.clone(), data_structure);
+                draw_line_east_of(start, end, distance, geo_tile.clone(), data_structure.clone());
             }
         } else if vertical {
-            draw_line_south_of(start, end, distance, geo_tile.clone(), data_structure);
+            draw_line_south_of(start, end, distance, geo_tile.clone(), data_structure.clone());
         } else {
-            draw_line_west_of(start, end, distance, geo_tile.clone(), data_structure);
+            draw_line_west_of(start, end, distance, geo_tile.clone(), data_structure.clone());
         }
     }
 }
@@ -259,8 +260,8 @@ fn draw_line_north_of(
     start: &gt::Point<f64>,
     end: &gt::Point<f64>,
     distance: u8,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
 ) {
     draw_line(
         &gt::Point::new(start.x(), start.y() - operations::from_tile_scale_u8(distance)),
@@ -275,8 +276,8 @@ fn draw_line_south_of(
     start: &gt::Point<f64>,
     end: &gt::Point<f64>,
     distance: u8,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
 ) {
     draw_line(
         &gt::Point::new(start.x(), start.y() + operations::from_tile_scale_u8(distance)),
@@ -291,8 +292,8 @@ fn draw_line_east_of(
     start: &gt::Point<f64>,
     end: &gt::Point<f64>,
     distance: u8,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
 ) {
     draw_line(
         &gt::Point::new(start.x() + operations::from_tile_scale_u8(distance), start.y()),
@@ -307,8 +308,8 @@ fn draw_line_west_of(
     start: &gt::Point<f64>,
     end: &gt::Point<f64>,
     distance: u8,
-    geo_tile: Rc<GeoTile>,
-    data_structure: &mut GeoTilesDataStructure,
+    geo_tile: Arc<GeoTile>,
+    data_structure: GeoTilesDataStructure,
 ) {
     draw_line(
         &gt::Point::new(start.x() - operations::from_tile_scale_u8(distance), start.y()),

@@ -80,7 +80,7 @@ pub fn run_crossterm(
     loop {
         // Create our viewport with mapper data.
         let mut viewport = viewport::Viewport {
-            data_structure: &mapper.data_structure,
+            data_structure: mapper.data_structure.clone(),
             coordinates: mapper.coordinates,
             zoom,
             loading,
@@ -97,7 +97,7 @@ pub fn run_crossterm(
                 operations::from_tile_scale(mapper.radius as i32)
             )?;
             let geojson = operations::parse_geojson_file(&geojson_file.to_string());
-            operations::process_geojson_with_data_structure(&geojson, &mut mapper.data_structure);
+            operations::process_geojson_with_data_structure(&geojson, mapper.data_structure.clone());
             loading = false;
             continue; // Go back to drawing with new data.
         }
