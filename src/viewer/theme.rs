@@ -158,8 +158,8 @@ pub fn get_geo_tile_theme(geo_tile: &GeoTile) -> GeoTileTheme {
             style: Style::default().bg(Color::LightMagenta),
         },
         GeoTile::Place { .. } => GeoTileTheme {
-            character: ' ',
-            style: Style::default().bg(Color::DarkGray),
+            character: 'P',
+            style: Style::default().bg(Color::Black).fg(Color::White),
         },
         GeoTile::Power { .. } => GeoTileTheme {
             character: 'P',

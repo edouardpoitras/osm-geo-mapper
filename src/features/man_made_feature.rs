@@ -92,7 +92,6 @@ pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
     let mineshaft_type = property_to_option_string(props, "mineshaft_type");
     let monitoring = property_to_option_string(props, "monitoring");
     let mooring = property_to_option_string(props, "mooring");
-    let natural = property_to_option_string(props, "natural");
     let name = property_to_option_string(props, "name");
     let operator = property_to_option_string(props, "operator");
     let osm_id = props["id"].to_string();
@@ -145,7 +144,6 @@ pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
         mineshaft_type,
         monitoring,
         mooring,
-        natural,
         name,
         operator,
         osm_id,

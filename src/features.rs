@@ -15,6 +15,7 @@ pub mod landuse_feature;
 pub mod leisure_feature;
 pub mod man_made_feature;
 pub mod natural_feature;
+pub mod place_feature;
 pub mod route_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
@@ -263,7 +264,6 @@ pub enum GeoTile {
         mineshaft_type: Option<String>,
         monitoring: Option<String>,
         mooring: Option<String>,
-        natural: Option<String>,
         name: Option<String>,
         operator: Option<String>,
         osm_id: String,
@@ -318,8 +318,18 @@ pub enum GeoTile {
         osm_id: String,
     },
     Place {
+        admin_level: Option<String>,
+        architect: Option<String>,
+        capital: Option<String>,
         geometry: Geometry,
+        is_in: Option<String>,
+        name: Option<String>,
         osm_id: String,
+        place_type: PlaceType,
+        population: Option<String>,
+        reference: Option<String>, // "ref"
+        start_date: Option<String>,
+        state_code: Option<String>,
     },
     Power {
         geometry: Geometry,
@@ -697,51 +707,6 @@ pub enum BuildingType {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum NaturalType {
-    Wood,
-    TreeRow,
-    Tree,
-    Scrub,
-    Heath,
-    Moor,
-    Grassland,
-    Fell,
-    BareRock,
-    Scree,
-    Shingle,
-    Sand,
-    Mud,
-    Water,
-    Wetland,
-    Glacier,
-    Bay,
-    Strait,
-    Cape,
-    Beach,
-    Coastline,
-    Reef,
-    Spring,
-    HotSpring,
-    Geyser,
-    Blowhole,
-    Peak,
-    Volcano,
-    Valley,
-    Peninsula,
-    Isthmus,
-    Ridge,
-    Arete,
-    Cliff,
-    Saddle,
-    Dune,
-    Rock,
-    Stone,
-    Sinkhole,
-    CaveEntrance,
-    Unclassified,
-}
-
-#[derive(Debug, Clone, Copy)]
 pub enum HighwayType {
     Motorway,
     MotorwayLink,
@@ -903,6 +868,84 @@ pub enum ManMadeType {
     WildlifeCrossing,
     Windmill,
     Works,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum NaturalType {
+    Wood,
+    TreeRow,
+    Tree,
+    Scrub,
+    Heath,
+    Moor,
+    Grassland,
+    Fell,
+    BareRock,
+    Scree,
+    Shingle,
+    Sand,
+    Mud,
+    Water,
+    Wetland,
+    Glacier,
+    Bay,
+    Strait,
+    Cape,
+    Beach,
+    Coastline,
+    Reef,
+    Spring,
+    HotSpring,
+    Geyser,
+    Blowhole,
+    Peak,
+    Volcano,
+    Valley,
+    Peninsula,
+    Isthmus,
+    Ridge,
+    Arete,
+    Cliff,
+    Saddle,
+    Dune,
+    Rock,
+    Stone,
+    Sinkhole,
+    CaveEntrance,
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum PlaceType {
+    Allotments,
+    Archipelago,
+    Borough,
+    City,
+    CityBlock,
+    Continent,
+    Country,
+    County,
+    District,
+    Farm,
+    Hamlet,
+    Island,
+    Islet,
+    IsolatedDwelling,
+    Locality,
+    Municipality,
+    Neighbourhood,
+    Ocean,
+    Plot,
+    Province,
+    Quarter,
+    Region,
+    Sea,
+    Square,
+    State,
+    Suburb,
+    Town,
+    Unclassified,
+    Village,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -1220,7 +1263,6 @@ impl fmt::Display for GeoTile {
                 mineshaft_type,
                 monitoring,
                 mooring,
-                natural,
                 name,
                 operator,
                 osm_id: _,
@@ -1331,9 +1373,6 @@ impl fmt::Display for GeoTile {
                 }
                 if let Some(mooring) = mooring {
                     write!(f, "Mooring: {}\n", mooring)?;
-                }
-                if let Some(natural) = natural {
-                    write!(f, "Natural: {}\n", natural)?;
                 }
                 if let Some(operator) = operator {
                     write!(f, "Operator: {}\n", operator)?;
@@ -1477,7 +1516,48 @@ impl fmt::Display for GeoTile {
                 Ok(())
             }
             GeoTile::Office { .. } => write!(f, "Office\n",),
-            GeoTile::Place { .. } => write!(f, "Place\n",),
+            GeoTile::Place {
+                admin_level,
+                architect,
+                capital,
+                is_in,
+                name,
+                place_type,
+                population,
+                reference,
+                start_date,
+                state_code,
+                osm_id: _,
+                geometry: _,
+            } => {
+                write!(f, "Feature: Place\n")?;
+                write!(f, "Type: {:?}\n", place_type)?;
+                if let Some(name) = name {
+                    write!(f, "Name: {}\n", name)?;
+                }
+                if let Some(admin_level) = admin_level {
+                    write!(f, "Admin Level: {}\n", admin_level)?;
+                }
+                if let Some(capital) = capital {
+                    write!(f, "Capital: {}\n", capital)?;
+                }
+                if let Some(is_in) = is_in {
+                    write!(f, "Is In: {}\n", is_in)?;
+                }
+                if let Some(population) = population {
+                    write!(f, "Population: {}\n", population)?;
+                }
+                if let Some(reference) = reference {
+                    write!(f, "Reference: {}\n", reference)?;
+                }
+                if let Some(start_date) = start_date {
+                    write!(f, "Start Date: {}\n", start_date)?;
+                }
+                if let Some(state_code) = state_code {
+                    write!(f, "State Code: {}\n", state_code)?;
+                }
+                Ok(())
+            }
             GeoTile::Power { .. } => write!(f, "Power\n",),
             GeoTile::PublicTransport { .. } => write!(f, "PublicTransport\n",),
             GeoTile::Railway { .. } => write!(f, "Railway\n",),

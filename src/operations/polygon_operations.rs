@@ -4,7 +4,8 @@ use crate::{
         boundary_feature::get_boundary_geo_tile, building_feature::get_building_geo_tile,
         landuse_feature::get_landuse_geo_tile, leisure_feature::get_leisure_geo_tile,
         natural_feature::get_natural_geo_tile, highway_feature::get_highway_geo_tile,
-        man_made_feature::get_man_made_geo_tile, route_feature::get_route_geo_tile,
+        man_made_feature::get_man_made_geo_tile, place_feature::get_place_geo_tile,
+        route_feature::get_route_geo_tile,
         GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry,
     },
     operations::{
@@ -132,6 +133,8 @@ pub fn polygon_feature_to_geo_tile(
         get_highway_geo_tile(properties, polygon, false)
     } else if properties.contains_key("man_made") {
         get_man_made_geo_tile(properties, polygon)
+    } else if properties.contains_key("place") {
+        get_place_geo_tile(properties, polygon)
     } else if properties.contains_key("route") {
         get_route_geo_tile(properties, polygon, None)
     } else if properties.contains_key("piste:type") {
