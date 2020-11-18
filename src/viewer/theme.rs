@@ -1,4 +1,4 @@
-use crate::features::{BuildingType, GeoTile, ManMadeType, NaturalType};
+use crate::features::{BuildingType, GeoTile, HighwayType, ManMadeType, NaturalType};
 use tui::style::{Color, Style};
 
 pub struct GeoTileTheme {
@@ -77,9 +77,31 @@ pub fn get_geo_tile_theme(geo_tile: &GeoTile) -> GeoTileTheme {
             character: 'G',
             style: Style::default(),
         },
-        GeoTile::Highway { .. } => GeoTileTheme {
-            character: ' ',
-            style: Style::default().bg(Color::White),
+        GeoTile::Highway { highway_type, .. } => match highway_type {
+            HighwayType::Track => GeoTileTheme {
+                character: 'T',
+                style: Style::default().bg(Color::White),
+            },
+            HighwayType::BusStop => GeoTileTheme {
+                character: 'B',
+                style: Style::default().bg(Color::White),
+            },
+            HighwayType::Crossing => GeoTileTheme {
+                character: 'C',
+                style: Style::default().bg(Color::White),
+            },
+            HighwayType::Stop => GeoTileTheme {
+                character: 'S',
+                style: Style::default().bg(Color::White),
+            },
+            HighwayType::TrafficSignals => GeoTileTheme {
+                character: 'S',
+                style: Style::default().bg(Color::White),
+            },
+            _ => GeoTileTheme {
+                character: ' ',
+                style: Style::default().bg(Color::White),
+            },
         },
         GeoTile::Historic { .. } => GeoTileTheme {
             character: 'H',
