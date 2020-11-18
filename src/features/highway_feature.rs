@@ -43,6 +43,7 @@ pub fn get_highway_geo_tile(
         "service" => HighwayType::Service,
         "steps" => HighwayType::Steps,
         "stop" => HighwayType::Stop,
+        "street_lamp" => HighwayType::StreetLamp,
         "tertiary" => HighwayType::Tertiary,
         "tertiary_link" => HighwayType::TertiaryLink,
         "track" => HighwayType::Track,
@@ -156,6 +157,7 @@ pub fn draw_highway_line_string(
         HighwayType::Proposed => 1,
         HighwayType::Construction => 1,
         HighwayType::Stop => 1,
+        HighwayType::StreetLamp => 1,
         HighwayType::TrafficSignals => 1,
         HighwayType::Unclassified => 1,
     };

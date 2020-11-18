@@ -94,6 +94,10 @@ pub fn get_geo_tile_theme(geo_tile: &GeoTile) -> GeoTileTheme {
                 character: 'S',
                 style: Style::default().bg(Color::White),
             },
+            HighwayType::StreetLamp => GeoTileTheme {
+                character: 'L',
+                style: Style::default().bg(Color::White),
+            },
             HighwayType::TrafficSignals => GeoTileTheme {
                 character: 'S',
                 style: Style::default().bg(Color::White),

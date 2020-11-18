@@ -733,6 +733,7 @@ pub enum HighwayType {
     Service,
     Steps,
     Stop,
+    StreetLamp,
     Tertiary,
     TertiaryLink,
     Track,
