@@ -24,6 +24,7 @@ pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry, landc
         "depot" => LanduseType::Depot,
         "farmland" => LanduseType::Farmland,
         "farmyard" => LanduseType::Farmyard,
+        "flowerbed" => LanduseType::Flowerbed,
         "forest" => LanduseType::Forest,
         "garages" => LanduseType::Garages,
         "grass" => LanduseType::Grass,

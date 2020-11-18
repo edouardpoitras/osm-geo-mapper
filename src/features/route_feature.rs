@@ -7,12 +7,11 @@ use log::warn;
 use std::sync::Arc;
 
 pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry, route: Option<&str>) -> GeoTile {
-    let route_str;
+    let mut route_type_key = "route";
     if route.is_some() {
-        route_str = route.unwrap();
-    } else {
-        route_str = props["route"].as_str().unwrap();
+        route_type_key = route.unwrap();
     }
+    let route_str = props[route_type_key].as_str().unwrap();
     let route_type = match route_str {
         "bicycle" => RouteType::Bicycle,
         "bus" => RouteType::Bus,
@@ -22,6 +21,7 @@ pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry, route: 
         "foot" => RouteType::Foot,
         "hiking" => RouteType::Hiking,
         "horse" => RouteType::Horse,
+        "ice_skate" => RouteType::IceSkate,
         "inline_skates" => RouteType::InlineSkates,
         "light_rail" => RouteType::LightRail,
         "mtb" => RouteType::MTB,
