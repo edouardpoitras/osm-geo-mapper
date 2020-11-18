@@ -334,21 +334,27 @@ pub enum GeoTile {
         osm_id: String,
     },
     Route {
+        area: Option<String>,
         bicycle: Option<String>,
         colour: Option<String>,
         description: Option<String>,
         distance: Option<String>,
         duration: Option<String>,
+        fee: Option<String>,
         foot: Option<String>,
         from: Option<String>,
         geometry: Geometry,
+        lit: Option<String>,
         name: Option<String>,
         network: Option<String>,
         oneway: Option<String>,
         operator: Option<String>,
         osm_id: String,
+        piste_difficulty: Option<String>,
+        piste_type: Option<String>,
         roundtrip: Option<String>,
         route_type: RouteType,
+        seasonal: Option<String>,
         symbol: Option<String>,
         to: Option<String>,
     },
@@ -1473,7 +1479,95 @@ impl fmt::Display for GeoTile {
             GeoTile::Power { .. } => write!(f, "Power\n",),
             GeoTile::PublicTransport { .. } => write!(f, "PublicTransport\n",),
             GeoTile::Railway { .. } => write!(f, "Railway\n",),
-            GeoTile::Route { .. } => write!(f, "Route\n",),
+            GeoTile::Route {
+                area,
+                bicycle,
+                colour,
+                description,
+                distance,
+                duration,
+                fee,
+                foot,
+                from,
+                lit,
+                name,
+                network,
+                oneway,
+                operator,
+                piste_difficulty,
+                piste_type,
+                roundtrip,
+                route_type,
+                seasonal,
+                symbol,
+                to,
+                geometry: _,
+                osm_id: _,
+            } => {
+                write!(f, "Feature: Route\n")?;
+                write!(f, "Type: {:?}\n", route_type)?;
+                if let Some(name) = name {
+                    write!(f, "Name: {}\n", name)?;
+                }
+                if let Some(area) = area {
+                    write!(f, "Area: {}\n", area)?;
+                }
+                if let Some(bicycle) = bicycle {
+                    write!(f, "Bicycle: {}\n", bicycle)?;
+                }
+                if let Some(colour) = colour {
+                    write!(f, "Colour: {}\n", colour)?;
+                }
+                if let Some(description) = description {
+                    write!(f, "Description: {}\n", description)?;
+                }
+                if let Some(distance) = distance {
+                    write!(f, "Distance: {}\n", distance)?;
+                }
+                if let Some(duration) = duration {
+                    write!(f, "Duration: {}\n", duration)?;
+                }
+                if let Some(fee) = fee {
+                    write!(f, "Fee: {}\n", fee)?;
+                }
+                if let Some(foot) = foot {
+                    write!(f, "Foot: {}\n", foot)?;
+                }
+                if let Some(from) = from {
+                    write!(f, "From: {}\n", from)?;
+                }
+                if let Some(to) = to {
+                    write!(f, "To: {}\n", to)?;
+                }
+                if let Some(lit) = lit {
+                    write!(f, "Lit: {}\n", lit)?;
+                }
+                if let Some(network) = network {
+                    write!(f, "Network: {}\n", network)?;
+                }
+                if let Some(oneway) = oneway {
+                    write!(f, "Oneway: {}\n", oneway)?;
+                }
+                if let Some(operator) = operator {
+                    write!(f, "Operator: {}\n", operator)?;
+                }
+                if let Some(piste_type) = piste_type {
+                    write!(f, "Piste Type: {}\n", piste_type)?;
+                }
+                if let Some(piste_difficulty) = piste_difficulty {
+                    write!(f, "Piste Difficulty: {}\n", piste_difficulty)?;
+                }
+                if let Some(roundtrip) = roundtrip {
+                    write!(f, "Roundtrip: {}\n", roundtrip)?;
+                }
+                if let Some(seasonal) = seasonal {
+                    write!(f, "Seasonal: {}\n", seasonal)?;
+                }
+                if let Some(symbol) = symbol {
+                    write!(f, "Symbol: {}\n", symbol)?;
+                }
+                Ok(())
+            }
             GeoTile::Shop { .. } => write!(f, "Shop\n",),
             GeoTile::Sport { .. } => write!(f, "Sport\n",),
             GeoTile::Telecom { .. } => write!(f, "Telecom\n",),

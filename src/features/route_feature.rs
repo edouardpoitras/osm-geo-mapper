@@ -6,9 +6,14 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let route = props["route"].as_str().unwrap();
-    let route_type = match route {
+pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry, route: Option<&str>) -> GeoTile {
+    let route_str;
+    if route.is_some() {
+        route_str = route.unwrap();
+    } else {
+        route_str = props["route"].as_str().unwrap();
+    }
+    let route_type = match route_str {
         "bicycle" => RouteType::Bicycle,
         "bus" => RouteType::Bus,
         "canoe" => RouteType::Canoe,
@@ -32,41 +37,53 @@ pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoT
         "tram" => RouteType::Tram,
         "trolleybus" => RouteType::Trolleybus,
         _ => {
-            warn!("Unclassified route type {}: {:?}", route, props);
+            warn!("Unclassified route type {}: {:?}", route_str, props);
             RouteType::Unclassified
         }
     };
+    let area = property_to_option_string(props, "area");
     let bicycle = property_to_option_string(props, "bycicle");
     let colour = property_to_option_string(props, "colour");
     let description = property_to_option_string(props, "description");
     let distance = property_to_option_string(props, "distance");
     let duration = property_to_option_string(props, "duration");
+    let fee = property_to_option_string(props, "fee");
     let foot = property_to_option_string(props, "foot");
     let from = property_to_option_string(props, "from");
+    let lit = property_to_option_string(props, "lit");
     let name = property_to_option_string(props, "name");
     let network = property_to_option_string(props, "network");
     let oneway = property_to_option_string(props, "oneway");
     let operator = property_to_option_string(props, "operator");
     let osm_id = props["id"].to_string();
+    let piste_difficulty = property_to_option_string(props, "piste:difficulty");
+    let piste_type= property_to_option_string(props, "piste:type");
     let roundtrip = property_to_option_string(props, "roundtrip");
+    let seasonal = property_to_option_string(props, "seasonal");
     let symbol = property_to_option_string(props, "symbol");
     let to = property_to_option_string(props, "to");
     GeoTile::Route {
+        area,
         bicycle,
         colour,
         description,
         distance,
         duration,
+        fee,
         foot,
         from,
         geometry,
+        lit,
         name,
         network,
         oneway,
         operator,
         osm_id,
+        piste_difficulty,
+        piste_type,
         roundtrip,
         route_type,
+        seasonal,
         symbol,
         to,
     }

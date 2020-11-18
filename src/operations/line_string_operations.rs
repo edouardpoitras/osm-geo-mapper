@@ -146,7 +146,9 @@ pub fn line_string_feature_to_geo_tile(
     if properties.contains_key("highway") {
         get_highway_geo_tile(properties, line_string, false)
     } else if properties.contains_key("route") {
-        get_route_geo_tile(properties, line_string)
+        get_route_geo_tile(properties, line_string, None)
+    } else if properties.contains_key("piste:type") {
+        get_route_geo_tile(properties, line_string, Some("piste"))
     } else if properties.contains_key("aeroway") {
         get_aeroway_geo_tile(properties, line_string)
     } else if properties.contains_key("amenity") {
