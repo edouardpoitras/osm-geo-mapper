@@ -1,6 +1,6 @@
 [package]
 name = "osm-geo-mapper"
-version = "0.4.4"
+version = "0.4.5"
 authors = ["Edouard Poitras <edouardpoitras@gmail.com>"]
 edition = "2018"
 license = "MIT"
