@@ -1538,6 +1538,9 @@ impl fmt::Display for GeoTile {
                 if let Some(admin_level) = admin_level {
                     write!(f, "Admin Level: {}\n", admin_level)?;
                 }
+                if let Some(architect) = architect {
+                    write!(f, "Architect: {}\n", architect)?;
+                }
                 if let Some(capital) = capital {
                     write!(f, "Capital: {}\n", capital)?;
                 }
