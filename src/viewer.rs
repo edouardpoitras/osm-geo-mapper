@@ -11,11 +11,11 @@ use crate::{
 };
 
 mod actions;
-mod details;
 mod input;
 mod viewport;
 
 pub mod cli;
+pub mod details;
 pub mod theme;
 
 #[derive(Debug)]
