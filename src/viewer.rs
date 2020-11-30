@@ -2,7 +2,8 @@ use std::{error::Error, io::Stdout, fmt};
 use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
-    widgets::{Block, Borders, Paragraph, Text},
+    widgets::{Block, Borders, Paragraph, Wrap},
+    text::Spans,
     Terminal,
 };
 
@@ -148,12 +149,11 @@ fn draw_left_panel(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &view
 fn draw_details_panel(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &viewport::Viewport, area: Rect) {
     let block = Block::default().title("Details").borders(Borders::ALL);
     let geo_tile_lines = geo_tile_text_lines(&viewport);
-    let geo_tile_text_lines: Vec<Text> = geo_tile_lines.iter().map(Text::raw).collect();
-    let paragraph = Paragraph::new(geo_tile_text_lines.iter())
+    let paragraph = Paragraph::new(geo_tile_lines)
         .block(block)
         .alignment(Alignment::Center)
-        .wrap(true)
-        .scroll(0);
+        .wrap(Wrap { trim: true })
+        .scroll((0, 0));
     f.render_widget(paragraph, area);
 }
 
@@ -161,21 +161,20 @@ fn draw_info_panel(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &view
     let block = Block::default().title("Info").borders(Borders::ALL);
     let lines;
     if viewport.loading {
-        lines = vec!["Loading more data at current location...\n".to_string()];
+        lines = vec![Spans::from("Loading more data at current location...\n")];
     } else {
         lines = vec![
-            "Movement: <Up>, <Down>, <Left>, <Right>\n".to_string(),
-            "10x Movement: <Shift> + Movement Key\n".to_string(),
-            "Zoom In/Out: Z\n".to_string(),
-            "Load More Data: <Enter>\n".to_string(),
-            "Quit: Q\n".to_string()
+            Spans::from("Movement: <Up>, <Down>, <Left>, <Right>\n"),
+            Spans::from("10x Movement: <Shift> + Movement Key\n"),
+            Spans::from("Zoom In/Out: Z\n"),
+            Spans::from("Load More Data: <Enter>\n"),
+            Spans::from("Quit: Q\n")
         ];
     }
-    let lines: Vec<Text> = lines.iter().map(Text::raw).collect();
-    let paragraph = Paragraph::new(lines.iter())
+    let paragraph = Paragraph::new(lines)
         .block(block)
         .alignment(Alignment::Center)
-        .wrap(true)
-        .scroll(0);
+        .wrap(Wrap { trim: true })
+        .scroll((0, 0));
     f.render_widget(paragraph, area);
 }
