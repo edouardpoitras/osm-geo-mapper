@@ -22,22 +22,6 @@ pub mod line_string_operations;
 pub mod point_operations;
 pub mod polygon_operations;
 
-#[derive(Debug, Clone)]
-pub struct Mapper {
-    pub data_structure: GeoTilesDataStructure,
-    pub coordinates: gt::Coordinate<i32>,
-    pub radius: u32
-}
-
-#[derive(Debug, Clone)]
-pub enum Location {
-    Coordinates {
-        latitude: f64,
-        longitude: f64
-    },
-    Center
-}
-
 // Takes a lat/lon unit (f64) and converts it to a 2d grid coordinate unit using i32.
 // This is a lossy operation.
 pub fn to_tile_scale(unit: f64) -> i32 {
@@ -94,25 +78,6 @@ pub fn address_from_properties(props: &GeoTileProperties) -> Option<Address> {
     } else {
         None
     }
-}
-
-pub fn get_mapper_from_geojson_file(geojson_file: String, radius: u32, location: Option<Location>) -> Result<Mapper, Box<dyn std::error::Error>> {
-    let geojson = parse_geojson_file(&geojson_file);
-    let data_structure = process_geojson(&geojson);
-    let coordinates = match location {
-        Some(Location::Coordinates { latitude, longitude }) => {
-            gt::Coordinate {
-                x: to_tile_scale(longitude),
-                y: to_tile_scale(latitude)
-            }
-        },
-        Some(Location::Center) => {
-            warn!("Finding center location of geojson file not supported yet");
-            gt::Coordinate { x: 0, y: 0 }
-        },
-        None => gt::Coordinate { x: 0, y: 0 }
-    };
-    Ok(Mapper { data_structure, coordinates, radius })
 }
 
 pub fn get_geojson_file_by_lat_lon(

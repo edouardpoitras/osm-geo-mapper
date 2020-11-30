@@ -14,6 +14,7 @@ pub mod openstreetmap;
 pub mod operations;
 pub mod osmtogeojson;
 pub mod viewer;
+pub mod interface;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(debug_assertions)] log4rs::init_file("log4rs.yaml", Default::default()).unwrap();

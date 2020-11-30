@@ -8,7 +8,7 @@ use tui::{
 };
 
 use crate::{
-    nominatim, operations, viewer::details::geo_tile_text_lines
+    nominatim, interface, operations, viewer::details::geo_tile_text_lines
 };
 
 mod actions;
@@ -30,7 +30,7 @@ impl fmt::Display for MissingConfigurationError {
     }
 }
 
-pub fn cli_options_to_mapper(options: cli::CLIOptions) -> Result<operations::Mapper, Box<dyn std::error::Error>> {
+pub fn cli_options_to_mapper(options: cli::CLIOptions) -> Result<interface::OSMGeoMapper, Box<dyn std::error::Error>> {
     let geojson_file: String;
     let lat: f64;
     let lon: f64;
@@ -57,11 +57,11 @@ pub fn cli_options_to_mapper(options: cli::CLIOptions) -> Result<operations::Map
     } else {
         return Err(Box::new(MissingConfigurationError { message: "Need to provide one of geojson_file, latitude/longitude, or address (try --help)".to_string() }));
     }
-    operations::get_mapper_from_geojson_file(
+    interface::OSMGeoMapper::from_geojson_file_with_radius(
         geojson_file,
         radius,
         Some(
-            operations::Location::Coordinates {
+            interface::Location::Coordinates {
                 latitude: lat,
                 longitude: lon
             }
