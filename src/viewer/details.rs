@@ -1,4 +1,4 @@
-use tui::text::Spans;
+use tui::text::Text;
 use geo_types as gt;
 
 use super::viewport::Viewport;
@@ -12,16 +12,16 @@ pub fn coord_to_lat_long_string(coord: &gt::Coordinate<i32>) -> String {
     )
 }
 
-pub fn geo_tile_text_lines(viewport: &Viewport) -> Vec<Spans> {
-    let mut vec = Vec::new();
+pub fn geo_tile_text_lines(viewport: &Viewport) -> Text {
+    let mut text = Text::from("");
     {
         let locked_data_structure = viewport.data_structure.read().unwrap();
         if let Some(tile) = locked_data_structure.get(&viewport.coordinates) {
-            vec.push(Spans::from(format!("{}", tile)));
+            text.extend(Text::from(format!("{}", tile)));
         } else {
-            vec.push(Spans::from("No details available\n".to_string()));
+            text.extend(Text::from("No details available\n".to_string()));
         }
     }
-    vec.push(Spans::from(coord_to_lat_long_string(&viewport.coordinates)));
-    vec
+    text.extend(Text::from(coord_to_lat_long_string(&viewport.coordinates)));
+    text
 }

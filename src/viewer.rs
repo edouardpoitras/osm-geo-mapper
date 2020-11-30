@@ -3,7 +3,7 @@ use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     widgets::{Block, Borders, Paragraph, Wrap},
-    text::Spans,
+    text::{Spans, Text},
     Terminal,
 };
 
@@ -161,15 +161,15 @@ fn draw_info_panel(f: &mut tui::Frame<CrosstermBackend<Stdout>>, viewport: &view
     let block = Block::default().title("Info").borders(Borders::ALL);
     let lines;
     if viewport.loading {
-        lines = vec![Spans::from("Loading more data at current location...\n")];
+        lines = Text::from("Loading more data at current location...\n");
     } else {
-        lines = vec![
+        lines = Text::from(vec![
             Spans::from("Movement: <Up>, <Down>, <Left>, <Right>\n"),
             Spans::from("10x Movement: <Shift> + Movement Key\n"),
             Spans::from("Zoom In/Out: Z\n"),
             Spans::from("Load More Data: <Enter>\n"),
             Spans::from("Quit: Q\n")
-        ];
+        ]);
     }
     let paragraph = Paragraph::new(lines)
         .block(block)
