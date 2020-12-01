@@ -82,17 +82,21 @@ The `OSMGeoMapper` type is defined as follows:
         pub radius: u32
     }
 
-`data_structure` is used to access the various GeoTiles by coordinates. This data structure is thread-safe due to the `Arc<RwLock<>>` wrapper. Use `data_structure.clone()` when sending it to another thread. Use `data_structure.read()/try_read()` or `data_structure.write()/try_write()` to lock the resource for read/write purposes.
+`data_structure` is used to access the various GeoTiles by coordinates. This data structure is thread-safe due to the `Arc<RwLock<>>` wrapper. Use `OSMGeoMapper::atomic_clone(&self)` or `OSMGeoMapper.data_structure.clone()` directly when sending it to another thread. Use `OSMGeoMapper::get/get_real()` or `data_structure.read()/try_read()` or `data_structure.write()/try_write()` to lock the resource for read/write purposes.
 
 `coordinates` holds x/y coordinates of the address (if `OSMGeoMapper::from_address` was used) or to the lat/lon initially provided. They are no longer in the original lat/lon format but in the data structure's coordinate system (each step is 100,000th of a degree, or roughly one meter).
 
 `radius` is the chosen radius for the original fetching of data (if `OSMGeoMapper::from_address` or `OSMGeoMapper::from_lat_lon` was used).
 
-If you wanted to get the GeoTile at the real-world lat/lon of -75.690308/45.421106, you would get the tile in the data structure at geo_types::Coordinate { x: -7569031, y: 4542111 }). You can directly convert from lat/lon to x/y by multipling by 100,000 and converting to a signed 32-bit integer. You can also use the helper methods `osm_geo_mapper::operations::to_tile_scale(f64) -> i32` and `osm_geo_mapper::operations::from_tile_scale(i32) -> f64`.
+If you wanted to get the GeoTile at the real-world lat/lon of -75.6903082/45.4211063, you would use the following method call - `OSMGeoMapper::get_real(45.4211063, -75.6903082)`. Note that granularity is only to 6 decimal places. The method call above is the same as `OSMGeoMapper::get(45421106, -75690308)`
+
+You can also get GeoTiles directly from the `OSMGeoMapper.data_structure` field (once read-locked) like this: `data_structure.get(geo_types::Coordinate { x: -7569031, y: 4542111 })`
+
+You can convert to/from real and OSMGeoMapper coordinates using the following helper functions: `osm_geo_mapper::operations::to_tile_scale(f64) -> i32` and `osm_geo_mapper::operations::from_tile_scale(i32) -> f64`.
 
 A GeoTile can be many many things - see `features.rs`.
 
-You can also load more data into your `OSMGeoMapper.data_structure` using one of the following three functions:
+You can also load more data into your `OSMGeoMapper.data_structure` using one of the following three helper methods:
 
     OSMGeoMapper::load_more_from_lat_lon(&mut self, latitude: f64, longitude: f64, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>>
 
@@ -100,6 +104,7 @@ You can also load more data into your `OSMGeoMapper.data_structure` using one of
 
     OSMGeoMapper::load_more_from_geojson_file(&mut self, geojson_file: String) -> Result<(), Box<dyn std::error::Error>>
     
+See the `test_multiple_threads()` test function in `tests/lib_tests.rs` to see an example of loading data in multiple threads simultaneously.
 
 TODO
 ====

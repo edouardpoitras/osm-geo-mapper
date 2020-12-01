@@ -1,4 +1,5 @@
 use log::warn;
+use geo_types;
 use crate::{features, nominatim, operations};
 
 #[derive(Debug, Clone)]
@@ -70,7 +71,7 @@ impl OSMGeoMapper {
         Ok(())
     }
 
-    pub fn load_more_geo_data_from_address(&mut self, address: String, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn load_more_from_address(&mut self, address: String, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>> {
         let (latitude, longitude) = nominatim::get_address_lat_lon(address)?;
         self.load_more_from_lat_lon(latitude, longitude, radius)
     }
@@ -79,5 +80,29 @@ impl OSMGeoMapper {
         let geojson = operations::parse_geojson_file(&geojson_file.to_string());
         operations::process_geojson_with_data_structure(&geojson, self.data_structure.clone());
         Ok(())
+    }
+
+    pub fn get(&self, lat: i32, lon: i32) -> Option<features::GeoTile> {
+        let locked_data_structure = self.data_structure.read().unwrap();
+        let option_arc_geo_tile = locked_data_structure.get(&geo_types::Coordinate { x: lon, y: lat });
+        if let Some(arc_geo_tile) = option_arc_geo_tile {
+            Some(arc_geo_tile.as_ref().clone())
+        } else {
+            None
+        }
+    }
+
+    pub fn get_real(&self, lat: f64, lon: f64) -> Option<features::GeoTile> {
+        let lat = operations::to_tile_scale(lat);
+        let lon = operations::to_tile_scale(lon);
+        self.get(lat, lon)
+    }
+
+    pub fn atomic_clone(&self) -> OSMGeoMapper {
+        OSMGeoMapper {
+            data_structure: self.data_structure.clone(),
+            coordinates: self.coordinates,
+            radius: self.radius,
+        }
     }
 }
