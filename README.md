@@ -1,7 +1,7 @@
 OSM Geo Mapper
 ==============
 
-Navigate OpenStreetMap data in the terminal.
+Rust library for querying OpenStreetMap data by coordinates and a terminal application to browse OpenStreeMap data in the terminal.
 Will fetch OSM data using the address or latitude/longitude provided, convert to GeoJSON (requires dependencies), and display the resulting lines/points/polygons in the terminal.
 
 You can optionally provide a GeoJSON file directly for viewing.
@@ -9,8 +9,8 @@ You can optionally provide a GeoJSON file directly for viewing.
 Allows for moving around the map:
  - Arrow keys for directional movement (also supports vi keys h,j,k,l)
  - 'z' to zoom in/out
- - Hold Shift to move 10x faster
- - Enter to load more data at your current location (uses previously chosen radius)
+ - Hold 'Shift' to move 10x faster
+ - 'Enter' to load more data at your current location (uses previously chosen radius)
  - 'q' or Esc to quit
 
 ## But Why
@@ -50,7 +50,7 @@ Usage
         -g, --geojson-file <geojson-file>    Optionally provide a geojson file directly to be parsed and displayed in the terminal
             --latitude <latitude>            The latitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
             --longitude <longitude>          The longitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
-        -r, --radius <radius>                The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times
+        -r, --radius <radius>                The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter at the equator) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times
 
     ./osm-geo-mapper --address "110 laurier avenue west ottawa ontario"
 
@@ -64,7 +64,7 @@ See the tests/ folder for example usage, but it boils down to the following OSMG
 
     OSMGeoMapper::from_address(address: String, radius: Option<u32>) -> Result<OSMGeoMapper, Box<dyn std::error::Error>>
 
-`OSMGeoMapper::from_address` takes an address string and optionally a radius (in 100,000th of a degree, or roughly a meter) and returns an OSMGeoMapper object.
+`OSMGeoMapper::from_address` takes an address string and optionally a radius (in 100,000th of a degree, or roughly a meter at the equator) and returns an OSMGeoMapper object.
 
     OSMGeoMapper::from_lat_lon(latitude: f64, longitude: f64, radius: Option<u32>) -> Result<OSMGeoMapper, Box<dyn std::error::Error>>
 
@@ -84,7 +84,7 @@ The `OSMGeoMapper` type is defined as follows:
 
 `data_structure` is used to access the various GeoTiles by coordinates. This data structure is thread-safe due to the `Arc<RwLock<>>` wrapper. Use `OSMGeoMapper::atomic_clone(&self)` or `OSMGeoMapper.data_structure.clone()` directly when sending it to another thread. Use `OSMGeoMapper::get/get_real()` or `data_structure.read()/try_read()` or `data_structure.write()/try_write()` to lock the resource for read/write purposes.
 
-`coordinates` holds x/y coordinates of the address (if `OSMGeoMapper::from_address` was used) or to the lat/lon initially provided. They are no longer in the original lat/lon format but in the data structure's coordinate system (each step is 100,000th of a degree, or roughly one meter).
+`coordinates` holds x/y coordinates of the address (if `OSMGeoMapper::from_address` was used) or to the lat/lon initially provided. They are no longer in the original lat/lon format but in the data structure's coordinate system (each step is 100,000th of a degree, or roughly one meter at the equator).
 
 `radius` is the chosen radius for the original fetching of data (if `OSMGeoMapper::from_address` or `OSMGeoMapper::from_lat_lon` was used).
 
@@ -112,3 +112,4 @@ TODO
 - Implement logic to choose a lat/lon in the middle of a geojson file if none is provided via command line
 - Implement (binary?) serialization of map data to be loaded/cached
 - Continue adding missing properties/details/themes
+- Need logic to handle rate-limited Overpass API calls (need to parse XML response)

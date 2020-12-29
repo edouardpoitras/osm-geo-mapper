@@ -63,7 +63,7 @@ pub struct CLIOptions {
     #[structopt(
         short = "r",
         long = "radius",
-        help = "The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times"
+        help = "The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter at the equator) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times"
     )]
     pub radius: Option<u32>,
 }
