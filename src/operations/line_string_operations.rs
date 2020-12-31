@@ -9,6 +9,7 @@ use crate::{
         leisure_feature::{draw_leisure_line_string, get_leisure_geo_tile},
         man_made_feature::{draw_man_made_line_string, get_man_made_geo_tile},
         natural_feature::{draw_natural_line_string, get_natural_geo_tile},
+        power_feature::{draw_power_line_string, get_power_geo_tile},
         route_feature::{draw_route_line_string, get_route_geo_tile},
         GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
     }
@@ -119,6 +120,18 @@ pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStru
             };
             draw_natural_line_string(geo_tile, data_structure, natural_type, line_string)
         }
+        GeoTile::Power {
+            geometry,
+            power_type,
+            ..
+        } => {
+            let line_string = match geometry {
+                Geometry::LineString(ls) => ls,
+                Geometry::Point(_) => panic!("power should not be dealing with a point"),
+                Geometry::Polygon(_) => panic!("power should not be dealing with a polygon"),
+            };
+            draw_power_line_string(geo_tile, data_structure, power_type, line_string)
+        }
         GeoTile::Route {
             geometry,
             route_type,
@@ -143,29 +156,31 @@ pub fn line_string_feature_to_geo_tile(
     line_string: gt::LineString<f64>,
 ) -> GeoTile {
     let line_string = Geometry::LineString(line_string);
-    if properties.contains_key("highway") {
-        get_highway_geo_tile(properties, line_string, false)
-    } else if properties.contains_key("route") {
-        get_route_geo_tile(properties, line_string, None)
-    } else if properties.contains_key("aeroway") {
+    if properties.contains_key("aeroway") {
         get_aeroway_geo_tile(properties, line_string)
     } else if properties.contains_key("amenity") {
         get_amenity_geo_tile(properties, line_string)
-    } else if properties.contains_key("leisure") {
-        get_leisure_geo_tile(properties, line_string)
-    } else if properties.contains_key("landuse") {
-        get_landuse_geo_tile(properties, line_string, false)
-    } else if properties.contains_key("landcover") {
-        get_landuse_geo_tile(properties, line_string, true)
     } else if properties.contains_key("barrier") {
         get_barrier_geo_tile(properties, line_string)
-    } else if properties.contains_key("natural") {
-        get_natural_geo_tile(properties, line_string)
+    } else if properties.contains_key("highway") {
+        get_highway_geo_tile(properties, line_string, false)
+    } else if properties.contains_key("landcover") {
+        get_landuse_geo_tile(properties, line_string, true)
+    } else if properties.contains_key("landuse") {
+        get_landuse_geo_tile(properties, line_string, false)
+    } else if properties.contains_key("leisure") {
+        get_leisure_geo_tile(properties, line_string)
     } else if properties.contains_key("man_made") {
         get_man_made_geo_tile(properties, line_string)
+    } else if properties.contains_key("natural") {
+        get_natural_geo_tile(properties, line_string)
     // Weird corner-cases.
     } else if properties.contains_key("piste:type") {
         get_route_geo_tile(properties, line_string, Some("piste"))
+    } else if properties.contains_key("power") {
+        get_power_geo_tile(properties, line_string)
+    } else if properties.contains_key("route") {
+        get_route_geo_tile(properties, line_string, None)
     } else if properties.contains_key("service") && properties["service"] == "driveway" {
         // Driveways are treated as service roads.
         get_highway_geo_tile(properties, line_string, true)

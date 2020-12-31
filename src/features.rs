@@ -16,6 +16,7 @@ pub mod leisure_feature;
 pub mod man_made_feature;
 pub mod natural_feature;
 pub mod place_feature;
+pub mod power_feature;
 pub mod route_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
@@ -332,8 +333,37 @@ pub enum GeoTile {
         state_code: Option<String>,
     },
     Power {
+        busbar: Option<String>,
+        cables: Option<String>,
+        circuits: Option<String>,
+        colour: Option<String>,
+        compensator: Option<String>,
+        design: Option<String>,
+        frequency: Option<String>,
+        height: Option<String>,
+        gas_insulated: Option<String>,
         geometry: Geometry,
+        landuse: Option<String>,
+        line: Option<String>,
+        line_attachment: Option<String>,
+        line_management: Option<String>,
+        location: Option<String>,
+        manufacturer: Option<String>,
+        material: Option<String>,
+        name: Option<String>,
+        operator: Option<String>,
         osm_id: String,
+        phases: Option<String>,
+        poles: Option<String>,
+        power_type: PowerType,
+        start_date: Option<String>,
+        structure: Option<String>,
+        substation: Option<String>,
+        switch: Option<String>,
+        rating: Option<String>,
+        voltage: Option<String>,
+        windings: Option<String>,
+        wires: Option<String>,
     },
     PublicTransport {
         geometry: Geometry,
@@ -952,6 +982,29 @@ pub enum PlaceType {
     Town,
     Unclassified,
     Village,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum PowerType {
+    Cable,
+    CatenaryMast,
+    Compensator,
+    Converter,
+    Generator,
+    Heliostat,
+    Insulator,
+    Line,
+    MinorLine,
+    Plant,
+    Pole,
+    Portal,
+    Substation,
+    Switch,
+    Switchgear,
+    Terminal,
+    Tower,
+    Transformer,
+    Unclassified,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -1747,7 +1800,127 @@ impl fmt::Display for GeoTile {
                 }
                 Ok(())
             }
-            GeoTile::Power { .. } => write!(f, "Power\n",),
+            GeoTile::Power {
+                busbar,
+                cables,
+                circuits,
+                colour,
+                compensator,
+                design,
+                frequency,
+                height,
+                gas_insulated,
+                geometry: _,
+                landuse,
+                line,
+                line_attachment,
+                line_management,
+                location,
+                manufacturer,
+                material,
+                name,
+                operator,
+                osm_id: _,
+                phases,
+                poles,
+                power_type,
+                start_date,
+                structure,
+                substation,
+                switch,
+                rating,
+                voltage,
+                windings,
+                wires,
+            } => {
+                write!(f, "Feature: Power\n")?;
+                write!(f, "Type: {:?}\n", power_type)?;
+                if let Some(name) = name {
+                    write!(f, "Name: {}\n", name)?;
+                }
+                if let Some(busbar) = busbar {
+                    write!(f, "Busbar: {}\n", busbar)?;
+                }
+                if let Some(cables) = cables {
+                    write!(f, "Cables: {}\n", cables)?;
+                }
+                if let Some(circuits) = circuits {
+                    write!(f, "Circuits: {}\n", circuits)?;
+                }
+                if let Some(colour) = colour {
+                    write!(f, "Colour: {}\n", colour)?;
+                }
+                if let Some(compensator) = compensator {
+                    write!(f, "Compensator: {}\n", compensator)?;
+                }
+                if let Some(design) = design {
+                    write!(f, "Design: {}\n", design)?;
+                }
+                if let Some(frequency) = frequency {
+                    write!(f, "Frequency: {}\n", frequency)?;
+                }
+                if let Some(height) = height {
+                    write!(f, "Height: {}\n", height)?;
+                }
+                if let Some(gas_insulated) = gas_insulated {
+                    write!(f, "Gas Insulated: {}\n", gas_insulated)?;
+                }
+                if let Some(landuse) = landuse {
+                    write!(f, "Landuse: {}\n", landuse)?;
+                }
+                if let Some(line) = line {
+                    write!(f, "Line: {}\n", line)?;
+                }
+                if let Some(line_attachment) = line_attachment {
+                    write!(f, "Line Attachment: {}\n", line_attachment)?;
+                }
+                if let Some(line_management) = line_management {
+                    write!(f, "Line Management: {}\n", line_management)?;
+                }
+                if let Some(location) = location {
+                    write!(f, "Location: {}\n", location)?;
+                }
+                if let Some(manufacturer) = manufacturer {
+                    write!(f, "Manufacturer: {}\n", manufacturer)?;
+                }
+                if let Some(material) = material {
+                    write!(f, "Material: {}\n", material)?;
+                }
+                if let Some(operator) = operator {
+                    write!(f, "Operator: {}\n", operator)?;
+                }
+                if let Some(phases) = phases {
+                    write!(f, "Phases: {}\n", phases)?;
+                }
+                if let Some(poles) = poles {
+                    write!(f, "Poles: {}\n", poles)?;
+                }
+                if let Some(start_date) = start_date {
+                    write!(f, "Start Date: {}\n", start_date)?;
+                }
+                if let Some(structure) = structure {
+                    write!(f, "Structure: {}\n", structure)?;
+                }
+                if let Some(substation) = substation {
+                    write!(f, "Substation: {}\n", substation)?;
+                }
+                if let Some(switch) = switch {
+                    write!(f, "Switch: {}\n", switch)?;
+                }
+                if let Some(rating) = rating {
+                    write!(f, "Rating: {}\n", rating)?;
+                }
+                if let Some(voltage) = voltage {
+                    write!(f, "Voltage: {}\n", voltage)?;
+                }
+                if let Some(windings) = windings {
+                    write!(f, "Windings: {}\n", windings)?;
+                }
+                if let Some(wires) = wires {
+                    write!(f, "Wires: {}\n", wires)?;
+                }
+                Ok(())
+            },
             GeoTile::PublicTransport { .. } => write!(f, "PublicTransport\n",),
             GeoTile::Railway { .. } => write!(f, "Railway\n",),
             GeoTile::Route {

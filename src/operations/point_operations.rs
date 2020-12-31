@@ -3,7 +3,8 @@ use crate::{
     features::{
         barrier_feature::get_barrier_geo_tile, highway_feature::get_highway_geo_tile,
         natural_feature::get_natural_geo_tile, man_made_feature::get_man_made_geo_tile,
-        place_feature::get_place_geo_tile, amenity_feature::get_amenity_geo_tile,
+        leisure_feature::get_leisure_geo_tile, amenity_feature::get_amenity_geo_tile,
+        place_feature::get_place_geo_tile, power_feature::get_power_geo_tile,
         GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry,
     }
 };
@@ -22,18 +23,22 @@ pub fn draw_point(
 
 pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Point<f64>) -> GeoTile {
     let point = Geometry::Point(point);
-    if properties.contains_key("natural") {
-        get_natural_geo_tile(properties, point)
-    } else if properties.contains_key("man_made") {
-        get_man_made_geo_tile(properties, point)
-    } else if properties.contains_key("highway") {
-        get_highway_geo_tile(properties, point, false)
+    if properties.contains_key("amenity") {
+        get_amenity_geo_tile(properties, point)
     } else if properties.contains_key("barrier") {
         get_barrier_geo_tile(properties, point)
+    } else if properties.contains_key("highway") {
+        get_highway_geo_tile(properties, point, false)
+    } else if properties.contains_key("leisure") {
+        get_leisure_geo_tile(properties, point)
+    } else if properties.contains_key("man_made") {
+        get_man_made_geo_tile(properties, point)
+    } else if properties.contains_key("natural") {
+        get_natural_geo_tile(properties, point)
     } else if properties.contains_key("place") {
         get_place_geo_tile(properties, point)
-    } else if properties.contains_key("amenity") {
-        get_amenity_geo_tile(properties, point)
+    } else if properties.contains_key("power") {
+        get_power_geo_tile(properties, point)
     } else {
         warn!(
             "Unclassified point feature geo tile found: {:?}",
