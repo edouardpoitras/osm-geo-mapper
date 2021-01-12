@@ -4,13 +4,8 @@ use crate::{
 };
 use log::warn;
 
-pub fn get_building_geo_tile(props: &GeoTileProperties, geometry: Geometry, part: bool) -> GeoTile {
-    let building = if !part {
-        props["building"].as_str().unwrap()
-    } else {
-        props["building:part"].as_str().unwrap()
-    };
-    let building_type = match building {
+pub fn get_building_geo_tile(props: &GeoTileProperties, geometry: Geometry, building_type_str: &str) -> GeoTile {
+    let building_type = match building_type_str {
         "apartments" => BuildingType::Apartments,
         "bakehouse" => BuildingType::Bakehouse,
         "barn" => BuildingType::Barn,
@@ -86,7 +81,7 @@ pub fn get_building_geo_tile(props: &GeoTileProperties, geometry: Geometry, part
         "water_tower" => BuildingType::WaterTower,
         "yes" => BuildingType::Building,
         _ => {
-            warn!("Unclassified building type {}: {:?}", building, props);
+            warn!("Unclassified building type {}: {:?}", building_type_str, props);
             BuildingType::Unclassified
         }
     };

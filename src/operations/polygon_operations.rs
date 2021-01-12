@@ -5,7 +5,7 @@ use crate::{
         landuse_feature::get_landuse_geo_tile, leisure_feature::get_leisure_geo_tile,
         natural_feature::get_natural_geo_tile, highway_feature::get_highway_geo_tile,
         man_made_feature::get_man_made_geo_tile, place_feature::get_place_geo_tile,
-        route_feature::get_route_geo_tile,
+        public_transport_feature::get_public_transport_geo_tile, route_feature::get_route_geo_tile,
         GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry,
     },
     operations::{
@@ -112,7 +112,7 @@ pub fn polygon_feature_to_geo_tile(
 ) -> GeoTile {
     let polygon = Geometry::Polygon(polygon);
     if properties.contains_key("building") {
-        get_building_geo_tile(properties, polygon, false)
+        get_building_geo_tile(properties, polygon, properties["building"].as_str().unwrap())
     } else if properties.contains_key("natural") {
         get_natural_geo_tile(properties, polygon)
     } else if properties.contains_key("boundary") {
@@ -123,12 +123,8 @@ pub fn polygon_feature_to_geo_tile(
         get_leisure_geo_tile(properties, polygon)
     } else if properties.contains_key("landuse") {
         get_landuse_geo_tile(properties, polygon, false)
-    } else if properties.contains_key("landcover") {
-        get_landuse_geo_tile(properties, polygon, true)
     } else if properties.contains_key("amenity") {
         get_amenity_geo_tile(properties, polygon)
-    } else if properties.contains_key("building:part") {
-        get_building_geo_tile(properties, polygon, true)
     } else if properties.contains_key("highway") {
         get_highway_geo_tile(properties, polygon, false)
     } else if properties.contains_key("man_made") {
@@ -137,6 +133,19 @@ pub fn polygon_feature_to_geo_tile(
         get_place_geo_tile(properties, polygon)
     } else if properties.contains_key("route") {
         get_route_geo_tile(properties, polygon, None)
+    } else if properties.contains_key("public_transport") {
+        get_public_transport_geo_tile(properties, polygon)
+    // Less common corner cases.
+    } else if properties.contains_key("building:part") {
+        get_building_geo_tile(properties, polygon, properties["building:part"].as_str().unwrap())
+    // We need to check for office before we check for addr::* because all office
+    // features should have the addr::* properties, like any other building.
+    //} else if properties.contains_key("office") {
+        //get_office_geo_tile(properties, polygon)
+    } else if properties.contains_key("addr:housenumber") {
+        get_building_geo_tile(properties, polygon, "yes")
+    } else if properties.contains_key("landcover") {
+        get_landuse_geo_tile(properties, polygon, true)
     } else if properties.contains_key("piste:type") {
         get_route_geo_tile(properties, polygon, Some("piste:type"))
     } else {

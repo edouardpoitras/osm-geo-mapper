@@ -10,6 +10,7 @@ use crate::{
         man_made_feature::{draw_man_made_line_string, get_man_made_geo_tile},
         natural_feature::{draw_natural_line_string, get_natural_geo_tile},
         power_feature::{draw_power_line_string, get_power_geo_tile},
+        public_transport_feature::{draw_public_transport_line_string, get_public_transport_geo_tile},
         route_feature::{draw_route_line_string, get_route_geo_tile},
         GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
     }
@@ -132,6 +133,18 @@ pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStru
             };
             draw_power_line_string(geo_tile, data_structure, power_type, line_string)
         }
+        GeoTile::PublicTransport {
+            geometry,
+            public_transport_type,
+            ..
+        } => {
+            let line_string = match geometry {
+                Geometry::LineString(ls) => ls,
+                Geometry::Point(_) => panic!("public transport should not be dealing with a point"),
+                Geometry::Polygon(_) => panic!("public transport should not be dealing with a polygon"),
+            };
+            draw_public_transport_line_string(geo_tile, data_structure, public_transport_type, line_string)
+        }
         GeoTile::Route {
             geometry,
             route_type,
@@ -179,6 +192,8 @@ pub fn line_string_feature_to_geo_tile(
         get_route_geo_tile(properties, line_string, Some("piste"))
     } else if properties.contains_key("power") {
         get_power_geo_tile(properties, line_string)
+    } else if properties.contains_key("public_transport") {
+        get_public_transport_geo_tile(properties, line_string)
     } else if properties.contains_key("route") {
         get_route_geo_tile(properties, line_string, None)
     } else if properties.contains_key("service") && properties["service"] == "driveway" {

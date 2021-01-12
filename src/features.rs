@@ -17,6 +17,7 @@ pub mod man_made_feature;
 pub mod natural_feature;
 pub mod place_feature;
 pub mod power_feature;
+pub mod public_transport_feature;
 pub mod route_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
@@ -366,8 +367,37 @@ pub enum GeoTile {
         wires: Option<String>,
     },
     PublicTransport {
+        aerialway: Option<String>,
+        area: Option<String>,
+        bench: Option<String>,
+        bin: Option<String>,
+        building: Option<String>,
+        bus: Option<String>,
+        covered: Option<String>,
+        departures_board: Option<String>,
+        ferry: Option<String>,
         geometry: Geometry,
+        layer: Option<String>,
+        level: Option<String>,
+        local_ref: Option<String>,
+        monorail: Option<String>,
+        name: Option<String>,
+        network: Option<String>,
+        operator: Option<String>,
         osm_id: String,
+        passenger_information_display: Option<String>,
+        public_transport_type: PublicTransportType,
+        shelter: Option<String>,
+        subway: Option<String>,
+        surface: Option<String>,
+        tactile_paving: Option<String>,
+        toilet: Option<String>,
+        train: Option<String>,
+        tram: Option<String>,
+        trolleybus: Option<String>,
+        uic_ref: Option<String>,
+        uic_name: Option<String>,
+        wheelchair: Option<String>,
     },
     Railway {
         geometry: Geometry,
@@ -1004,6 +1034,15 @@ pub enum PowerType {
     Terminal,
     Tower,
     Transformer,
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum PublicTransportType {
+    Platform,
+    Station,
+    StopArea,
+    StopPosition,
     Unclassified,
 }
 
@@ -1921,7 +1960,127 @@ impl fmt::Display for GeoTile {
                 }
                 Ok(())
             },
-            GeoTile::PublicTransport { .. } => write!(f, "PublicTransport\n",),
+            GeoTile::PublicTransport {
+                aerialway,
+                area,
+                bench,
+                bin,
+                building,
+                bus,
+                covered,
+                departures_board,
+                ferry,
+                geometry: _,
+                layer,
+                level,
+                local_ref,
+                monorail,
+                name,
+                network,
+                operator,
+                osm_id: _,
+                passenger_information_display,
+                public_transport_type,
+                shelter,
+                subway,
+                surface,
+                tactile_paving,
+                toilet,
+                train,
+                tram,
+                trolleybus,
+                uic_ref,
+                uic_name,
+                wheelchair,
+            } => {
+                write!(f, "Feature: Public Transport\n")?;
+                write!(f, "Type: {:?}\n", public_transport_type)?;
+                if let Some(name) = name {
+                    write!(f, "Name: {}\n", name)?;
+                }
+                if let Some(aerialway) = aerialway {
+                    write!(f, "Aerialway: {}\n", aerialway)?;
+                }
+                if let Some(area) = area {
+                    write!(f, "Area: {}\n", area)?;
+                }
+                if let Some(bench) = bench {
+                    write!(f, "Bench: {}\n", bench)?;
+                }
+                if let Some(bin) = bin {
+                    write!(f, "Bin: {}\n", bin)?;
+                }
+                if let Some(building) = building {
+                    write!(f, "Building: {}\n", building)?;
+                }
+                if let Some(bus) = bus {
+                    write!(f, "Bus: {}\n", bus)?;
+                }
+                if let Some(covered) = covered {
+                    write!(f, "Covered: {}\n", covered)?;
+                }
+                if let Some(departures_board) = departures_board {
+                    write!(f, "Departures Board: {}\n", departures_board)?;
+                }
+                if let Some(ferry) = ferry {
+                    write!(f, "Ferry: {}\n", ferry)?;
+                }
+                if let Some(layer) = layer {
+                    write!(f, "Layer: {}\n", layer)?;
+                }
+                if let Some(level) = level {
+                    write!(f, "Level: {}\n", level)?;
+                }
+                if let Some(local_ref) = local_ref {
+                    write!(f, "Local Reference: {}\n", local_ref)?;
+                }
+                if let Some(monorail) = monorail {
+                    write!(f, "Monorail: {}\n", monorail)?;
+                }
+                if let Some(network) = network {
+                    write!(f, "Network: {}\n", network)?;
+                }
+                if let Some(operator) = operator {
+                    write!(f, "Operator: {}\n", operator)?;
+                }
+                if let Some(passenger_information_display) = passenger_information_display {
+                    write!(f, "Passenger Information Display: {}\n", passenger_information_display)?;
+                }
+                if let Some(shelter) = shelter {
+                    write!(f, "Shelter: {}\n", shelter)?;
+                }
+                if let Some(subway) = subway {
+                    write!(f, "Subway: {}\n", subway)?;
+                }
+                if let Some(surface) = surface {
+                    write!(f, "Surface: {}\n", surface)?;
+                }
+                if let Some(tactile_paving) = tactile_paving {
+                    write!(f, "Tactile Paving: {}\n", tactile_paving)?;
+                }
+                if let Some(toilet) = toilet {
+                    write!(f, "Toilet: {}\n", toilet)?;
+                }
+                if let Some(train) = train {
+                    write!(f, "Train: {}\n", train)?;
+                }
+                if let Some(tram) = tram {
+                    write!(f, "Tram: {}\n", tram)?;
+                }
+                if let Some(trolleybus) = trolleybus {
+                    write!(f, "Trolleybus: {}\n", trolleybus)?;
+                }
+                if let Some(uic_ref) = uic_ref {
+                    write!(f, "UIC Referance: {}\n", uic_ref)?;
+                }
+                if let Some(uic_name) = uic_name {
+                    write!(f, "UIC Name: {}\n", uic_name)?;
+                }
+                if let Some(wheelchair) = wheelchair {
+                    write!(f, "Wheelchair: {}\n", wheelchair)?;
+                }
+                Ok(())
+            },
             GeoTile::Railway { .. } => write!(f, "Railway\n",),
             GeoTile::Route {
                 area,
