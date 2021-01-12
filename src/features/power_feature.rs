@@ -7,7 +7,7 @@ use log::warn;
 use std::sync::Arc;
 
 pub fn get_power_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let power = props["place"].as_str().unwrap();
+    let power = props["power"].as_str().unwrap();
     let power_type = match power {
         "cable" => PowerType::Cable,
         "catenary_mast" => PowerType::CatenaryMast,

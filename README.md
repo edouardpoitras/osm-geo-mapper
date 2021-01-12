@@ -113,3 +113,8 @@ TODO
 - Implement (binary?) serialization of map data to be loaded/cached
 - Continue adding missing properties/details/themes
 - Need logic to handle rate-limited Overpass API calls (need to parse XML response)
+
+ISSUES
+======
+
+Shift + Movement doesn't work in certain terminal emulators (confirmed in urxvt).
