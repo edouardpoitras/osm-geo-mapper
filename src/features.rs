@@ -19,6 +19,7 @@ pub mod place_feature;
 pub mod power_feature;
 pub mod public_transport_feature;
 pub mod route_feature;
+pub mod tourism_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
 pub type GeoTilesDataStructure = Arc<RwLock<HashMap<gt::Coordinate<i32>, Arc<GeoTile>>>>;
@@ -441,8 +442,83 @@ pub enum GeoTile {
         osm_id: String,
     },
     Tourism {
+        aerialway: Option<String>,
+        access: Option<String>,
+        address: Option<Address>,
+        artist_name: Option<String>,
+        artwork_subject: Option<String>,
+        artwork_type: Option<String>,
+        attraction: Option<String>,
+        backcountry: Option<String>,
+        balcony: Option<String>,
+        bar: Option<String>,
+        beds: Option<String>,
+        bbq: Option<String>,
+        brand: Option<String>,
+        cabins: Option<String>,
+        camp_site: Option<String>,
+        capacity: Option<String>,
+        caravans: Option<String>,
+        contact: Option<String>,
+        covered: Option<String>,
+        description: Option<String>,
+        dog: Option<String>,
+        drinking_water: Option<String>,
+        ele: Option<String>,
+        electricity: Option<String>,
+        email: Option<String>,
+        exhibit: Option<String>,
+        fee: Option<String>,
+        fireplace: Option<String>,
         geometry: Geometry,
+        group_only: Option<String>,
+        heritage: Option<String>,
+        historic: Option<String>,
+        hot_water: Option<String>,
+        information: Option<String>,
+        internet_access: Option<String>,
+        kitchen: Option<String>,
+        lit: Option<String>,
+        material: Option<String>,
+        mattress: Option<String>,
+        motor_vehicle: Option<String>,
+        museum: Option<String>,
+        museum_type: Option<String>,
+        name: Option<String>,
+        nudism: Option<String>,
+        number_of_apartments: Option<String>,
+        openfire: Option<String>,
+        opening_hours: Option<String>,
+        operator: Option<String>,
         osm_id: String,
+        parking: Option<String>,
+        payment: Option<String>,
+        permanent_camping: Option<String>,
+        picnic_table: Option<String>,
+        phone: Option<String>,
+        power_supply: Option<String>,
+        reservation: Option<String>,
+        rooms: Option<String>,
+        sanitary_dump_station: Option<String>,
+        scout: Option<String>,
+        shower: Option<String>,
+        smoking: Option<String>,
+        stars: Option<String>,
+        start_date: Option<String>,
+        static_caravans: Option<String>,
+        subject: Option<String>,
+        surface: Option<String>,
+        swimming_pool: Option<String>,
+        tents: Option<String>,
+        toilets: Option<String>,
+        tourism_type: TourismType,
+        washing_machine: Option<String>,
+        waste_disposal: Option<String>,
+        website: Option<String>,
+        wheelchair: Option<String>,
+        wikipedia: Option<String>,
+        winter_room: Option<String>,
+        zoo: Option<String>,
     },
     Waterway {
         geometry: Geometry,
@@ -1072,6 +1148,33 @@ pub enum RouteType {
     Tram,
     Trolleybus,
     Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum TourismType {
+    AlpineHut,
+    Apartment,
+    Aquarium,
+    Artwork,
+    Attraction,
+    CampPitch,
+    CampSite,
+    CaravanSite,
+    Chalet,
+    Gallery,
+    GuestHouse,
+    Hostel,
+    Hotel,
+    Information,
+    Motel,
+    Museum,
+    PicnicSite,
+    ThemePark,
+    Tourism, // Not sure how else to handle properties of "tourism: yes"
+    Unclassified,
+    Viewpoint,
+    WildernessHut,
+    Zoo,
 }
 
 impl fmt::Display for GeoTile {
@@ -2174,7 +2277,314 @@ impl fmt::Display for GeoTile {
             GeoTile::Shop { .. } => write!(f, "Shop\n",),
             GeoTile::Sport { .. } => write!(f, "Sport\n",),
             GeoTile::Telecom { .. } => write!(f, "Telecom\n",),
-            GeoTile::Tourism { .. } => write!(f, "Tourism\n",),
+            GeoTile::Tourism {
+                aerialway,
+                access,
+                address,
+                artist_name,
+                artwork_subject,
+                artwork_type,
+                attraction,
+                backcountry,
+                balcony,
+                bar,
+                beds,
+                bbq,
+                brand,
+                cabins,
+                camp_site,
+                capacity,
+                caravans,
+                contact,
+                covered,
+                description,
+                dog,
+                drinking_water,
+                ele,
+                electricity,
+                email,
+                exhibit,
+                fee,
+                fireplace,
+                group_only,
+                heritage,
+                historic,
+                hot_water,
+                information,
+                internet_access,
+                kitchen,
+                lit,
+                material,
+                mattress,
+                motor_vehicle,
+                museum,
+                museum_type,
+                name,
+                nudism,
+                number_of_apartments,
+                openfire,
+                opening_hours,
+                operator,
+                parking,
+                payment,
+                permanent_camping,
+                picnic_table,
+                phone,
+                power_supply,
+                reservation,
+                rooms,
+                sanitary_dump_station,
+                scout,
+                shower,
+                smoking,
+                stars,
+                start_date,
+                static_caravans,
+                subject,
+                surface,
+                swimming_pool,
+                tents,
+                toilets,
+                tourism_type,
+                washing_machine,
+                waste_disposal,
+                website,
+                wheelchair,
+                wikipedia,
+                winter_room,
+                zoo,
+                geometry: _,
+                osm_id: _,
+            } => {
+                write!(f, "Feature: Tourism\n")?;
+                write!(f, "Type: {:?}\n", tourism_type)?;
+                if let Some(name) = name {
+                    write!(f, "Name: {}\n", name)?;
+                }
+                if let Some(address) = address {
+                    write!(f, "Address: {}\n", address)?;
+                }
+                if let Some(aerialway) = aerialway {
+                    write!(f, "Aerialway: {}\n", aerialway)?;
+                }
+                if let Some(access) = access {
+                    write!(f, "Access: {}\n", access)?;
+                }
+                if let Some(artist_name) = artist_name {
+                    write!(f, "Artist Name: {}\n", artist_name)?;
+                }
+                if let Some(artwork_subject) = artwork_subject {
+                    write!(f, "Artwork Subject: {}\n", artwork_subject)?;
+                }
+                if let Some(artwork_type) = artwork_type {
+                    write!(f, "Artwork Type: {}\n", artwork_type)?;
+                }
+                if let Some(attraction) = attraction {
+                    write!(f, "Attraction: {}\n", attraction)?;
+                }
+                if let Some(backcountry) = backcountry {
+                    write!(f, "Backcountry: {}\n", backcountry)?;
+                }
+                if let Some(balcony) = balcony {
+                    write!(f, "Balcony: {}\n", balcony)?;
+                }
+                if let Some(bar) = bar {
+                    write!(f, "Bar: {}\n", bar)?;
+                }
+                if let Some(beds) = beds {
+                    write!(f, "Beds: {}\n", beds)?;
+                }
+                if let Some(bbq) = bbq {
+                    write!(f, "BBQ: {}\n", bbq)?;
+                }
+                if let Some(brand) = brand {
+                    write!(f, "Brand: {}\n", brand)?;
+                }
+                if let Some(cabins) = cabins {
+                    write!(f, "Cabins: {}\n", cabins)?;
+                }
+                if let Some(camp_site) = camp_site {
+                    write!(f, "Camp Site: {}\n", camp_site)?;
+                }
+                if let Some(capacity) = capacity {
+                    write!(f, "Capacity: {}\n", capacity)?;
+                }
+                if let Some(caravans) = caravans {
+                    write!(f, "Caravans: {}\n", caravans)?;
+                }
+                if let Some(contact) = contact {
+                    write!(f, "Contact: {}\n", contact)?;
+                }
+                if let Some(covered) = covered {
+                    write!(f, "Covered: {}\n", covered)?;
+                }
+                if let Some(description) = description {
+                    write!(f, "Description: {}\n", description)?;
+                }
+                if let Some(dog) = dog {
+                    write!(f, "Dog: {}\n", dog)?;
+                }
+                if let Some(drinking_water) = drinking_water {
+                    write!(f, "Drinking Water: {}\n", drinking_water)?;
+                }
+                if let Some(ele) = ele {
+                    write!(f, "Elevation: {}\n", ele)?;
+                }
+                if let Some(electricity) = electricity {
+                    write!(f, "Electricity: {}\n", electricity)?;
+                }
+                if let Some(email) = email {
+                    write!(f, "Email: {}\n", email)?;
+                }
+                if let Some(exhibit) = exhibit {
+                    write!(f, "Exhibit: {}\n", exhibit)?;
+                }
+                if let Some(fee) = fee {
+                    write!(f, "Fee: {}\n", fee)?;
+                }
+                if let Some(fireplace) = fireplace {
+                    write!(f, "Fireplace: {}\n", fireplace)?;
+                }
+                if let Some(fireplace) = fireplace {
+                    write!(f, "Fireplace: {}\n", fireplace)?;
+                }
+                if let Some(group_only) = group_only {
+                    write!(f, "Group Only: {}\n", group_only)?;
+                }
+                if let Some(heritage) = heritage {
+                    write!(f, "Heritage: {}\n", heritage)?;
+                }
+                if let Some(historic) = historic {
+                    write!(f, "Historic: {}\n", historic)?;
+                }
+                if let Some(hot_water) = hot_water {
+                    write!(f, "Hot Water: {}\n", hot_water)?;
+                }
+                if let Some(information) = information {
+                    write!(f, "Information: {}\n", information)?;
+                }
+                if let Some(internet_access) = internet_access {
+                    write!(f, "Internet Access: {}\n", internet_access)?;
+                }
+                if let Some(kitchen) = kitchen {
+                    write!(f, "Kitchen: {}\n", kitchen)?;
+                }
+                if let Some(lit) = lit {
+                    write!(f, "Lit: {}\n", lit)?;
+                }
+                if let Some(material) = material {
+                    write!(f, "Material: {}\n", material)?;
+                }
+                if let Some(mattress) = mattress {
+                    write!(f, "Mattress: {}\n", mattress)?;
+                }
+                if let Some(motor_vehicle) = motor_vehicle {
+                    write!(f, "Motor Vehicle: {}\n", motor_vehicle)?;
+                }
+                if let Some(museum) = museum {
+                    write!(f, "Museum: {}\n", museum)?;
+                }
+                if let Some(museum_type) = museum_type {
+                    write!(f, "Museum Type: {}\n", museum_type)?;
+                }
+                if let Some(nudism) = nudism {
+                    write!(f, "Nudism: {}\n", nudism)?;
+                }
+                if let Some(number_of_apartments) = number_of_apartments {
+                    write!(f, "Number of Apartments: {}\n", number_of_apartments)?;
+                }
+                if let Some(openfire) = openfire {
+                    write!(f, "Openfire: {}\n", openfire)?;
+                }
+                if let Some(opening_hours) = opening_hours {
+                    write!(f, "Opening Hours: {}\n", opening_hours)?;
+                }
+                if let Some(operator) = operator {
+                    write!(f, "Operator: {}\n", operator)?;
+                }
+                if let Some(parking) = parking {
+                    write!(f, "Parking: {}\n", parking)?;
+                }
+                if let Some(payment) = payment {
+                    write!(f, "Payment: {}\n", payment)?;
+                }
+                if let Some(permanent_camping) = permanent_camping {
+                    write!(f, "Permanent Camping: {}\n", permanent_camping)?;
+                }
+                if let Some(picnic_table) = picnic_table {
+                    write!(f, "Picnic Table: {}\n", picnic_table)?;
+                }
+                if let Some(phone) = phone {
+                    write!(f, "Phone: {}\n", phone)?;
+                }
+                if let Some(power_supply) = power_supply {
+                    write!(f, "Power Supply: {}\n", power_supply)?;
+                }
+                if let Some(reservation) = reservation {
+                    write!(f, "Reservation: {}\n", reservation)?;
+                }
+                if let Some(rooms) = rooms {
+                    write!(f, "Rooms: {}\n", rooms)?;
+                }
+                if let Some(sanitary_dump_station) = sanitary_dump_station {
+                    write!(f, "Sanitary Dump Station: {}\n", sanitary_dump_station)?;
+                }
+                if let Some(scout) = scout {
+                    write!(f, "Scout: {}\n", scout)?;
+                }
+                if let Some(shower) = shower {
+                    write!(f, "Shower: {}\n", shower)?;
+                }
+                if let Some(smoking) = smoking {
+                    write!(f, "Smoking: {}\n", smoking)?;
+                }
+                if let Some(stars) = stars {
+                    write!(f, "Stars: {}\n", stars)?;
+                }
+                if let Some(start_date) = start_date {
+                    write!(f, "Start Date: {}\n", start_date)?;
+                }
+                if let Some(static_caravans) = static_caravans {
+                    write!(f, "Static Caravans: {}\n", static_caravans)?;
+                }
+                if let Some(subject) = subject {
+                    write!(f, "Subject: {}\n", subject)?;
+                }
+                if let Some(surface) = surface {
+                    write!(f, "Surface: {}\n", surface)?;
+                }
+                if let Some(swimming_pool) = swimming_pool {
+                    write!(f, "Swimming Pool: {}\n", swimming_pool)?;
+                }
+                if let Some(tents) = tents {
+                    write!(f, "Tents: {}\n", tents)?;
+                }
+                if let Some(toilets) = toilets {
+                    write!(f, "Toilets: {}\n", toilets)?;
+                }
+                if let Some(washing_machine) = washing_machine {
+                    write!(f, "Washing Machine: {}\n", washing_machine)?;
+                }
+                if let Some(waste_disposal) = waste_disposal {
+                    write!(f, "Waste Disposal: {}\n", waste_disposal)?;
+                }
+                if let Some(website) = website {
+                    write!(f, "Website: {}\n", website)?;
+                }
+                if let Some(wheelchair) = wheelchair {
+                    write!(f, "Wheelchair: {}\n", wheelchair)?;
+                }
+                if let Some(wikipedia) = wikipedia {
+                    write!(f, "Wikipedia: {}\n", wikipedia)?;
+                }
+                if let Some(winter_room) = winter_room {
+                    write!(f, "Winter Room: {}\n", winter_room)?;
+                }
+                if let Some(zoo) = zoo {
+                    write!(f, "Zoo: {}\n", zoo)?;
+                }
+                Ok(())
+            }
             GeoTile::Waterway { .. } => write!(f, "Waterway\n",),
             GeoTile::Unclassified { .. } => write!(f, "Unclassified\n",),
         }

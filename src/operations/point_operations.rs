@@ -6,6 +6,7 @@ use crate::{
         man_made_feature::get_man_made_geo_tile, leisure_feature::get_leisure_geo_tile,
         amenity_feature::get_amenity_geo_tile, place_feature::get_place_geo_tile,
         power_feature::get_power_geo_tile, public_transport_feature::get_public_transport_geo_tile,
+        tourism_feature::get_tourism_geo_tile,
         GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry,
     }
 };
@@ -40,6 +41,8 @@ pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Poin
         get_power_geo_tile(properties, point)
     } else if properties.contains_key("public_transport") {
         get_public_transport_geo_tile(properties, point)
+    } else if properties.contains_key("tourism") {
+        get_tourism_geo_tile(properties, point)
     // Less common corner cases.
     } else if properties.contains_key("highway") {
         get_highway_geo_tile(properties, point, false)
