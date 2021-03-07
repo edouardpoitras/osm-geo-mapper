@@ -6,7 +6,7 @@ use crate::{
         natural_feature::get_natural_geo_tile, highway_feature::get_highway_geo_tile,
         man_made_feature::get_man_made_geo_tile, place_feature::get_place_geo_tile,
         public_transport_feature::get_public_transport_geo_tile, route_feature::get_route_geo_tile,
-        GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry,
+        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
     },
     operations::{
         self,
@@ -152,6 +152,7 @@ pub fn polygon_feature_to_geo_tile(
         warn!("Unclassified polygon geo tile found: {:?}", properties);
         let osm_id = properties["id"].to_string();
         GeoTile::Unclassified {
+            unclassified_type: UnclassifiedType::Unclassified,
             geometry: polygon,
             osm_id,
         }

@@ -7,7 +7,7 @@ use crate::{
         amenity_feature::get_amenity_geo_tile, place_feature::get_place_geo_tile,
         power_feature::get_power_geo_tile, public_transport_feature::get_public_transport_geo_tile,
         tourism_feature::get_tourism_geo_tile,
-        GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry,
+        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
     }
 };
 use geo_types as gt;
@@ -59,6 +59,7 @@ pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Poin
         );
         let osm_id = properties["id"].to_string();
         GeoTile::Unclassified {
+            unclassified_type: UnclassifiedType::Unclassified,
             geometry: point,
             osm_id,
         }

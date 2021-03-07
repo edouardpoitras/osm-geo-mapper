@@ -176,14 +176,17 @@ pub enum GeoTile {
         sport: Option<String>,
     },
     Craft {
+        craft_type: CraftType,
         geometry: Geometry,
         osm_id: String,
     },
     Emergency {
+        emergency_type: EmergencyType,
         geometry: Geometry,
         osm_id: String,
     },
     Geological {
+        geological_type: GeologicalType,
         geometry: Geometry,
         osm_id: String,
     },
@@ -219,6 +222,7 @@ pub enum GeoTile {
         width: Option<String>,
     },
     Historic {
+        historic_type: HistoricType,
         geometry: Geometry,
         osm_id: String,
     },
@@ -277,7 +281,6 @@ pub enum GeoTile {
         geometry: Geometry,
         height: Option<String>,
         headframe: Option<String>,
-        historic: Option<String>,
         inscription: Option<String>,
         layer: Option<String>,
         landuse: Option<String>,
@@ -312,6 +315,7 @@ pub enum GeoTile {
         width: Option<String>,
     },
     Military {
+        military_type: MilitaryType,
         geometry: Geometry,
         osm_id: String,
     },
@@ -339,6 +343,7 @@ pub enum GeoTile {
         width: Option<String>,
     },
     Office {
+        office_type: OfficeType,
         geometry: Geometry,
         osm_id: String,
     },
@@ -423,6 +428,7 @@ pub enum GeoTile {
         wheelchair: Option<String>,
     },
     Railway {
+        railway_type: RailwayType,
         geometry: Geometry,
         osm_id: String,
     },
@@ -452,14 +458,17 @@ pub enum GeoTile {
         to: Option<String>,
     },
     Shop {
+        shop_type: ShopType,
         geometry: Geometry,
         osm_id: String,
     },
     Sport {
+        sport_type: SportType,
         geometry: Geometry,
         osm_id: String,
     },
     Telecom {
+        telecom_type: TelecomType,
         geometry: Geometry,
         osm_id: String,
     },
@@ -495,7 +504,6 @@ pub enum GeoTile {
         geometry: Geometry,
         group_only: Option<String>,
         heritage: Option<String>,
-        historic: Option<String>,
         hot_water: Option<String>,
         information: Option<String>,
         internet_access: Option<String>,
@@ -543,10 +551,12 @@ pub enum GeoTile {
         zoo: Option<String>,
     },
     Waterway {
+        waterway_type: WaterwayType,
         geometry: Geometry,
         osm_id: String,
     },
     Unclassified {
+        unclassified_type: UnclassifiedType,
         geometry: Geometry,
         osm_id: String,
     },
@@ -865,6 +875,21 @@ pub enum BuildingType {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub enum CraftType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum EmergencyType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum GeologicalType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum HighwayType {
     Bridleway,
     BusGuideway,
@@ -899,6 +924,11 @@ pub enum HighwayType {
     Trunk,
     TrunkLink,
     TurningCircle,
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum HistoricType {
     Unclassified,
 }
 
@@ -1035,6 +1065,11 @@ pub enum ManMadeType {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub enum MilitaryType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum NaturalType {
     Wood,
     TreeRow,
@@ -1076,6 +1111,11 @@ pub enum NaturalType {
     Stone,
     Sinkhole,
     CaveEntrance,
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum OfficeType {
     Unclassified,
 }
 
@@ -1145,6 +1185,11 @@ pub enum PublicTransportType {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub enum RailwayType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum RouteType {
     Bicycle,
     Bus,
@@ -1169,6 +1214,21 @@ pub enum RouteType {
     Tracks,
     Tram,
     Trolleybus,
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ShopType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum SportType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum TelecomType {
     Unclassified,
 }
 
@@ -1199,9 +1259,24 @@ pub enum TourismType {
     Zoo,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum UnclassifiedType {
+    Unclassified,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum WaterwayType {
+    Unclassified,
+}
+
+///
+/// Helper macro to pretty-print all the Option<String> attributes of a particular GeoTile variant.
+/// print_geotile_attributes!(f => field1, field2, ...)
+/// Where f is a &mut fmt::Formatter (available when implementing fmt::Display).
+/// 
 #[macro_export]
 macro_rules! print_geotile_attributes {
-    ($f:expr => $($attr: ident),*) => {
+    ($f:expr => $($attr: ident),*$(,)*) => {
         {
             $(
                 // Extract every Option<String> attribute and print it's value.
@@ -1222,458 +1297,59 @@ macro_rules! print_geotile_attributes {
     };
 }
 
-impl fmt::Display for GeoTile {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            GeoTile::Aerialway { .. } => write!(f, "Aerialway\n"),
-            GeoTile::Aeroway { .. } => write!(f, "Aeroway\n"),
-            GeoTile::Amenity {
-                access,
-                amenity_type,
-                amperage,
-                backrest,
-                beds,
-                bottle,
-                brand,
-                brewery,
-                building,
-                capacity,
-                cargo,
-                colour,
-                contact,
-                covered,
-                cuisine,
-                date,
-                delivery,
-                denomination,
-                description,
-                diet,
-                direction,
-                drink,
-                drinking_water,
-                drive_through,
-                emergency,
-                fee,
-                fuel,
-                indoor,
-                lit,
-                material,
-                name,
-                network,
-                opening_hours,
-                operator,
-                payment,
-                phone,
-                religion,
-                seats,
-                self_service,
-                smoking,
-                socket,
-                voltage,
-                website,
-                wheelchair,
-                osm_id: _,
-                geometry: _,
-            } => {
-                write!(f, "Feature: Amenity\n")?;
-                write!(f, "Type: {:?}\n", amenity_type)?;
-                print_geotile_attributes!(f => access, amperage, backrest, beds, bottle, brand, brewery, building, capacity, cargo, colour, contact, covered, cuisine, date, delivery, denomination, description, diet, direction, drink, drinking_water, drive_through, emergency, fee, fuel, indoor, lit, material, name, network, opening_hours, operator, payment, phone, religion, seats, self_service, smoking, socket, voltage, website, wheelchair);
-                Ok(())
-            },
-            GeoTile::Barrier { .. } => write!(f, "Barrier\n",),
-            GeoTile::Boundary {
-                admin_level,
-                area,
-                border_type,
-                boundary_type,
-                description,
-                format,
-                geometry: _,
-                inscription,
-                material,
-                name,
-                osm_id: _,
-                political_division,
-                population,
-                postal_code,
-                protect_class,
-                protection_title,
-            } => {
-                write!(f, "Feature: Boundary\n")?;
-                write!(f, "Type: {:?}\n", boundary_type)?;
-                print_geotile_attributes!(f => admin_level, area, border_type, description, format, inscription, material, name, political_division, population, postal_code, protect_class, protection_title);
-                Ok(())
+macro_rules! implement_display_for_geotile {
+    ($($variant:ident<$type:ident>[$($attr:ident),*]),*$(,)*) => {
+        impl fmt::Display for GeoTile {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                match self {
+                    $(
+                        GeoTile::$variant {
+                            $(
+                                $attr,
+                            )*
+                            $type,
+                            ..
+                        } => {
+                            let variant_str = stringify!($variant);
+                            write!(f, "Feature: {}\n", variant_str)?;
+                            write!(f, "Type: {:?}\n", $type)?;
+                            print_geotile_attributes!(f => $($attr),*);
+                            Ok(())
+                        },
+                    )*
+                }
             }
-            GeoTile::Building {
-                access,
-                address,
-                amenity,
-                building_type,
-                capacity,
-                covered,
-                entrance,
-                height,
-                levels,
-                name,
-                office,
-                operator,
-                power,
-                public_transport,
-                shop,
-                sport,
-                geometry: _,
-                osm_id: _,
-            } => {
-                write!(f, "Feature: Building\n")?;
-                write!(f, "Type: {:?}\n", building_type)?;
-                print_geotile_attributes!(f => access, address, amenity, capacity, covered, entrance, height, levels, name, office, operator, power, public_transport, shop, sport);
-                Ok(())
-            }
-            GeoTile::Craft { .. } => write!(f, "Craft\n",),
-            GeoTile::Emergency { .. } => write!(f, "Emergency\n",),
-            GeoTile::Geological { .. } => write!(f, "Geological\n",),
-            GeoTile::Highway {
-                abutters,
-                access,
-                bicycle,
-                bus,
-                destination,
-                expressway,
-                foot,
-                hgv,
-                highway_type,
-                lanes,
-                lit,
-                maxspeed,
-                motor_vehicle,
-                motorcar,
-                motorroad,
-                name,
-                oneway,
-                operator,
-                service,
-                shelter,
-                sidewalk,
-                sport,
-                smoothness,
-                surface,
-                tracktype,
-                wheelchair,
-                width,
-                geometry: _,
-                osm_id: _,
-            } => {
-                write!(f, "Feature: Highway\n")?;
-                write!(f, "Type: {:?}\n", highway_type)?;
-                print_geotile_attributes!(f => name, abutters, access, bicycle, bus, destination, expressway, foot, hgv, lanes, lit, maxspeed, motor_vehicle, motorcar, motorroad, oneway, operator, service, shelter, sidewalk, sport, smoothness, surface, tracktype, wheelchair, width);
-                Ok(())
-            }
-            GeoTile::Historic { .. } => write!(f, "Historic\n",),
-            GeoTile::Landuse { .. } => write!(f, "Landuse\n",),
-            GeoTile::Leisure { .. } => write!(f, "Leisure\n",),
-            GeoTile::ManMade {
-                access,
-                bridge,
-                capacity,
-                color,
-                content,
-                country,
-                covered,
-                cutline,
-                depth,
-                direction,
-                display,
-                disused,
-                drinking_water,
-                elevation,
-                floating,
-                geometry: _,
-                height,
-                headframe,
-                historic,
-                inscription,
-                layer,
-                landuse,
-                length,
-                location,
-                man_made_type,
-                material,
-                mine,
-                mineshaft_type,
-                monitoring,
-                mooring,
-                name,
-                operator,
-                osm_id: _,
-                oven,
-                power,
-                product,
-                pump,
-                pumping_station,
-                resource,
-                species,
-                start_date,
-                street_cabinet,
-                submerged,
-                substance,
-                support,
-                surveillance,
-                survey_point,
-                tidal,
-                tourism,
-                tunnel,
-                width,
-            } => {
-                write!(f, "Feature: Man Made\n")?;
-                write!(f, "Type: {:?}\n", man_made_type)?;
-                print_geotile_attributes!(f => name, access, bridge, capacity, color, content, country, covered, cutline, depth, direction, display, disused, drinking_water, elevation, floating, height, headframe, historic, inscription, layer, landuse, length, location, material, mine, mineshaft_type, monitoring, mooring, operator, oven, power, product, pump, pumping_station, resource, species, start_date, street_cabinet, submerged, substance, support, surveillance, survey_point, tidal, tourism, tunnel, width);
-                Ok(())
-            },
-            GeoTile::Military { .. } => write!(f, "Military\n",),
-            GeoTile::Natural {
-                access,
-                circumference,
-                denotation,
-                direction,
-                elevation,
-                height,
-                intermittent,
-                genus,
-                leaf_type,
-                leaf_cycle,
-                managed,
-                natural_type,
-                name,
-                operator,
-                salt,
-                species,
-                surface,
-                taxon,
-                width,
-                geometry: _,
-                osm_id: _,
-            } => {
-                write!(f, "Feature: Natural\n")?;
-                write!(f, "Type: {:?}\n", natural_type)?;
-                print_geotile_attributes!(f => name, access, circumference, denotation, direction, elevation, height, intermittent, genus, leaf_type, leaf_cycle, managed, operator, salt, species, surface, taxon, width);
-                Ok(())
-            }
-            GeoTile::Office { .. } => write!(f, "Office\n",),
-            GeoTile::Place {
-                admin_level,
-                architect,
-                capital,
-                is_in,
-                name,
-                place_type,
-                population,
-                reference,
-                start_date,
-                state_code,
-                osm_id: _,
-                geometry: _,
-            } => {
-                write!(f, "Feature: Place\n")?;
-                write!(f, "Type: {:?}\n", place_type)?;
-                print_geotile_attributes!(f => name, admin_level, architect, capital, is_in, population, reference, start_date, state_code);
-                Ok(())
-            }
-            GeoTile::Power {
-                busbar,
-                cables,
-                circuits,
-                colour,
-                compensator,
-                design,
-                frequency,
-                height,
-                gas_insulated,
-                geometry: _,
-                landuse,
-                line,
-                line_attachment,
-                line_management,
-                location,
-                manufacturer,
-                material,
-                name,
-                operator,
-                osm_id: _,
-                phases,
-                poles,
-                power_type,
-                start_date,
-                structure,
-                substation,
-                switch,
-                rating,
-                voltage,
-                windings,
-                wires,
-            } => {
-                write!(f, "Feature: Power\n")?;
-                write!(f, "Type: {:?}\n", power_type)?;
-                print_geotile_attributes!(f => name, busbar, cables, circuits, colour, compensator, design, frequency, height, gas_insulated, landuse, line, line_attachment, line_management, location, manufacturer, material, operator, phases, poles, start_date, structure, substation, switch, rating, voltage, windings, wires);
-                Ok(())
-            },
-            GeoTile::PublicTransport {
-                aerialway,
-                area,
-                bench,
-                bin,
-                building,
-                bus,
-                covered,
-                departures_board,
-                ferry,
-                geometry: _,
-                layer,
-                level,
-                local_ref,
-                monorail,
-                name,
-                network,
-                operator,
-                osm_id: _,
-                passenger_information_display,
-                public_transport_type,
-                shelter,
-                subway,
-                surface,
-                tactile_paving,
-                toilet,
-                train,
-                tram,
-                trolleybus,
-                uic_ref,
-                uic_name,
-                wheelchair,
-            } => {
-                write!(f, "Feature: Public Transport\n")?;
-                write!(f, "Type: {:?}\n", public_transport_type)?;
-                print_geotile_attributes!(f => name, aerialway, area, bench, bin, building, bus, covered, departures_board, ferry, layer, level, local_ref, monorail, network, operator, passenger_information_display, shelter, subway, surface, tactile_paving, toilet, train, tram, trolleybus, uic_ref, uic_name, wheelchair);
-                Ok(())
-            },
-            GeoTile::Railway { .. } => write!(f, "Railway\n",),
-            GeoTile::Route {
-                area,
-                bicycle,
-                colour,
-                description,
-                distance,
-                duration,
-                fee,
-                foot,
-                from,
-                lit,
-                name,
-                network,
-                oneway,
-                operator,
-                piste_difficulty,
-                piste_type,
-                roundtrip,
-                route_type,
-                seasonal,
-                symbol,
-                to,
-                geometry: _,
-                osm_id: _,
-            } => {
-                write!(f, "Feature: Route\n")?;
-                write!(f, "Type: {:?}\n", route_type)?;
-                print_geotile_attributes!(f => name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to);
-                Ok(())
-            }
-            GeoTile::Shop { .. } => write!(f, "Shop\n",),
-            GeoTile::Sport { .. } => write!(f, "Sport\n",),
-            GeoTile::Telecom { .. } => write!(f, "Telecom\n",),
-            GeoTile::Tourism {
-                aerialway,
-                access,
-                address,
-                artist_name,
-                artwork_subject,
-                artwork_type,
-                attraction,
-                backcountry,
-                balcony,
-                bar,
-                beds,
-                bbq,
-                brand,
-                cabins,
-                camp_site,
-                capacity,
-                caravans,
-                contact,
-                covered,
-                description,
-                dog,
-                drinking_water,
-                ele,
-                electricity,
-                email,
-                exhibit,
-                fee,
-                fireplace,
-                group_only,
-                heritage,
-                historic,
-                hot_water,
-                information,
-                internet_access,
-                kitchen,
-                lit,
-                material,
-                mattress,
-                motor_vehicle,
-                museum,
-                museum_type,
-                name,
-                nudism,
-                number_of_apartments,
-                openfire,
-                opening_hours,
-                operator,
-                parking,
-                payment,
-                permanent_camping,
-                picnic_table,
-                phone,
-                power_supply,
-                reservation,
-                rooms,
-                sanitary_dump_station,
-                scout,
-                shower,
-                smoking,
-                stars,
-                start_date,
-                static_caravans,
-                subject,
-                surface,
-                swimming_pool,
-                tents,
-                toilets,
-                tourism_type,
-                washing_machine,
-                waste_disposal,
-                website,
-                wheelchair,
-                wikipedia,
-                winter_room,
-                zoo,
-                geometry: _,
-                osm_id: _,
-            } => {
-                write!(f, "Feature: Tourism\n")?;
-                write!(f, "Type: {:?}\n", tourism_type)?;
-                print_geotile_attributes!(f => name, aerialway, access, address, artist_name, artwork_subject, artwork_type, attraction, backcountry, balcony, bar, beds, bbq, brand, cabins, camp_site, capacity, caravans, contact, covered, description, dog, drinking_water, ele, electricity, email, exhibit, fee, fireplace, group_only, heritage, historic, hot_water, information, internet_access, kitchen, lit, material, mattress, motor_vehicle, museum, museum_type, nudism, number_of_apartments, openfire, opening_hours, operator, parking, payment, permanent_camping, picnic_table, phone, power_supply, reservation, rooms, sanitary_dump_station, scout, shower, smoking, stars, start_date, static_caravans, subject, surface, swimming_pool, tents, toilets, washing_machine, waste_disposal, website, wheelchair, wikipedia, winter_room, zoo);
-                Ok(())
-            }
-            GeoTile::Waterway { .. } => write!(f, "Waterway\n",),
-            GeoTile::Unclassified { .. } => write!(f, "Unclassified\n",),
         }
     }
 }
+
+implement_display_for_geotile!(
+    Aerialway<aerialway_type>[],
+    Aeroway<aeroway_type>[],
+    Amenity<amenity_type>[name, access, amperage, backrest, beds, bottle, brand, brewery, building, capacity, cargo, colour, contact, covered, cuisine, date, delivery, denomination, description, diet, direction, drink, drinking_water, drive_through, emergency, fee, fuel, indoor, lit, material, network, opening_hours, operator, payment, phone, religion, seats, self_service, smoking, socket, voltage, website, wheelchair],
+    Barrier<barrier_type>[],
+    Boundary<boundary_type>[name, admin_level, area, border_type, description, format, inscription, material, political_division, population, postal_code, protect_class, protection_title],
+    Building<building_type>[name, access, address, amenity, capacity, covered, entrance, height, levels, office, operator, power, public_transport, shop, sport],
+    Craft<craft_type>[],
+    Emergency<emergency_type>[],
+    Geological<geological_type>[],
+    Highway<highway_type>[name, abutters, access, bicycle, bus, destination, expressway, foot, hgv, lanes, lit, maxspeed, motor_vehicle, motorcar, motorroad, oneway, operator, service, shelter, sidewalk, sport, smoothness, surface, tracktype, wheelchair, width],
+    Historic<historic_type>[],
+    Landuse<landuse_type>[],
+    Leisure<leisure_type>[],
+    ManMade<man_made_type>[name, access, bridge, capacity, color, content, country, covered, cutline, depth, direction, display, disused, drinking_water, elevation, floating, height, headframe, inscription, layer, landuse, length, location, material, mine, mineshaft_type, monitoring, mooring, operator, oven, power, product, pump, pumping_station, resource, species, start_date, street_cabinet, submerged, substance, support, surveillance, survey_point, tidal, tourism, tunnel, width],
+    Military<military_type>[],
+    Natural<natural_type>[name, access, circumference, denotation, direction, elevation, height, intermittent, genus, leaf_type, leaf_cycle, managed, operator, salt, species, surface, taxon, width],
+    Office<office_type>[],
+    Place<place_type>[name, admin_level, architect, capital, is_in, population, reference, start_date, state_code],
+    Power<power_type>[name, busbar, cables, circuits, colour, compensator, design, frequency, height, gas_insulated, landuse, line, line_attachment, line_management, location, manufacturer, material, operator, phases, poles, start_date, structure, substation, switch, rating, voltage, windings, wires],
+    PublicTransport<public_transport_type>[name, aerialway, area, bench, bin, building, bus, covered, departures_board, ferry, layer, level, local_ref, monorail, network, operator, passenger_information_display, shelter, subway, surface, tactile_paving, toilet, train, tram, trolleybus, uic_ref, uic_name, wheelchair],
+    Railway<railway_type>[],
+    Route<route_type>[name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to],
+    Shop<shop_type>[],
+    Sport<sport_type>[],
+    Telecom<telecom_type>[],
+    Tourism<tourism_type>[name, aerialway, access, address, artist_name, artwork_subject, artwork_type, attraction, backcountry, balcony, bar, beds, bbq, brand, cabins, camp_site, capacity, caravans, contact, covered, description, dog, drinking_water, ele, electricity, email, exhibit, fee, fireplace, group_only, heritage, hot_water, information, internet_access, kitchen, lit, material, mattress, motor_vehicle, museum, museum_type, nudism, number_of_apartments, openfire, opening_hours, operator, parking, payment, permanent_camping, picnic_table, phone, power_supply, reservation, rooms, sanitary_dump_station, scout, shower, smoking, stars, start_date, static_caravans, subject, surface, swimming_pool, tents, toilets, washing_machine, waste_disposal, website, wheelchair, wikipedia, winter_room, zoo],
+    Waterway<waterway_type>[],
+    Unclassified<unclassified_type>[],
+);

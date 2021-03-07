@@ -12,7 +12,7 @@ use crate::{
         power_feature::{draw_power_line_string, get_power_geo_tile},
         public_transport_feature::{draw_public_transport_line_string, get_public_transport_geo_tile},
         route_feature::{draw_route_line_string, get_route_geo_tile},
-        GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
+        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
     }
 };
 
@@ -206,6 +206,7 @@ pub fn line_string_feature_to_geo_tile(
         );
         let osm_id = properties["id"].to_string();
         GeoTile::Unclassified {
+            unclassified_type: UnclassifiedType::Unclassified,
             geometry: line_string,
             osm_id,
         }

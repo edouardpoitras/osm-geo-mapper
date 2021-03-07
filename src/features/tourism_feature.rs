@@ -66,7 +66,6 @@ pub fn get_tourism_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let fireplace = property_to_option_string(props, "fireplace");
     let group_only = property_to_option_string(props, "group_only");
     let heritage = property_to_option_string(props, "heritage");
-    let historic = property_to_option_string(props, "historic");
     let hot_water = property_to_option_string(props, "hot_water");
     let information = property_to_option_string(props, "information");
     let internet_access = property_to_option_string(props, "internet_access");
@@ -143,7 +142,6 @@ pub fn get_tourism_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
         geometry,
         group_only,
         heritage,
-        historic,
         hot_water,
         information,
         internet_access,

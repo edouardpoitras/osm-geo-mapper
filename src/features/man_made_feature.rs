@@ -81,7 +81,6 @@ pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
     let floating = property_to_option_string(props, "floating");
     let height = property_to_option_string(props, "height");
     let headframe = property_to_option_string(props, "headframe");
-    let historic = property_to_option_string(props, "historic");
     let inscription = property_to_option_string(props, "inscription");
     let layer = property_to_option_string(props, "layer");
     let landuse = property_to_option_string(props, "landuse");
@@ -132,7 +131,6 @@ pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
         geometry,
         height,
         headframe,
-        historic,
         inscription,
         layer,
         landuse,
