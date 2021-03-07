@@ -1,5 +1,6 @@
 #![allow(clippy::write_with_newline)]
 
+use paste::paste;
 use geo_types as gt;
 use serde_json::{Map, Value as JsonValue};
 use std::collections::HashMap;
@@ -77,42 +78,44 @@ macro_rules! create_enum {
 
 /// You can find all features at https://wiki.openstreetmap.org/wiki/Map_Features
 macro_rules! implement_geotile {
-    ($($variant:ident<$type:ident/$field:ident>[$($attr:ident),*]),*$(,)*) => {
-        // First generate the giant enum of GeoTiles.
-        #[derive(Debug, Clone)]
-        pub enum GeoTile {
-            $(
-                $variant {
-                    $field: $type,
-                    geometry: Geometry,
-                    osm_id: String,
-                    address: Option<Address>,
-                    $(
-                        $attr: Option<String>,
-                    )*
-                },
-            )*
-        }
-        // Now generate the display implementation.
-        impl fmt::Display for GeoTile {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                match self {
-                    $(
-                        GeoTile::$variant {
-                            $(
-                                $attr,
-                            )*
-                            $field,
-                            ..
-                        } => {
-                            let variant_str = stringify!($variant);
-                            write!(f, "Feature: {}\n", variant_str)?;
-                            write!(f, "Type: {:?}\n", $field)?;
-                            print_geotile_attributes!(f => $($attr),*);
-                            Ok(())
-                        },
-                    )*
-                }
+    ($($variant:ident [$($attr:ident),*]),*$(,)*) => {
+        paste! {
+           // First generate the giant enum of GeoTiles.
+           #[derive(Debug, Clone)]
+           pub enum GeoTile {
+               $(
+                   $variant {
+                       [<$variant:snake _type>]: [<$variant:camel Type>],
+                       geometry: Geometry,
+                       osm_id: String,
+                       address: Option<Address>,
+                       $(
+                           $attr: Option<String>,
+                       )*
+                   },
+               )*
+           }
+           // Now generate the display implementation.
+           impl fmt::Display for GeoTile {
+               fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                   match self {
+                       $(
+                           GeoTile::$variant {
+                               $(
+                                   $attr,
+                               )*
+                               [<$variant:snake _type>],
+                               ..
+                           } => {
+                               let variant_str = stringify!($variant);
+                               write!(f, "Feature: {}\n", variant_str)?;
+                               write!(f, "Type: {:?}\n", [<$variant:snake _type>])?;
+                               print_geotile_attributes!(f => $($attr),*);
+                               Ok(())
+                           },
+                       )*
+                   }
+               }
             }
         }
     }
@@ -178,32 +181,32 @@ create_enum!(
 );
 
 implement_geotile!(
-    Aerialway<AerialwayType/aerialway_type>[],
-    Aeroway<AerowayType/aeroway_type>[name, description, iata, icao, operator, surface],
-    Amenity<AmenityType/amenity_type>[name, access, amperage, backrest, beds, bottle, brand, brewery, building, capacity, cargo, colour, contact, covered, cuisine, date, delivery, denomination, description, diet, direction, drink, drinking_water, drive_through, emergency, fee, fuel, indoor, lit, material, network, opening_hours, operator, payment, phone, religion, seats, self_service, smoking, socket, voltage, website, wheelchair],
-    Barrier<BarrierType/barrier_type>[access, bicycle, fee, foot, two_sided, handrail, height, highway, historic, intermittent, lanes, locked, maxheight, maxwidth, motor_vehicle, operator, wheelchair, width],
-    Boundary<BoundaryType/boundary_type>[name, admin_level, area, border_type, description, format, inscription, material, political_division, population, postal_code, protect_class, protection_title],
-    Building<BuildingType/building_type>[name, access, amenity, capacity, covered, entrance, height, levels, office, operator, power, public_transport, shop, sport],
-    Craft<CraftType/craft_type>[],
-    Emergency<EmergencyType/emergency_type>[],
-    Geological<GeologicalType/geological_type>[],
-    Highway<HighwayType/highway_type>[name, abutters, access, bicycle, bus, destination, expressway, foot, hgv, lanes, lit, maxspeed, motor_vehicle, motorcar, motorroad, oneway, operator, service, shelter, sidewalk, sport, smoothness, surface, tracktype, wheelchair, width],
-    Historic<HistoricType/historic_type>[],
-    Landuse<LanduseType/landuse_type>[name, barrier, crop, denomination, genus, industrial, leaf_cycle, leaf_type, meadow, operator, plant, religion, resource, species, trees],
-    Leisure<LeisureType/leisure_type>[name, access, barrier, building, covered, fee, lit, seasonal, shelter, sport, surface],
-    ManMade<ManMadeType/man_made_type>[name, access, bridge, capacity, color, content, country, covered, cutline, depth, direction, display, disused, drinking_water, elevation, floating, height, headframe, inscription, layer, landuse, length, location, material, mine, mineshaft_type, monitoring, mooring, operator, oven, power, product, pump, pumping_station, resource, species, start_date, street_cabinet, submerged, substance, support, surveillance, survey_point, tidal, tourism, tunnel, width],
-    Military<MilitaryType/military_type>[],
-    Natural<NaturalType/natural_type>[name, access, circumference, denotation, direction, elevation, height, intermittent, genus, leaf_type, leaf_cycle, managed, operator, salt, species, surface, taxon, width],
-    Office<OfficeType/office_type>[],
-    Place<PlaceType/place_type>[name, admin_level, architect, capital, is_in, population, reference, start_date, state_code],
-    Power<PowerType/power_type>[name, busbar, cables, circuits, colour, compensator, design, frequency, height, gas_insulated, landuse, line, line_attachment, line_management, location, manufacturer, material, operator, phases, poles, start_date, structure, substation, switch, rating, voltage, windings, wires],
-    PublicTransport<PublicTransportType/public_transport_type>[name, aerialway, area, bench, bin, building, bus, covered, departures_board, ferry, layer, level, local_ref, monorail, network, operator, passenger_information_display, shelter, subway, surface, tactile_paving, toilet, train, tram, trolleybus, uic_ref, uic_name, wheelchair],
-    Railway<RailwayType/railway_type>[],
-    Route<RouteType/route_type>[name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to],
-    Shop<ShopType/shop_type>[],
-    Sport<SportType/sport_type>[],
-    Telecom<TelecomType/telecom_type>[],
-    Tourism<TourismType/tourism_type>[name, access, artist_name, artwork_subject, artwork_type, attraction, backcountry, balcony, bar, beds, bbq, brand, cabins, camp_site, capacity, caravans, contact, covered, description, dog, drinking_water, ele, electricity, email, exhibit, fee, fireplace, group_only, heritage, hot_water, information, internet_access, kitchen, lit, material, mattress, motor_vehicle, museum, museum_type, nudism, number_of_apartments, openfire, opening_hours, operator, parking, payment, permanent_camping, picnic_table, phone, power_supply, reservation, rooms, sanitary_dump_station, scout, shower, smoking, stars, start_date, static_caravans, subject, surface, swimming_pool, tents, toilets, washing_machine, waste_disposal, website, wheelchair, wikipedia, winter_room, zoo],
-    Waterway<WaterwayType/waterway_type>[],
-    Unclassified<UnclassifiedType/unclassified_type>[],
+    Aerialway [],
+    Aeroway [name, description, iata, icao, operator, surface],
+    Amenity [name, access, amperage, backrest, beds, bottle, brand, brewery, building, capacity, cargo, colour, contact, covered, cuisine, date, delivery, denomination, description, diet, direction, drink, drinking_water, drive_through, emergency, fee, fuel, indoor, lit, material, network, opening_hours, operator, payment, phone, religion, seats, self_service, smoking, socket, voltage, website, wheelchair],
+    Barrier [access, bicycle, fee, foot, two_sided, handrail, height, highway, historic, intermittent, lanes, locked, maxheight, maxwidth, motor_vehicle, operator, wheelchair, width],
+    Boundary [name, admin_level, area, border_type, description, format, inscription, material, political_division, population, postal_code, protect_class, protection_title],
+    Building [name, access, amenity, capacity, covered, entrance, height, levels, office, operator, power, public_transport, shop, sport],
+    Craft [],
+    Emergency [],
+    Geological [],
+    Highway [name, abutters, access, bicycle, bus, destination, expressway, foot, hgv, lanes, lit, maxspeed, motor_vehicle, motorcar, motorroad, oneway, operator, service, shelter, sidewalk, sport, smoothness, surface, tracktype, wheelchair, width],
+    Historic [],
+    Landuse [name, barrier, crop, denomination, genus, industrial, leaf_cycle, leaf_type, meadow, operator, plant, religion, resource, species, trees],
+    Leisure [name, access, barrier, building, covered, fee, lit, seasonal, shelter, sport, surface],
+    ManMade [name, access, bridge, capacity, color, content, country, covered, cutline, depth, direction, display, disused, drinking_water, elevation, floating, height, headframe, inscription, layer, landuse, length, location, material, mine, mineshaft_type, monitoring, mooring, operator, oven, power, product, pump, pumping_station, resource, species, start_date, street_cabinet, submerged, substance, support, surveillance, survey_point, tidal, tourism, tunnel, width],
+    Military [],
+    Natural [name, access, circumference, denotation, direction, elevation, height, intermittent, genus, leaf_type, leaf_cycle, managed, operator, salt, species, surface, taxon, width],
+    Office [],
+    Place [name, admin_level, architect, capital, is_in, population, reference, start_date, state_code],
+    Power [name, busbar, cables, circuits, colour, compensator, design, frequency, height, gas_insulated, landuse, line, line_attachment, line_management, location, manufacturer, material, operator, phases, poles, start_date, structure, substation, switch, rating, voltage, windings, wires],
+    PublicTransport [name, aerialway, area, bench, bin, building, bus, covered, departures_board, ferry, layer, level, local_ref, monorail, network, operator, passenger_information_display, shelter, subway, surface, tactile_paving, toilet, train, tram, trolleybus, uic_ref, uic_name, wheelchair],
+    Railway [],
+    Route [name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to],
+    Shop [],
+    Sport [],
+    Telecom [],
+    Tourism [name, access, artist_name, artwork_subject, artwork_type, attraction, backcountry, balcony, bar, beds, bbq, brand, cabins, camp_site, capacity, caravans, contact, covered, description, dog, drinking_water, ele, electricity, email, exhibit, fee, fireplace, group_only, heritage, hot_water, information, internet_access, kitchen, lit, material, mattress, motor_vehicle, museum, museum_type, nudism, number_of_apartments, openfire, opening_hours, operator, parking, payment, permanent_camping, picnic_table, phone, power_supply, reservation, rooms, sanitary_dump_station, scout, shower, smoking, stars, start_date, static_caravans, subject, surface, swimming_pool, tents, toilets, washing_machine, waste_disposal, website, wheelchair, wikipedia, winter_room, zoo],
+    Waterway [],
+    Unclassified [],
 );
