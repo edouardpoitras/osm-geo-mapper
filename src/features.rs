@@ -25,6 +25,28 @@ pub const TILE_SCALE: f64 = 100_000.0;
 pub type GeoTilesDataStructure = Arc<RwLock<HashMap<gt::Coordinate<i32>, Arc<GeoTile>>>>;
 pub type GeoTileProperties = Map<String, JsonValue>;
 
+
+//macro_rules! geotile_variants {
+    //($name:ident {$($vals:tt)*}) => {
+        //enum $name {
+            //$($vals)*
+        //}
+    //}
+//}
+
+//geotile_variants! {
+    //GeoTile {
+        //Aerialway(),
+        //Aeroway(description, iata, icao, name, operator, surface),
+    //}
+    //[A1:1 A2:2 A3:3 A4:4 A5:5 A6:6 A7:7 A8:8]
+//}
+
+//fn main() {
+    //let x = Stuff::A3;
+    //let y = Stuff::Something(3);
+//}
+
 // You can find all features at https://wiki.openstreetmap.org/wiki/Map_Features
 #[derive(Debug, Clone)]
 pub enum GeoTile {
@@ -1177,6 +1199,29 @@ pub enum TourismType {
     Zoo,
 }
 
+#[macro_export]
+macro_rules! print_geotile_attributes {
+    ($f:expr => $($attr: ident),*) => {
+        {
+            $(
+                // Extract every Option<String> attribute and print it's value.
+                if let Some($attr) = $attr {
+                    let mut attr_str = stringify!($attr).to_string();
+                    // Replace underscores with spaces and capitalize.
+                    attr_str = attr_str.replace("_", " ");
+                    let mut c = attr_str.chars();
+                    attr_str = match c.next() {
+                        None => String::new(),
+                        Some(x) => x.to_uppercase().collect::<String>() + c.as_str(),
+                    };
+                    // Add our print statement.
+                    write!($f, "{}: {}\n", attr_str, $attr)?;
+                }
+            )*
+        }
+    };
+}
+
 impl fmt::Display for GeoTile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -1232,135 +1277,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Amenity\n")?;
                 write!(f, "Type: {:?}\n", amenity_type)?;
-                if let Some(access) = access {
-                    write!(f, "Access: {}\n", access)?;
-                }
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(amperage) = amperage {
-                    write!(f, "Amperage: {}\n", amperage)?;
-                }
-                if let Some(backrest) = backrest {
-                    write!(f, "Backrest: {}\n", backrest)?;
-                }
-                if let Some(beds) = beds {
-                    write!(f, "Beds: {}\n", beds)?;
-                }
-                if let Some(bottle) = bottle {
-                    write!(f, "Bottle: {}\n", bottle)?;
-                }
-                if let Some(brand) = brand {
-                    write!(f, "Brand: {}\n", brand)?;
-                }
-                if let Some(brewery) = brewery {
-                    write!(f, "Brewery: {}\n", brewery)?;
-                }
-                if let Some(building) = building {
-                    write!(f, "Building: {}\n", building)?;
-                }
-                if let Some(capacity) = capacity {
-                    write!(f, "Capacity: {}\n", capacity)?;
-                }
-                if let Some(cargo) = cargo {
-                    write!(f, "Cargo: {}\n", cargo)?;
-                }
-                if let Some(colour) = colour {
-                    write!(f, "Colour: {}\n", colour)?;
-                }
-                if let Some(contact) = contact {
-                    write!(f, "Contact: {}\n", contact)?;
-                }
-                if let Some(covered) = covered {
-                    write!(f, "Covered: {}\n", covered)?;
-                }
-                if let Some(cuisine) = cuisine {
-                    write!(f, "Cuisine: {}\n", cuisine)?;
-                }
-                if let Some(date) = date {
-                    write!(f, "Date: {}\n", date)?;
-                }
-                if let Some(delivery) = delivery {
-                    write!(f, "Delivery: {}\n", delivery)?;
-                }
-                if let Some(denomination) = denomination {
-                    write!(f, "Denomination: {}\n", denomination)?;
-                }
-                if let Some(description) = description {
-                    write!(f, "Description: {}\n", description)?;
-                }
-                if let Some(diet) = diet {
-                    write!(f, "Diet: {}\n", diet)?;
-                }
-                if let Some(direction) = direction {
-                    write!(f, "Direction: {}\n", direction)?;
-                }
-                if let Some(drink) = drink {
-                    write!(f, "Drink: {}\n", drink)?;
-                }
-                if let Some(drinking_water) = drinking_water {
-                    write!(f, "Drinking Water: {}\n", drinking_water)?;
-                }
-                if let Some(drive_through) = drive_through {
-                    write!(f, "Drive Through: {}\n", drive_through)?;
-                }
-                if let Some(emergency) = emergency {
-                    write!(f, "Emergency: {}\n", emergency)?;
-                }
-                if let Some(fee) = fee {
-                    write!(f, "Fee: {}\n", fee)?;
-                }
-                if let Some(fuel) = fuel {
-                    write!(f, "Fuel: {}\n", fuel)?;
-                }
-                if let Some(indoor) = indoor {
-                    write!(f, "Indoor: {}\n", indoor)?;
-                }
-                if let Some(lit) = lit {
-                    write!(f, "Lit: {}\n", lit)?;
-                }
-                if let Some(material) = material {
-                    write!(f, "Material: {}\n", material)?;
-                }
-                if let Some(network) = network {
-                    write!(f, "Network: {}\n", network)?;
-                }
-                if let Some(opening_hours) = opening_hours {
-                    write!(f, "Opening Hours: {}\n", opening_hours)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(payment) = payment {
-                    write!(f, "Payment: {}\n", payment)?;
-                }
-                if let Some(phone) = phone {
-                    write!(f, "Phone: {}\n", phone)?;
-                }
-                if let Some(religion) = religion {
-                    write!(f, "Religion: {}\n", religion)?;
-                }
-                if let Some(seats) = seats {
-                    write!(f, "Seats: {}\n", seats)?;
-                }
-                if let Some(self_service) = self_service {
-                    write!(f, "Self Service: {}\n", self_service)?;
-                }
-                if let Some(smoking) = smoking {
-                    write!(f, "Smoking: {}\n", smoking)?;
-                }
-                if let Some(socket) = socket {
-                    write!(f, "Socket: {}\n", socket)?;
-                }
-                if let Some(voltage) = voltage {
-                    write!(f, "Voltage: {}\n", voltage)?;
-                }
-                if let Some(website) = website {
-                    write!(f, "Website: {}\n", website)?;
-                }
-                if let Some(wheelchair) = wheelchair {
-                    write!(f, "Wheelchair: {}\n", wheelchair)?;
-                }
+                print_geotile_attributes!(f => access, amperage, backrest, beds, bottle, brand, brewery, building, capacity, cargo, colour, contact, covered, cuisine, date, delivery, denomination, description, diet, direction, drink, drinking_water, drive_through, emergency, fee, fuel, indoor, lit, material, name, network, opening_hours, operator, payment, phone, religion, seats, self_service, smoking, socket, voltage, website, wheelchair);
                 Ok(())
             },
             GeoTile::Barrier { .. } => write!(f, "Barrier\n",),
@@ -1384,45 +1301,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Boundary\n")?;
                 write!(f, "Type: {:?}\n", boundary_type)?;
-                if let Some(admin_level) = admin_level {
-                    write!(f, "Admin Level: {}\n", admin_level)?;
-                }
-                if let Some(area) = area {
-                    write!(f, "Area: {}\n", area)?;
-                }
-                if let Some(border_type) = border_type {
-                    write!(f, "Border Type: {}\n", border_type)?;
-                }
-                if let Some(description) = description {
-                    write!(f, "Description: {}\n", description)?;
-                }
-                if let Some(format) = format {
-                    write!(f, "Format: {}\n", format)?;
-                }
-                if let Some(inscription) = inscription {
-                    write!(f, "Inscription: {}\n", inscription)?;
-                }
-                if let Some(material) = material {
-                    write!(f, "Material: {}\n", material)?;
-                }
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(political_division) = political_division{
-                    write!(f, "Political Division: {}\n", political_division)?;
-                }
-                if let Some(population) = population {
-                    write!(f, "Population: {}\n", population)?;
-                }
-                if let Some(postal_code) = postal_code {
-                    write!(f, "Postal Code: {}\n", postal_code)?;
-                }
-                if let Some(protect_class) = protect_class {
-                    write!(f, "Protect Class: {}\n", protect_class)?;
-                }
-                if let Some(protection_title) = protection_title{
-                    write!(f, "Protection Title: {}\n", protection_title)?;
-                }
+                print_geotile_attributes!(f => admin_level, area, border_type, description, format, inscription, material, name, political_division, population, postal_code, protect_class, protection_title);
                 Ok(())
             }
             GeoTile::Building {
@@ -1447,51 +1326,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Building\n")?;
                 write!(f, "Type: {:?}\n", building_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(access) = access {
-                    write!(f, "Access: {}\n", access)?;
-                }
-                if let Some(address) = address {
-                    write!(f, "Address: {}\n", address)?;
-                }
-                if let Some(amenity) = amenity {
-                    write!(f, "Amenity: {}\n", amenity)?;
-                }
-                if let Some(capacity) = capacity {
-                    write!(f, "Capacity: {}\n", capacity)?;
-                }
-                if let Some(covered) = covered {
-                    write!(f, "Covered: {}\n", covered)?;
-                }
-                if let Some(entrance) = entrance {
-                    write!(f, "Entrance: {}\n", entrance)?;
-                }
-                if let Some(height) = height {
-                    write!(f, "Height: {}\n", height)?;
-                }
-                if let Some(levels) = levels {
-                    write!(f, "Levels: {}\n", levels)?;
-                }
-                if let Some(office) = office {
-                    write!(f, "Office: {}\n", office)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(power) = power {
-                    write!(f, "Power: {}\n", power)?;
-                }
-                if let Some(public_transport) = public_transport {
-                    write!(f, "Public Transport: {}\n", public_transport)?;
-                }
-                if let Some(shop) = shop {
-                    write!(f, "Shop: {}\n", shop)?;
-                }
-                if let Some(sport) = sport {
-                    write!(f, "Sport: {}\n", sport)?;
-                }
+                print_geotile_attributes!(f => access, address, amenity, capacity, covered, entrance, height, levels, name, office, operator, power, public_transport, shop, sport);
                 Ok(())
             }
             GeoTile::Craft { .. } => write!(f, "Craft\n",),
@@ -1530,84 +1365,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Highway\n")?;
                 write!(f, "Type: {:?}\n", highway_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(abutters) = abutters {
-                    write!(f, "Abutters: {}\n", abutters)?;
-                }
-                if let Some(access) = access {
-                    write!(f, "Access: {}\n", access)?;
-                }
-                if let Some(bicycle) = bicycle {
-                    write!(f, "Bicycle: {}\n", bicycle)?;
-                }
-                if let Some(bus) = bus {
-                    write!(f, "Bus: {}\n", bus)?;
-                }
-                if let Some(destination) = destination {
-                    write!(f, "Destination: {}\n", destination)?;
-                }
-                if let Some(expressway) = expressway {
-                    write!(f, "Expressway: {}\n", expressway)?;
-                }
-                if let Some(foot) = foot {
-                    write!(f, "Foot: {}\n", foot)?;
-                }
-                if let Some(hgv) = hgv {
-                    write!(f, "Heavy Goods Vehicles: {}\n", hgv)?;
-                }
-                if let Some(lanes) = lanes {
-                    write!(f, "Lanes: {}\n", lanes)?;
-                }
-                if let Some(lit) = lit {
-                    write!(f, "Lit: {}\n", lit)?;
-                }
-                if let Some(maxspeed) = maxspeed {
-                    write!(f, "Max Speed: {}\n", maxspeed)?;
-                }
-                if let Some(motor_vehicle) = motor_vehicle {
-                    write!(f, "Motor Vehicle: {}\n", motor_vehicle)?;
-                }
-                if let Some(motorcar) = motorcar {
-                    write!(f, "Motorcar: {}\n", motorcar)?;
-                }
-                if let Some(motorroad) = motorroad {
-                    write!(f, "Motorroad: {}\n", motorroad)?;
-                }
-                if let Some(oneway) = oneway {
-                    write!(f, "Oneway: {}\n", oneway)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(service) = service {
-                    write!(f, "Service: {}\n", service)?;
-                }
-                if let Some(shelter) = shelter {
-                    write!(f, "Shelter: {}\n", shelter)?;
-                }
-                if let Some(sidewalk) = sidewalk {
-                    write!(f, "Sidewalk: {}\n", sidewalk)?;
-                }
-                if let Some(sport) = sport {
-                    write!(f, "Sport: {}\n", sport)?;
-                }
-                if let Some(smoothness) = smoothness {
-                    write!(f, "Smoothness: {}\n", smoothness)?;
-                }
-                if let Some(surface) = surface {
-                    write!(f, "Surface: {}\n", surface)?;
-                }
-                if let Some(tracktype) = tracktype {
-                    write!(f, "Tracktype: {}\n", tracktype)?;
-                }
-                if let Some(wheelchair) = wheelchair {
-                    write!(f, "Wheelchair: {}\n", wheelchair)?;
-                }
-                if let Some(width) = width {
-                    write!(f, "Width: {}\n", width)?;
-                }
+                print_geotile_attributes!(f => name, abutters, access, bicycle, bus, destination, expressway, foot, hgv, lanes, lit, maxspeed, motor_vehicle, motorcar, motorroad, oneway, operator, service, shelter, sidewalk, sport, smoothness, surface, tracktype, wheelchair, width);
                 Ok(())
             }
             GeoTile::Historic { .. } => write!(f, "Historic\n",),
@@ -1668,150 +1426,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Man Made\n")?;
                 write!(f, "Type: {:?}\n", man_made_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(access) = access {
-                    write!(f, "Access: {}\n", access)?;
-                }
-                if let Some(bridge) = bridge {
-                    write!(f, "Bridge: {}\n", bridge)?;
-                }
-                if let Some(capacity) = capacity {
-                    write!(f, "Capacity: {}\n", capacity)?;
-                }
-                if let Some(color) = color {
-                    write!(f, "Color: {}\n", color)?;
-                }
-                if let Some(content) = content {
-                    write!(f, "Content: {}\n", content)?;
-                }
-                if let Some(country) = country {
-                    write!(f, "Country: {}\n", country)?;
-                }
-                if let Some(covered) = covered {
-                    write!(f, "Covered: {}\n", covered)?;
-                }
-                if let Some(cutline) = cutline {
-                    write!(f, "Cutline: {}\n", cutline)?;
-                }
-                if let Some(depth) = depth {
-                    write!(f, "Depth: {}\n", depth)?;
-                }
-                if let Some(direction) = direction {
-                    write!(f, "Direction: {}\n", direction)?;
-                }
-                if let Some(display) = display {
-                    write!(f, "Display: {}\n", display)?;
-                }
-                if let Some(disused) = disused {
-                    write!(f, "Disused: {}\n", disused)?;
-                }
-                if let Some(drinking_water) = drinking_water {
-                    write!(f, "Drinking Water: {}\n", drinking_water)?;
-                }
-                if let Some(elevation) = elevation {
-                    write!(f, "Elevation: {}\n", elevation)?;
-                }
-                if let Some(floating) = floating {
-                    write!(f, "Floating: {}\n", floating)?;
-                }
-                if let Some(height) = height {
-                    write!(f, "Height: {}\n", height)?;
-                }
-                if let Some(headframe) = headframe {
-                    write!(f, "Headframe: {}\n", headframe)?;
-                }
-                if let Some(historic) = historic {
-                    write!(f, "Historic: {}\n", historic)?;
-                }
-                if let Some(inscription) = inscription {
-                    write!(f, "Inscription: {}\n", inscription)?;
-                }
-                if let Some(layer) = layer {
-                    write!(f, "Layer: {}\n", layer)?;
-                }
-                if let Some(landuse) = landuse {
-                    write!(f, "Landuse: {}\n", landuse)?;
-                }
-                if let Some(length) = length {
-                    write!(f, "Length: {}\n", length)?;
-                }
-                if let Some(location) = location {
-                    write!(f, "Location: {}\n", location)?;
-                }
-                if let Some(material) = material {
-                    write!(f, "Material: {}\n", material)?;
-                }
-                if let Some(mine) = mine {
-                    write!(f, "Mine: {}\n", mine)?;
-                }
-                if let Some(mineshaft_type) = mineshaft_type {
-                    write!(f, "Mineshaft Type: {}\n", mineshaft_type)?;
-                }
-                if let Some(monitoring) = monitoring {
-                    write!(f, "Monitoring: {}\n", monitoring)?;
-                }
-                if let Some(mooring) = mooring {
-                    write!(f, "Mooring: {}\n", mooring)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(oven) = oven {
-                    write!(f, "Oven: {}\n", oven)?;
-                }
-                if let Some(power) = power {
-                    write!(f, "Power: {}\n", power)?;
-                }
-                if let Some(product) = product {
-                    write!(f, "Product: {}\n", product)?;
-                }
-                if let Some(pump) = pump {
-                    write!(f, "Pump: {}\n", pump)?;
-                }
-                if let Some(pumping_station) = pumping_station {
-                    write!(f, "Pumping Station: {}\n", pumping_station)?;
-                }
-                if let Some(resource) = resource {
-                    write!(f, "Resource: {}\n", resource)?;
-                }
-                if let Some(species) = species {
-                    write!(f, "Species: {}\n", species)?;
-                }
-                if let Some(start_date) = start_date {
-                    write!(f, "Start Date: {}\n", start_date)?;
-                }
-                if let Some(street_cabinet) = street_cabinet {
-                    write!(f, "Street Cabinet: {}\n", street_cabinet)?;
-                }
-                if let Some(submerged) = submerged {
-                    write!(f, "Submerged: {}\n", submerged)?;
-                }
-                if let Some(substance) = substance {
-                    write!(f, "Substance: {}\n", substance)?;
-                }
-                if let Some(support) = support {
-                    write!(f, "Support: {}\n", support)?;
-                }
-                if let Some(surveillance) = surveillance {
-                    write!(f, "Surveillance: {}\n", surveillance)?;
-                }
-                if let Some(survey_point) = survey_point {
-                    write!(f, "Survey Point: {}\n", survey_point)?;
-                }
-                if let Some(tidal) = tidal {
-                    write!(f, "Tidal: {}\n", tidal)?;
-                }
-                if let Some(tourism) = tourism {
-                    write!(f, "Tourism: {}\n", tourism)?;
-                }
-                if let Some(tunnel) = tunnel {
-                    write!(f, "Tunnel: {}\n", tunnel)?;
-                }
-                if let Some(width) = width {
-                    write!(f, "Width: {}\n", width)?;
-                }
+                print_geotile_attributes!(f => name, access, bridge, capacity, color, content, country, covered, cutline, depth, direction, display, disused, drinking_water, elevation, floating, height, headframe, historic, inscription, layer, landuse, length, location, material, mine, mineshaft_type, monitoring, mooring, operator, oven, power, product, pump, pumping_station, resource, species, start_date, street_cabinet, submerged, substance, support, surveillance, survey_point, tidal, tourism, tunnel, width);
                 Ok(())
             },
             GeoTile::Military { .. } => write!(f, "Military\n",),
@@ -1840,60 +1455,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Natural\n")?;
                 write!(f, "Type: {:?}\n", natural_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(access) = access {
-                    write!(f, "Access: {}\n", access)?;
-                }
-                if let Some(circumference) = circumference {
-                    write!(f, "Circumference: {}\n", circumference)?;
-                }
-                if let Some(denotation) = denotation {
-                    write!(f, "Denotation: {}\n", denotation)?;
-                }
-                if let Some(direction) = direction {
-                    write!(f, "Direction: {}\n", direction)?;
-                }
-                if let Some(elevation) = elevation {
-                    write!(f, "Elevation: {}\n", elevation)?;
-                }
-                if let Some(height) = height {
-                    write!(f, "Height: {}\n", height)?;
-                }
-                if let Some(width) = width {
-                    write!(f, "Width: {}\n", width)?;
-                }
-                if let Some(intermittent) = intermittent {
-                    write!(f, "Intermittent: {}\n", intermittent)?;
-                }
-                if let Some(genus) = genus {
-                    write!(f, "Genus: {}\n", genus)?;
-                }
-                if let Some(leaf_type) = leaf_type {
-                    write!(f, "Leaf Type: {}\n", leaf_type)?;
-                }
-                if let Some(leaf_cycle) = leaf_cycle {
-                    write!(f, "Leaf Cycle: {}\n", leaf_cycle)?;
-                }
-                if let Some(managed) = managed {
-                    write!(f, "Managed: {}\n", managed)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(salt) = salt {
-                    write!(f, "Salt: {}\n", salt)?;
-                }
-                if let Some(species) = species {
-                    write!(f, "Species: {}\n", species)?;
-                }
-                if let Some(surface) = surface {
-                    write!(f, "Surface: {}\n", surface)?;
-                }
-                if let Some(taxon) = taxon {
-                    write!(f, "Taxon: {}\n", taxon)?;
-                }
+                print_geotile_attributes!(f => name, access, circumference, denotation, direction, elevation, height, intermittent, genus, leaf_type, leaf_cycle, managed, operator, salt, species, surface, taxon, width);
                 Ok(())
             }
             GeoTile::Office { .. } => write!(f, "Office\n",),
@@ -1913,33 +1475,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Place\n")?;
                 write!(f, "Type: {:?}\n", place_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(admin_level) = admin_level {
-                    write!(f, "Admin Level: {}\n", admin_level)?;
-                }
-                if let Some(architect) = architect {
-                    write!(f, "Architect: {}\n", architect)?;
-                }
-                if let Some(capital) = capital {
-                    write!(f, "Capital: {}\n", capital)?;
-                }
-                if let Some(is_in) = is_in {
-                    write!(f, "Is In: {}\n", is_in)?;
-                }
-                if let Some(population) = population {
-                    write!(f, "Population: {}\n", population)?;
-                }
-                if let Some(reference) = reference {
-                    write!(f, "Reference: {}\n", reference)?;
-                }
-                if let Some(start_date) = start_date {
-                    write!(f, "Start Date: {}\n", start_date)?;
-                }
-                if let Some(state_code) = state_code {
-                    write!(f, "State Code: {}\n", state_code)?;
-                }
+                print_geotile_attributes!(f => name, admin_level, architect, capital, is_in, population, reference, start_date, state_code);
                 Ok(())
             }
             GeoTile::Power {
@@ -1977,90 +1513,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Power\n")?;
                 write!(f, "Type: {:?}\n", power_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(busbar) = busbar {
-                    write!(f, "Busbar: {}\n", busbar)?;
-                }
-                if let Some(cables) = cables {
-                    write!(f, "Cables: {}\n", cables)?;
-                }
-                if let Some(circuits) = circuits {
-                    write!(f, "Circuits: {}\n", circuits)?;
-                }
-                if let Some(colour) = colour {
-                    write!(f, "Colour: {}\n", colour)?;
-                }
-                if let Some(compensator) = compensator {
-                    write!(f, "Compensator: {}\n", compensator)?;
-                }
-                if let Some(design) = design {
-                    write!(f, "Design: {}\n", design)?;
-                }
-                if let Some(frequency) = frequency {
-                    write!(f, "Frequency: {}\n", frequency)?;
-                }
-                if let Some(height) = height {
-                    write!(f, "Height: {}\n", height)?;
-                }
-                if let Some(gas_insulated) = gas_insulated {
-                    write!(f, "Gas Insulated: {}\n", gas_insulated)?;
-                }
-                if let Some(landuse) = landuse {
-                    write!(f, "Landuse: {}\n", landuse)?;
-                }
-                if let Some(line) = line {
-                    write!(f, "Line: {}\n", line)?;
-                }
-                if let Some(line_attachment) = line_attachment {
-                    write!(f, "Line Attachment: {}\n", line_attachment)?;
-                }
-                if let Some(line_management) = line_management {
-                    write!(f, "Line Management: {}\n", line_management)?;
-                }
-                if let Some(location) = location {
-                    write!(f, "Location: {}\n", location)?;
-                }
-                if let Some(manufacturer) = manufacturer {
-                    write!(f, "Manufacturer: {}\n", manufacturer)?;
-                }
-                if let Some(material) = material {
-                    write!(f, "Material: {}\n", material)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(phases) = phases {
-                    write!(f, "Phases: {}\n", phases)?;
-                }
-                if let Some(poles) = poles {
-                    write!(f, "Poles: {}\n", poles)?;
-                }
-                if let Some(start_date) = start_date {
-                    write!(f, "Start Date: {}\n", start_date)?;
-                }
-                if let Some(structure) = structure {
-                    write!(f, "Structure: {}\n", structure)?;
-                }
-                if let Some(substation) = substation {
-                    write!(f, "Substation: {}\n", substation)?;
-                }
-                if let Some(switch) = switch {
-                    write!(f, "Switch: {}\n", switch)?;
-                }
-                if let Some(rating) = rating {
-                    write!(f, "Rating: {}\n", rating)?;
-                }
-                if let Some(voltage) = voltage {
-                    write!(f, "Voltage: {}\n", voltage)?;
-                }
-                if let Some(windings) = windings {
-                    write!(f, "Windings: {}\n", windings)?;
-                }
-                if let Some(wires) = wires {
-                    write!(f, "Wires: {}\n", wires)?;
-                }
+                print_geotile_attributes!(f => name, busbar, cables, circuits, colour, compensator, design, frequency, height, gas_insulated, landuse, line, line_attachment, line_management, location, manufacturer, material, operator, phases, poles, start_date, structure, substation, switch, rating, voltage, windings, wires);
                 Ok(())
             },
             GeoTile::PublicTransport {
@@ -2098,90 +1551,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Public Transport\n")?;
                 write!(f, "Type: {:?}\n", public_transport_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(aerialway) = aerialway {
-                    write!(f, "Aerialway: {}\n", aerialway)?;
-                }
-                if let Some(area) = area {
-                    write!(f, "Area: {}\n", area)?;
-                }
-                if let Some(bench) = bench {
-                    write!(f, "Bench: {}\n", bench)?;
-                }
-                if let Some(bin) = bin {
-                    write!(f, "Bin: {}\n", bin)?;
-                }
-                if let Some(building) = building {
-                    write!(f, "Building: {}\n", building)?;
-                }
-                if let Some(bus) = bus {
-                    write!(f, "Bus: {}\n", bus)?;
-                }
-                if let Some(covered) = covered {
-                    write!(f, "Covered: {}\n", covered)?;
-                }
-                if let Some(departures_board) = departures_board {
-                    write!(f, "Departures Board: {}\n", departures_board)?;
-                }
-                if let Some(ferry) = ferry {
-                    write!(f, "Ferry: {}\n", ferry)?;
-                }
-                if let Some(layer) = layer {
-                    write!(f, "Layer: {}\n", layer)?;
-                }
-                if let Some(level) = level {
-                    write!(f, "Level: {}\n", level)?;
-                }
-                if let Some(local_ref) = local_ref {
-                    write!(f, "Local Reference: {}\n", local_ref)?;
-                }
-                if let Some(monorail) = monorail {
-                    write!(f, "Monorail: {}\n", monorail)?;
-                }
-                if let Some(network) = network {
-                    write!(f, "Network: {}\n", network)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(passenger_information_display) = passenger_information_display {
-                    write!(f, "Passenger Information Display: {}\n", passenger_information_display)?;
-                }
-                if let Some(shelter) = shelter {
-                    write!(f, "Shelter: {}\n", shelter)?;
-                }
-                if let Some(subway) = subway {
-                    write!(f, "Subway: {}\n", subway)?;
-                }
-                if let Some(surface) = surface {
-                    write!(f, "Surface: {}\n", surface)?;
-                }
-                if let Some(tactile_paving) = tactile_paving {
-                    write!(f, "Tactile Paving: {}\n", tactile_paving)?;
-                }
-                if let Some(toilet) = toilet {
-                    write!(f, "Toilet: {}\n", toilet)?;
-                }
-                if let Some(train) = train {
-                    write!(f, "Train: {}\n", train)?;
-                }
-                if let Some(tram) = tram {
-                    write!(f, "Tram: {}\n", tram)?;
-                }
-                if let Some(trolleybus) = trolleybus {
-                    write!(f, "Trolleybus: {}\n", trolleybus)?;
-                }
-                if let Some(uic_ref) = uic_ref {
-                    write!(f, "UIC Referance: {}\n", uic_ref)?;
-                }
-                if let Some(uic_name) = uic_name {
-                    write!(f, "UIC Name: {}\n", uic_name)?;
-                }
-                if let Some(wheelchair) = wheelchair {
-                    write!(f, "Wheelchair: {}\n", wheelchair)?;
-                }
+                print_geotile_attributes!(f => name, aerialway, area, bench, bin, building, bus, covered, departures_board, ferry, layer, level, local_ref, monorail, network, operator, passenger_information_display, shelter, subway, surface, tactile_paving, toilet, train, tram, trolleybus, uic_ref, uic_name, wheelchair);
                 Ok(())
             },
             GeoTile::Railway { .. } => write!(f, "Railway\n",),
@@ -2212,66 +1582,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Route\n")?;
                 write!(f, "Type: {:?}\n", route_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(area) = area {
-                    write!(f, "Area: {}\n", area)?;
-                }
-                if let Some(bicycle) = bicycle {
-                    write!(f, "Bicycle: {}\n", bicycle)?;
-                }
-                if let Some(colour) = colour {
-                    write!(f, "Colour: {}\n", colour)?;
-                }
-                if let Some(description) = description {
-                    write!(f, "Description: {}\n", description)?;
-                }
-                if let Some(distance) = distance {
-                    write!(f, "Distance: {}\n", distance)?;
-                }
-                if let Some(duration) = duration {
-                    write!(f, "Duration: {}\n", duration)?;
-                }
-                if let Some(fee) = fee {
-                    write!(f, "Fee: {}\n", fee)?;
-                }
-                if let Some(foot) = foot {
-                    write!(f, "Foot: {}\n", foot)?;
-                }
-                if let Some(from) = from {
-                    write!(f, "From: {}\n", from)?;
-                }
-                if let Some(to) = to {
-                    write!(f, "To: {}\n", to)?;
-                }
-                if let Some(lit) = lit {
-                    write!(f, "Lit: {}\n", lit)?;
-                }
-                if let Some(network) = network {
-                    write!(f, "Network: {}\n", network)?;
-                }
-                if let Some(oneway) = oneway {
-                    write!(f, "Oneway: {}\n", oneway)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(piste_type) = piste_type {
-                    write!(f, "Piste Type: {}\n", piste_type)?;
-                }
-                if let Some(piste_difficulty) = piste_difficulty {
-                    write!(f, "Piste Difficulty: {}\n", piste_difficulty)?;
-                }
-                if let Some(roundtrip) = roundtrip {
-                    write!(f, "Roundtrip: {}\n", roundtrip)?;
-                }
-                if let Some(seasonal) = seasonal {
-                    write!(f, "Seasonal: {}\n", seasonal)?;
-                }
-                if let Some(symbol) = symbol {
-                    write!(f, "Symbol: {}\n", symbol)?;
-                }
+                print_geotile_attributes!(f => name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to);
                 Ok(())
             }
             GeoTile::Shop { .. } => write!(f, "Shop\n",),
@@ -2358,231 +1669,7 @@ impl fmt::Display for GeoTile {
             } => {
                 write!(f, "Feature: Tourism\n")?;
                 write!(f, "Type: {:?}\n", tourism_type)?;
-                if let Some(name) = name {
-                    write!(f, "Name: {}\n", name)?;
-                }
-                if let Some(address) = address {
-                    write!(f, "Address: {}\n", address)?;
-                }
-                if let Some(aerialway) = aerialway {
-                    write!(f, "Aerialway: {}\n", aerialway)?;
-                }
-                if let Some(access) = access {
-                    write!(f, "Access: {}\n", access)?;
-                }
-                if let Some(artist_name) = artist_name {
-                    write!(f, "Artist Name: {}\n", artist_name)?;
-                }
-                if let Some(artwork_subject) = artwork_subject {
-                    write!(f, "Artwork Subject: {}\n", artwork_subject)?;
-                }
-                if let Some(artwork_type) = artwork_type {
-                    write!(f, "Artwork Type: {}\n", artwork_type)?;
-                }
-                if let Some(attraction) = attraction {
-                    write!(f, "Attraction: {}\n", attraction)?;
-                }
-                if let Some(backcountry) = backcountry {
-                    write!(f, "Backcountry: {}\n", backcountry)?;
-                }
-                if let Some(balcony) = balcony {
-                    write!(f, "Balcony: {}\n", balcony)?;
-                }
-                if let Some(bar) = bar {
-                    write!(f, "Bar: {}\n", bar)?;
-                }
-                if let Some(beds) = beds {
-                    write!(f, "Beds: {}\n", beds)?;
-                }
-                if let Some(bbq) = bbq {
-                    write!(f, "BBQ: {}\n", bbq)?;
-                }
-                if let Some(brand) = brand {
-                    write!(f, "Brand: {}\n", brand)?;
-                }
-                if let Some(cabins) = cabins {
-                    write!(f, "Cabins: {}\n", cabins)?;
-                }
-                if let Some(camp_site) = camp_site {
-                    write!(f, "Camp Site: {}\n", camp_site)?;
-                }
-                if let Some(capacity) = capacity {
-                    write!(f, "Capacity: {}\n", capacity)?;
-                }
-                if let Some(caravans) = caravans {
-                    write!(f, "Caravans: {}\n", caravans)?;
-                }
-                if let Some(contact) = contact {
-                    write!(f, "Contact: {}\n", contact)?;
-                }
-                if let Some(covered) = covered {
-                    write!(f, "Covered: {}\n", covered)?;
-                }
-                if let Some(description) = description {
-                    write!(f, "Description: {}\n", description)?;
-                }
-                if let Some(dog) = dog {
-                    write!(f, "Dog: {}\n", dog)?;
-                }
-                if let Some(drinking_water) = drinking_water {
-                    write!(f, "Drinking Water: {}\n", drinking_water)?;
-                }
-                if let Some(ele) = ele {
-                    write!(f, "Elevation: {}\n", ele)?;
-                }
-                if let Some(electricity) = electricity {
-                    write!(f, "Electricity: {}\n", electricity)?;
-                }
-                if let Some(email) = email {
-                    write!(f, "Email: {}\n", email)?;
-                }
-                if let Some(exhibit) = exhibit {
-                    write!(f, "Exhibit: {}\n", exhibit)?;
-                }
-                if let Some(fee) = fee {
-                    write!(f, "Fee: {}\n", fee)?;
-                }
-                if let Some(fireplace) = fireplace {
-                    write!(f, "Fireplace: {}\n", fireplace)?;
-                }
-                if let Some(fireplace) = fireplace {
-                    write!(f, "Fireplace: {}\n", fireplace)?;
-                }
-                if let Some(group_only) = group_only {
-                    write!(f, "Group Only: {}\n", group_only)?;
-                }
-                if let Some(heritage) = heritage {
-                    write!(f, "Heritage: {}\n", heritage)?;
-                }
-                if let Some(historic) = historic {
-                    write!(f, "Historic: {}\n", historic)?;
-                }
-                if let Some(hot_water) = hot_water {
-                    write!(f, "Hot Water: {}\n", hot_water)?;
-                }
-                if let Some(information) = information {
-                    write!(f, "Information: {}\n", information)?;
-                }
-                if let Some(internet_access) = internet_access {
-                    write!(f, "Internet Access: {}\n", internet_access)?;
-                }
-                if let Some(kitchen) = kitchen {
-                    write!(f, "Kitchen: {}\n", kitchen)?;
-                }
-                if let Some(lit) = lit {
-                    write!(f, "Lit: {}\n", lit)?;
-                }
-                if let Some(material) = material {
-                    write!(f, "Material: {}\n", material)?;
-                }
-                if let Some(mattress) = mattress {
-                    write!(f, "Mattress: {}\n", mattress)?;
-                }
-                if let Some(motor_vehicle) = motor_vehicle {
-                    write!(f, "Motor Vehicle: {}\n", motor_vehicle)?;
-                }
-                if let Some(museum) = museum {
-                    write!(f, "Museum: {}\n", museum)?;
-                }
-                if let Some(museum_type) = museum_type {
-                    write!(f, "Museum Type: {}\n", museum_type)?;
-                }
-                if let Some(nudism) = nudism {
-                    write!(f, "Nudism: {}\n", nudism)?;
-                }
-                if let Some(number_of_apartments) = number_of_apartments {
-                    write!(f, "Number of Apartments: {}\n", number_of_apartments)?;
-                }
-                if let Some(openfire) = openfire {
-                    write!(f, "Openfire: {}\n", openfire)?;
-                }
-                if let Some(opening_hours) = opening_hours {
-                    write!(f, "Opening Hours: {}\n", opening_hours)?;
-                }
-                if let Some(operator) = operator {
-                    write!(f, "Operator: {}\n", operator)?;
-                }
-                if let Some(parking) = parking {
-                    write!(f, "Parking: {}\n", parking)?;
-                }
-                if let Some(payment) = payment {
-                    write!(f, "Payment: {}\n", payment)?;
-                }
-                if let Some(permanent_camping) = permanent_camping {
-                    write!(f, "Permanent Camping: {}\n", permanent_camping)?;
-                }
-                if let Some(picnic_table) = picnic_table {
-                    write!(f, "Picnic Table: {}\n", picnic_table)?;
-                }
-                if let Some(phone) = phone {
-                    write!(f, "Phone: {}\n", phone)?;
-                }
-                if let Some(power_supply) = power_supply {
-                    write!(f, "Power Supply: {}\n", power_supply)?;
-                }
-                if let Some(reservation) = reservation {
-                    write!(f, "Reservation: {}\n", reservation)?;
-                }
-                if let Some(rooms) = rooms {
-                    write!(f, "Rooms: {}\n", rooms)?;
-                }
-                if let Some(sanitary_dump_station) = sanitary_dump_station {
-                    write!(f, "Sanitary Dump Station: {}\n", sanitary_dump_station)?;
-                }
-                if let Some(scout) = scout {
-                    write!(f, "Scout: {}\n", scout)?;
-                }
-                if let Some(shower) = shower {
-                    write!(f, "Shower: {}\n", shower)?;
-                }
-                if let Some(smoking) = smoking {
-                    write!(f, "Smoking: {}\n", smoking)?;
-                }
-                if let Some(stars) = stars {
-                    write!(f, "Stars: {}\n", stars)?;
-                }
-                if let Some(start_date) = start_date {
-                    write!(f, "Start Date: {}\n", start_date)?;
-                }
-                if let Some(static_caravans) = static_caravans {
-                    write!(f, "Static Caravans: {}\n", static_caravans)?;
-                }
-                if let Some(subject) = subject {
-                    write!(f, "Subject: {}\n", subject)?;
-                }
-                if let Some(surface) = surface {
-                    write!(f, "Surface: {}\n", surface)?;
-                }
-                if let Some(swimming_pool) = swimming_pool {
-                    write!(f, "Swimming Pool: {}\n", swimming_pool)?;
-                }
-                if let Some(tents) = tents {
-                    write!(f, "Tents: {}\n", tents)?;
-                }
-                if let Some(toilets) = toilets {
-                    write!(f, "Toilets: {}\n", toilets)?;
-                }
-                if let Some(washing_machine) = washing_machine {
-                    write!(f, "Washing Machine: {}\n", washing_machine)?;
-                }
-                if let Some(waste_disposal) = waste_disposal {
-                    write!(f, "Waste Disposal: {}\n", waste_disposal)?;
-                }
-                if let Some(website) = website {
-                    write!(f, "Website: {}\n", website)?;
-                }
-                if let Some(wheelchair) = wheelchair {
-                    write!(f, "Wheelchair: {}\n", wheelchair)?;
-                }
-                if let Some(wikipedia) = wikipedia {
-                    write!(f, "Wikipedia: {}\n", wikipedia)?;
-                }
-                if let Some(winter_room) = winter_room {
-                    write!(f, "Winter Room: {}\n", winter_room)?;
-                }
-                if let Some(zoo) = zoo {
-                    write!(f, "Zoo: {}\n", zoo)?;
-                }
+                print_geotile_attributes!(f => name, aerialway, access, address, artist_name, artwork_subject, artwork_type, attraction, backcountry, balcony, bar, beds, bbq, brand, cabins, camp_site, capacity, caravans, contact, covered, description, dog, drinking_water, ele, electricity, email, exhibit, fee, fireplace, group_only, heritage, historic, hot_water, information, internet_access, kitchen, lit, material, mattress, motor_vehicle, museum, museum_type, nudism, number_of_apartments, openfire, opening_hours, operator, parking, payment, permanent_camping, picnic_table, phone, power_supply, reservation, rooms, sanitary_dump_station, scout, shower, smoking, stars, start_date, static_caravans, subject, surface, swimming_pool, tents, toilets, washing_machine, waste_disposal, website, wheelchair, wikipedia, winter_room, zoo);
                 Ok(())
             }
             GeoTile::Waterway { .. } => write!(f, "Waterway\n",),
