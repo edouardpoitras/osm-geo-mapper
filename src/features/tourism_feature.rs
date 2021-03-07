@@ -38,7 +38,6 @@ pub fn get_tourism_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     };
     let access = property_to_option_string(props, "access");
     let address = address_from_properties(props);
-    let aerialway = property_to_option_string(props, "aerialway");
     let artist_name = property_to_option_string(props, "artist_name");
     let artwork_subject = property_to_option_string(props, "artwork_subject");
     let artwork_type = property_to_option_string(props, "artwork_type");
@@ -111,7 +110,6 @@ pub fn get_tourism_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let winter_room = property_to_option_string(props, "winter_room");
     let zoo = property_to_option_string(props, "zoo");
     GeoTile::Tourism {
-        aerialway,
         access,
         address,
         artist_name,

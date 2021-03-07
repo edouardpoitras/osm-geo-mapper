@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, NaturalType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -54,6 +54,7 @@ pub fn get_natural_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
             NaturalType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let circumference = property_to_option_string(props, "circumference");
     let denotation = property_to_option_string(props, "denotation");
@@ -74,6 +75,7 @@ pub fn get_natural_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let taxon = property_to_option_string(props, "taxon");
     let width = property_to_option_string(props, "width");
     GeoTile::Natural {
+        address,
         access,
         circumference,
         denotation,

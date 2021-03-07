@@ -207,6 +207,7 @@ pub fn line_string_feature_to_geo_tile(
         let osm_id = properties["id"].to_string();
         GeoTile::Unclassified {
             unclassified_type: UnclassifiedType::Unclassified,
+            address: None,
             geometry: line_string,
             osm_id,
         }

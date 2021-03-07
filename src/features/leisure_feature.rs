@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, LeisureType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -47,6 +47,7 @@ pub fn get_leisure_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
             LeisureType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let barrier = property_to_option_string(props, "barrier");
     let building = property_to_option_string(props, "building");
@@ -60,6 +61,7 @@ pub fn get_leisure_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let sport = property_to_option_string(props, "sport");
     let surface = property_to_option_string(props, "surface");
     GeoTile::Leisure {
+        address,
         access,
         barrier,
         building,

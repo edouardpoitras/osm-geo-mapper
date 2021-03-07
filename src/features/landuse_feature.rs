@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, LanduseType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -53,6 +53,7 @@ pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry, landc
             LanduseType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let barrier = property_to_option_string(props, "barrier");
     let crop = property_to_option_string(props, "crop");
     let denomination = property_to_option_string(props, "denomination");
@@ -70,6 +71,7 @@ pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry, landc
     let species = property_to_option_string(props, "species");
     let trees = property_to_option_string(props, "trees");
     GeoTile::Landuse {
+        address,
         barrier,
         crop,
         denomination,

@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, PowerType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -32,6 +32,7 @@ pub fn get_power_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoT
             PowerType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let busbar = property_to_option_string(props, "busbar");
     let cables = property_to_option_string(props, "cables");
     let circuits = property_to_option_string(props, "circuits");
@@ -62,6 +63,7 @@ pub fn get_power_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoT
     let windings = property_to_option_string(props, "windings");
     let wires = property_to_option_string(props, "wires");
     GeoTile::Power {
+        address,
         busbar,
         cables,
         circuits,

@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, ManMadeType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -64,6 +64,7 @@ pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
             ManMadeType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let bridge = property_to_option_string(props, "bridge");
     let capacity = property_to_option_string(props, "capacity");
@@ -113,6 +114,7 @@ pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
     let tunnel = property_to_option_string(props, "tunnel");
     let width = property_to_option_string(props, "width");
     GeoTile::ManMade {
+        address,
         access,
         bridge,
         capacity,

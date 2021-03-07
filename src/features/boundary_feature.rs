@@ -1,6 +1,6 @@
 use crate::{
     features::{BoundaryType, GeoTile, GeoTileProperties, Geometry},
-    operations::property_to_option_string,
+    operations::{address_from_properties, property_to_option_string},
 };
 use log::warn;
 
@@ -21,6 +21,7 @@ pub fn get_boundary_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
             BoundaryType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let admin_level = property_to_option_string(props, "admin_level");
     let area = property_to_option_string(props, "area");
     let border_type = property_to_option_string(props, "border_type");
@@ -36,6 +37,7 @@ pub fn get_boundary_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> G
     let protect_class = property_to_option_string(props, "protect_class");
     let protection_title = property_to_option_string(props, "protection_title");
     GeoTile::Boundary {
+        address,
         admin_level,
         area,
         border_type,

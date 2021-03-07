@@ -1,6 +1,6 @@
 use crate::{
     features::{AmenityType, GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -126,6 +126,7 @@ pub fn get_amenity_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
             AmenityType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let amperage = property_to_option_string(props, "amperage");
     let backrest = property_to_option_string(props, "backrest");
@@ -171,6 +172,7 @@ pub fn get_amenity_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let website = property_to_option_string(props, "website");
     let wheelchair = property_to_option_string(props, "wheelchair");
     GeoTile::Amenity {
+        address,
         access,
         amenity_type,
         amperage,

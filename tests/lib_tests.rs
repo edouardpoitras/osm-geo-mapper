@@ -18,6 +18,7 @@ fn test_address_to_mapper() {
     let geotile_string = format!("{:?}", unclassified);
     let geotile_string_test = format!("{:?}", 
         features::GeoTile::Place {
+            address: None,
             admin_level: Some("2".to_string()),
             architect: None,
             capital: Some("yes".to_string()),

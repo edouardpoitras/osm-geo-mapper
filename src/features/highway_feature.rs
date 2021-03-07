@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, HighwayType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -56,6 +56,7 @@ pub fn get_highway_geo_tile(
             HighwayType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let abutters = property_to_option_string(props, "abutters");
     let access = property_to_option_string(props, "access");
     let bicycle = property_to_option_string(props, "bicycle");
@@ -84,6 +85,7 @@ pub fn get_highway_geo_tile(
     let wheelchair = property_to_option_string(props, "wheelchair");
     let width = property_to_option_string(props, "width");
     GeoTile::Highway {
+        address,
         abutters,
         access,
         bicycle,

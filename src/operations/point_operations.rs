@@ -60,6 +60,7 @@ pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Poin
         let osm_id = properties["id"].to_string();
         GeoTile::Unclassified {
             unclassified_type: UnclassifiedType::Unclassified,
+            address: None,
             geometry: point,
             osm_id,
         }

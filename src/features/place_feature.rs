@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, Geometry, PlaceType},
-    operations::property_to_option_string,
+    operations::property_to_option_string, operations::address_from_properties,
 };
 use log::warn;
 
@@ -40,6 +40,7 @@ pub fn get_place_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoT
             PlaceType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let admin_level = property_to_option_string(props, "admin_level");
     let architect = property_to_option_string(props, "architect");
     let capital = property_to_option_string(props, "capital");
@@ -51,6 +52,7 @@ pub fn get_place_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoT
     let start_date = property_to_option_string(props, "start_date");
     let state_code = property_to_option_string(props, "state_code");
     GeoTile::Place {
+        address,
         admin_level,
         architect,
         capital,

@@ -1,6 +1,6 @@
 use crate::{
     features::{BarrierType, GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -52,6 +52,7 @@ pub fn get_barrier_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
             BarrierType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let bicycle = property_to_option_string(props, "bicycle");
     let fee = property_to_option_string(props, "fee");
@@ -72,6 +73,7 @@ pub fn get_barrier_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let wheelchair = property_to_option_string(props, "wheelchair");
     let width = property_to_option_string(props, "width");
     GeoTile::Barrier {
+        address,
         access,
         barrier_type,
         bicycle,

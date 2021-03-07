@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, PublicTransportType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -18,6 +18,7 @@ pub fn get_public_transport_geo_tile(props: &GeoTileProperties, geometry: Geomet
             PublicTransportType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let aerialway = property_to_option_string(props, "aerialway");
     let area = property_to_option_string(props, "area");
     let bench = property_to_option_string(props, "bench");
@@ -48,6 +49,7 @@ pub fn get_public_transport_geo_tile(props: &GeoTileProperties, geometry: Geomet
     let uic_name = property_to_option_string(props, "uic_name");
     let wheelchair = property_to_option_string(props, "wheelchair");
     GeoTile::PublicTransport {
+        address,
         aerialway,
         area,
         bench,

@@ -1,6 +1,6 @@
 use crate::{
     features::{AerowayType, GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -26,6 +26,7 @@ pub fn get_aeroway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
             AerowayType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let description = property_to_option_string(props, "description");
     let iata = property_to_option_string(props, "iata");
     let icao = property_to_option_string(props, "icao");
@@ -34,6 +35,7 @@ pub fn get_aeroway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> Ge
     let osm_id = props["id"].to_string();
     let surface = property_to_option_string(props, "surface");
     GeoTile::Aeroway {
+        address,
         aeroway_type,
         description,
         geometry,

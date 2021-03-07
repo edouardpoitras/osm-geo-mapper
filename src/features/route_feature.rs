@@ -1,6 +1,6 @@
 use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, RouteType},
-    operations::{line_string_operations::draw_line, property_to_option_string},
+    operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
 use geo_types as gt;
 use log::warn;
@@ -41,6 +41,7 @@ pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry, route: 
             RouteType::Unclassified
         }
     };
+    let address = address_from_properties(props);
     let area = property_to_option_string(props, "area");
     let bicycle = property_to_option_string(props, "bycicle");
     let colour = property_to_option_string(props, "colour");
@@ -63,6 +64,7 @@ pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry, route: 
     let symbol = property_to_option_string(props, "symbol");
     let to = property_to_option_string(props, "to");
     GeoTile::Route {
+        address,
         area,
         bicycle,
         colour,
