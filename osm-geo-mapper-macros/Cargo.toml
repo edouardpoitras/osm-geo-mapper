@@ -3,8 +3,19 @@ name = "osm-geo-mapper-macros"
 version = "0.1.0"
 authors = ["Edouard Poitras <edouardpoitras@gmail.com>"]
 edition = "2018"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/edouardpoitras/osm-geo-mapper/tree/master/osm-geo-mapper-macros"
+homepage = "https://crates.io/crates/osm-geo-mapper-macros"
+description = """
+Contains various helper macros for the osm-geo-mapper crate.
+"""
+keywords = ["osm-geo-mapper", "openstreemap", "osm"]
+include = ["src/", "LICENSE", "README.md"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "osm_geo_mapper_macros"
+path = "src/lib.rs"
 
 [dependencies]
 paste = "1.0.4"
