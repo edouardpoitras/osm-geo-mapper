@@ -1,6 +1,6 @@
 [package]
 name = "osm-geo-mapper"
-version = "0.5.7"
+version = "0.6.0"
 authors = ["Edouard Poitras <edouardpoitras@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -32,7 +32,7 @@ geo-types = "0.6.0"
 geojson = { version = "0.19.0", features = ["geo-types"] }
 geo = "0.14.0"
 log = "0.4.8"
-osm-geo-mapper-macros = "0.1.0"
+osm-geo-mapper-macros = "0.2.0"
 osmpbfreader = "0.13.4"
 paste = "1.0.4"
 serde = { version = "1.0", features = ["derive"] }

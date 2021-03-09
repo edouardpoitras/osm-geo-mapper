@@ -2,84 +2,21 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, HighwayType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
-use osm_geo_mapper_macros::extract_type_from_string;
+use osm_geo_mapper_macros::{ extract_type_from_string, geotile_from_properties };
 use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 // Driveways are treated specially because some cases only provide the "service" key without the "highway" key.
-pub fn get_highway_geo_tile(
-    props: &GeoTileProperties,
-    geometry: Geometry,
-    driveway: bool,
-) -> GeoTile {
+pub fn get_highway_geo_tile(props: &GeoTileProperties, geometry: Geometry, driveway: bool) -> GeoTile {
     let highway_type_str = if driveway {
         "service"
     } else {
         props["highway"].as_str().unwrap()
     };
     let highway_type = extract_type_from_string!(highway_type_str<props> => HighwayType [Bridleway, BusGuideway, BusStop, Construction, Corridor, Crossing, Cycleway, Escape, Footway, LivingStreet, Motorway, MotorwayLink, Path, Pedestrian, Primary, PrimaryLink, Proposed, Raceway, Road, Residential, Secondary, SecondaryLink, Service, Steps, Stop, StreetLamp, Tertiary, TertiaryLink, Track, TrafficSignals, Trunk, TrunkLink, TurningCircle, Unclassified]);
-    let address = address_from_properties(props);
-    let abutters = property_to_option_string(props, "abutters");
-    let access = property_to_option_string(props, "access");
-    let bicycle = property_to_option_string(props, "bicycle");
-    let bus = property_to_option_string(props, "bus");
-    let destination = property_to_option_string(props, "destination");
-    let expressway = property_to_option_string(props, "expressway");
-    let foot = property_to_option_string(props, "foot");
-    let hgv = property_to_option_string(props, "hgv");
-    let lanes = property_to_option_string(props, "lanes");
-    let lit = property_to_option_string(props, "lit");
-    let maxspeed = property_to_option_string(props, "maxspeed");
-    let motor_vehicle = property_to_option_string(props, "motor_vehicle");
-    let motorcar = property_to_option_string(props, "motorcar");
-    let motorroad = property_to_option_string(props, "motorroad");
-    let name = property_to_option_string(props, "name");
-    let oneway = property_to_option_string(props, "oneway");
-    let operator = property_to_option_string(props, "operator");
-    let osm_id = props["id"].to_string();
-    let service = property_to_option_string(props, "service");
-    let shelter = property_to_option_string(props, "shelter");
-    let sidewalk = property_to_option_string(props, "sidewalk");
-    let sport = property_to_option_string(props, "sport");
-    let smoothness = property_to_option_string(props, "smoothness");
-    let surface = property_to_option_string(props, "surface");
-    let tracktype = property_to_option_string(props, "tracktype");
-    let wheelchair = property_to_option_string(props, "wheelchair");
-    let width = property_to_option_string(props, "width");
-    GeoTile::Highway {
-        address,
-        abutters,
-        access,
-        bicycle,
-        bus,
-        destination,
-        expressway,
-        foot,
-        geometry,
-        hgv,
-        highway_type,
-        lanes,
-        lit,
-        maxspeed,
-        motor_vehicle,
-        motorcar,
-        motorroad,
-        name,
-        oneway,
-        operator,
-        osm_id,
-        service,
-        shelter,
-        sidewalk,
-        sport,
-        smoothness,
-        surface,
-        tracktype,
-        wheelchair,
-        width,
-    }
+    geotile_from_properties!(geometry<props> => Highway<highway_type> [name, abutters, access, bicycle, bus, destination, expressway, foot, hgv, lanes, lit, maxspeed, motor_vehicle, motorcar, motorroad, oneway, operator, service, shelter, sidewalk, sport, smoothness, surface, tracktype, wheelchair, width]);
 }
 
 pub fn draw_highway_line_string(
