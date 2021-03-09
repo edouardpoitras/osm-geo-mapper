@@ -1215,6 +1215,8 @@ dependencies = [
 [[package]]
 name = "osm-geo-mapper-macros"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4abd800844e1fb2ef9a6f27b4708cc22c325e4ed94a4cb2a5b2f2d4521815fd0"
 dependencies = [
  "paste",
 ]
