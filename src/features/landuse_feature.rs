@@ -2,57 +2,19 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, LanduseType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_landuse_geo_tile(props: &GeoTileProperties, geometry: Geometry, landcover: bool) -> GeoTile {
-    let landuse;
-    if landcover {
-        landuse = props["landcover"].as_str().unwrap();
+    let landuse_type_str = if landcover {
+        props["landcover"].as_str().unwrap()
     } else {
-        landuse = props["landuse"].as_str().unwrap();
-    }
-    let landuse_type = match landuse {
-        "allotments" => LanduseType::Allotments,
-        "basin" => LanduseType::Basin,
-        "brownfield" => LanduseType::Brownfield,
-        "cemetery" => LanduseType::Cemetery,
-        "commercial" => LanduseType::Commercial,
-        "conservation" => LanduseType::Conservation,
-        "construction" => LanduseType::Construction,
-        "depot" => LanduseType::Depot,
-        "farmland" => LanduseType::Farmland,
-        "farmyard" => LanduseType::Farmyard,
-        "flowerbed" => LanduseType::Flowerbed,
-        "forest" => LanduseType::Forest,
-        "garages" => LanduseType::Garages,
-        "grass" => LanduseType::Grass,
-        "greenfield" => LanduseType::Greenfield,
-        "greenhouse_horticulture" => LanduseType::GreenhouseHorticulture,
-        "industrial" => LanduseType::Industrial,
-        "landfill" => LanduseType::Landfill,
-        "meadow" => LanduseType::Meadow,
-        "military" => LanduseType::Military,
-        "orchard" => LanduseType::Orchard,
-        "peat_cutting" => LanduseType::PeatCutting,
-        "plant_nursery" => LanduseType::PlantNursery,
-        "port" => LanduseType::Port,
-        "quarry" => LanduseType::Quarry,
-        "railway" => LanduseType::Railway,
-        "recreation_ground" => LanduseType::RecreationGround,
-        "religious" => LanduseType::Religious,
-        "reservoir" => LanduseType::Reservoir,
-        "residential" => LanduseType::Residential,
-        "retail" => LanduseType::Retail,
-        "salt_pond" => LanduseType::SaltPond,
-        "village_green" => LanduseType::VillageGreen,
-        "vineyard" => LanduseType::Vineyard,
-        _ => {
-            warn!("Unclassified landuse type {}: {:?}", landuse, props);
-            LanduseType::Unclassified
-        }
+        props["landuse"].as_str().unwrap()
     };
+    let landuse_type = extract_type_from_string!(landuse_type_str<props> => LanduseType [Allotments, Basin, Brownfield, Cemetery, Commercial, Conservation, Construction, Depot, Farmland, Farmyard, Flowerbed, Forest, Garages, Grass, Greenfield, GreenhouseHorticulture, Industrial, Landfill, Meadow, Military, Orchard, PeatCutting, PlantNursery, Port, Quarry, Railway, RecreationGround, Religious, Reservoir, Residential, Retail, SaltPond, Unclassified, VillageGreen, Vineyard]);
     let address = address_from_properties(props);
     let barrier = property_to_option_string(props, "barrier");
     let crop = property_to_option_string(props, "crop");

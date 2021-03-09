@@ -2,40 +2,15 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, TourismType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_tourism_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let tourism_str = props["tourism"].as_str().unwrap();
-    let tourism_type = match tourism_str {
-        "alpine_hut" => TourismType::AlpineHut,
-        "apartment" => TourismType::Apartment,
-        "aquarium" => TourismType::Aquarium,
-        "artwork" => TourismType::Artwork,
-        "attraction" => TourismType::Attraction,
-        "camp_pitch" => TourismType::CampPitch,
-        "camp_site" => TourismType::CampSite,
-        "caravan_site" => TourismType::CaravanSite,
-        "chalet" => TourismType::Chalet,
-        "gallery" => TourismType::Gallery,
-        "guest_house" => TourismType::GuestHouse,
-        "hostel" => TourismType::Hostel,
-        "hotel" => TourismType::Hotel,
-        "information" => TourismType::Information,
-        "motel" => TourismType::Motel,
-        "museum" => TourismType::Museum,
-        "picnic_site" => TourismType::PicnicSite,
-        "theme_park" => TourismType::ThemePark,
-        "viewpoint" => TourismType::Viewpoint,
-        "wilderness_hut" => TourismType::WildernessHut,
-        "yes" => TourismType::Tourism,
-        "zoo" => TourismType::Zoo,
-        _ => {
-            warn!("Unclassified tourism type {}: {:?}", tourism_str, props);
-            TourismType::Unclassified
-        }
-    };
+    let tourism_type_str = props["tourism"].as_str().unwrap();
+    let tourism_type = extract_type_from_string!(tourism_type_str<props> => TourismType [AlpineHut, Apartment, Aquarium, Artwork, Attraction, CampPitch, CampSite, CaravanSite, Chalet, Gallery, GuestHouse, Hostel, Hotel, Information, Motel, Museum, PicnicSite, ThemePark, Tourism, Unclassified, Viewpoint, WildernessHut, Zoo]);
     let access = property_to_option_string(props, "access");
     let address = address_from_properties(props);
     let artist_name = property_to_option_string(props, "artist_name");

@@ -1191,7 +1191,7 @@ dependencies = [
 
 [[package]]
 name = "osm-geo-mapper"
-version = "0.5.6"
+version = "0.5.7"
 dependencies = [
  "criterion",
  "crossterm",
@@ -1201,6 +1201,7 @@ dependencies = [
  "log",
  "log4rs",
  "noise",
+ "osm-geo-mapper-macros",
  "osmpbfreader",
  "paste",
  "reqwest",
@@ -1209,6 +1210,13 @@ dependencies = [
  "structopt",
  "tui",
  "uuid",
+]
+
+[[package]]
+name = "osm-geo-mapper-macros"
+version = "0.1.0"
+dependencies = [
+ "paste",
 ]
 
 [[package]]

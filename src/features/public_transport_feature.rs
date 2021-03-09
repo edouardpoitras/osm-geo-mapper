@@ -2,22 +2,15 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, PublicTransportType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_public_transport_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let public_transport_str = props["public_transport"].as_str().unwrap();
-    let public_transport_type = match public_transport_str {
-        "stop_position" => PublicTransportType::StopPosition,
-        "platform" => PublicTransportType::Platform,
-        "station" => PublicTransportType::Station,
-        "stop_area" => PublicTransportType::StopArea,
-        _ => {
-            warn!("Unclassified public transport type {}: {:?}", public_transport_str, props);
-            PublicTransportType::Unclassified
-        }
-    };
+    let public_transport_type_str = props["public_transport"].as_str().unwrap();
+    let public_transport_type = extract_type_from_string!(public_transport_type_str<props> => PublicTransportType [Platform, Station, StopArea, StopPosition, Unclassified]);
     let address = address_from_properties(props);
     let aerialway = property_to_option_string(props, "aerialway");
     let area = property_to_option_string(props, "area");

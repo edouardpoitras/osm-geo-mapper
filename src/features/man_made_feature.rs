@@ -2,68 +2,15 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, ManMadeType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let man_made= props["man_made"].as_str().unwrap();
-    let man_made_type = match man_made {
-        "adit" => ManMadeType::Adit,
-        "beacon" => ManMadeType::Beacon,
-        "breakwater" => ManMadeType::Breakwater,
-        "bridge" => ManMadeType::Bridge,
-        "bunker_silo" => ManMadeType::BunkerSilo,
-        "carpet_hanger" => ManMadeType::CarpetHanger,
-        "chimney" => ManMadeType::Chimney,
-        "communications_tower" => ManMadeType::CommunicationsTower,
-        "crane" => ManMadeType::Crane,
-        "cross" => ManMadeType::Cross,
-        "cutline" => ManMadeType::Cutline,
-        "clearcut" => ManMadeType::Clearcut,
-        "dovecote" => ManMadeType::Dovecote,
-        "dyke" => ManMadeType::Dyke,
-        "embankment" => ManMadeType::Embankment,
-        "flagpole" => ManMadeType::Flagpole,
-        "gasometer" => ManMadeType::Gasometer,
-        "goods_conveyor" => ManMadeType::GoodsConveyor,
-        "groyne" => ManMadeType::Groyne,
-        "kiln" => ManMadeType::Kiln,
-        "lighthouse" => ManMadeType::Lighthouse,
-        "mast" => ManMadeType::Mast,
-        "mineshaft" => ManMadeType::Mineshaft,
-        "monitoring_station" => ManMadeType::MonitoringStation,
-        "obelisk" => ManMadeType::Obelisk,
-        "observatory" => ManMadeType::Observatory,
-        "offshore_platform" => ManMadeType::OffshorePlatform,
-        "petroleum_well" => ManMadeType::PetroleumWell,
-        "pier" => ManMadeType::Pier,
-        "pipeline" => ManMadeType::Pipeline,
-        "pumping_station" => ManMadeType::PumpingStation,
-        "reservoir_covered" => ManMadeType::ReservoirCovered,
-        "silo" => ManMadeType::Silo,
-        "snow_fence" => ManMadeType::SnowFence,
-        "snow_net" => ManMadeType::SnowNet,
-        "storage_tank" => ManMadeType::StorageTank,
-        "street_cabinet" => ManMadeType::StreetCabinet,
-        "surveillance" => ManMadeType::Surveillance,
-        "survey_point" => ManMadeType::SurveyPoint,
-        "telescope" => ManMadeType::Telescope,
-        "tower" => ManMadeType::Tower,
-        "wastewater_plant" => ManMadeType::WastewaterPlant,
-        "watermill" => ManMadeType::Watermill,
-        "water_tower" => ManMadeType::WaterTower,
-        "water_well" => ManMadeType::WaterWell,
-        "water_tap" => ManMadeType::WaterTap,
-        "water_works" => ManMadeType::WaterWorks,
-        "wildlife_crossing" => ManMadeType::WildlifeCrossing,
-        "windmill" => ManMadeType::Windmill,
-        "works" => ManMadeType::Works,
-        _ => {
-            warn!("Unclassified man made type {}: {:?}", man_made, props);
-            ManMadeType::Unclassified
-        }
-    };
+    let man_made_type_str= props["man_made"].as_str().unwrap();
+    let man_made_type = extract_type_from_string!(man_made_type_str<props> => ManMadeType [Adit, Beacon, Breakwater, Bridge, BunkerSilo, CarpetHanger, Chimney, CommunicationsTower, Crane, Cross, Cutline, Clearcut, Dovecote, Dyke, Embankment, Flagpole, Gasometer, GoodsConveyor, Groyne, Kiln, Lighthouse, Mast, Mineshaft, MonitoringStation, Obelisk, Observatory, OffshorePlatform, PetroleumWell, Pier, Pipeline, PumpingStation, ReservoirCovered, Silo, SnowFence, SnowNet, StorageTank, StreetCabinet, Surveillance, SurveyPoint, Telescope, Tower, Unclassified, WastewaterPlant, Watermill, WaterTower, WaterWell, WaterTap, WaterWorks, WildlifeCrossing, Windmill, Works]);
     let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let bridge = property_to_option_string(props, "bridge");

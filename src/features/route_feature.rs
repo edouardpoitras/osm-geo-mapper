@@ -2,6 +2,8 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, RouteType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
@@ -11,36 +13,8 @@ pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry, route: 
     if route.is_some() {
         route_type_key = route.unwrap();
     }
-    let route_str = props[route_type_key].as_str().unwrap();
-    let route_type = match route_str {
-        "bicycle" => RouteType::Bicycle,
-        "bus" => RouteType::Bus,
-        "canoe" => RouteType::Canoe,
-        "detour" => RouteType::Detour,
-        "ferry" => RouteType::Ferry,
-        "foot" => RouteType::Foot,
-        "hiking" => RouteType::Hiking,
-        "horse" => RouteType::Horse,
-        "ice_skate" => RouteType::IceSkate,
-        "inline_skates" => RouteType::InlineSkates,
-        "light_rail" => RouteType::LightRail,
-        "mtb" => RouteType::MTB,
-        "piste" => RouteType::Piste,
-        "power" => RouteType::Power,
-        "railway" => RouteType::Railway,
-        "road" => RouteType::Road,
-        "running" => RouteType::Running,
-        "ski" => RouteType::Ski,
-        "subway" => RouteType::Subway,
-        "train" => RouteType::Train,
-        "tracks" => RouteType::Tracks,
-        "tram" => RouteType::Tram,
-        "trolleybus" => RouteType::Trolleybus,
-        _ => {
-            warn!("Unclassified route type {}: {:?}", route_str, props);
-            RouteType::Unclassified
-        }
-    };
+    let route_type_str = props[route_type_key].as_str().unwrap();
+    let route_type = extract_type_from_string!(route_type_str<props> => RouteType [Bicycle, Bus, Canoe, Detour, Ferry, Foot, Hiking, Horse, IceSkate, InlineSkates, LightRail, MTB, Piste, Power, Railway, Road, Running, Ski, Subway, Train, Tracks, Tram, Trolleybus, Unclassified]);
     let address = address_from_properties(props);
     let area = property_to_option_string(props, "area");
     let bicycle = property_to_option_string(props, "bycicle");

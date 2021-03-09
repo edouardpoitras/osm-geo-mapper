@@ -2,25 +2,13 @@ use crate::{
     features::{BoundaryType, GeoTile, GeoTileProperties, Geometry},
     operations::{address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use log::warn;
 
 pub fn get_boundary_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let boundary = props["boundary"].as_str().unwrap();
-    let boundary_type = match boundary {
-        "aboriginal_lands" => BoundaryType::AboriginalLands,
-        "administrative" => BoundaryType::Administrative,
-        "maritime" => BoundaryType::Maritime,
-        "marker" => BoundaryType::Marker,
-        "national_park" => BoundaryType::NationalPark,
-        "political" => BoundaryType::Political,
-        "postal_code" => BoundaryType::PostalCode,
-        "protected_area" => BoundaryType::ProtectedArea,
-        "user_defined" => BoundaryType::UserDefined,
-        _ => {
-            warn!("Unclassified boundary type {}: {:?}", boundary, props);
-            BoundaryType::Unclassified
-        }
-    };
+    let boundary_type_str = props["boundary"].as_str().unwrap();
+    let boundary_type = extract_type_from_string!(boundary_type_str<props> => BoundaryType [AboriginalLands, Administrative, Maritime, Marker, NationalPark, Political, PostalCode, ProtectedArea, UserDefined, Unclassified]);
     let address = address_from_properties(props);
     let admin_level = property_to_option_string(props, "admin_level");
     let area = property_to_option_string(props, "area");

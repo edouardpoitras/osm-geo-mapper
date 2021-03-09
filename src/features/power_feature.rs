@@ -2,36 +2,15 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, PowerType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_power_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let power = props["power"].as_str().unwrap();
-    let power_type = match power {
-        "cable" => PowerType::Cable,
-        "catenary_mast" => PowerType::CatenaryMast,
-        "compensator" => PowerType::Compensator,
-        "converter" => PowerType::Converter,
-        "generator" => PowerType::Generator,
-        "heliostat" => PowerType::Heliostat,
-        "insulator" => PowerType::Insulator,
-        "line" => PowerType::Line,
-        "minor_line" => PowerType::MinorLine,
-        "plant" => PowerType::Plant,
-        "pole" => PowerType::Pole,
-        "portal" => PowerType::Portal,
-        "substation" => PowerType::Substation,
-        "switch" => PowerType::Switch,
-        "switchgear" => PowerType::Switchgear,
-        "terminal" => PowerType::Terminal,
-        "tower" => PowerType::Tower,
-        "transformer" => PowerType::Transformer,
-        _ => {
-            warn!("Unclassified power type {}: {:?}", power, props);
-            PowerType::Unclassified
-        }
-    };
+    let power_type_str = props["power"].as_str().unwrap();
+    let power_type = extract_type_from_string!(power_type_str<props> => PowerType [Cable, CatenaryMast, Compensator, Converter, Generator, Heliostat, Insulator, Line, MinorLine, Plant, Pole, Portal, Substation, Switch, Switchgear, Terminal, Tower, Transformer, Unclassified]);
     let address = address_from_properties(props);
     let busbar = property_to_option_string(props, "busbar");
     let cables = property_to_option_string(props, "cables");

@@ -2,30 +2,15 @@ use crate::{
     features::{AerowayType, GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_aeroway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let aeroway = props["aeroway"].as_str().unwrap();
-    let aeroway_type = match aeroway {
-        "aerodrome" => AerowayType::Aerodrome,
-        "apron" => AerowayType::Apron,
-        "gate" => AerowayType::Gate,
-        "hangar" => AerowayType::Hangar,
-        "helipad" => AerowayType::Helipad,
-        "heliport" => AerowayType::Heliport,
-        "navigationaid" => AerowayType::Navigationaid,
-        "runway" => AerowayType::Runway,
-        "spaceport" => AerowayType::Spaceport,
-        "taxiway" => AerowayType::Taxiway,
-        "terminal" => AerowayType::Terminal,
-        "windsock" => AerowayType::Windsock,
-        _ => {
-            warn!("Unclassified aeroway type {}: {:?}", aeroway, props);
-            AerowayType::Unclassified
-        }
-    };
+    let aeroway_type_str = props["aeroway"].as_str().unwrap();
+    let aeroway_type = extract_type_from_string!(aeroway_type_str<props> => AerowayType [Aerodrome, Apron, Gate, Hangar, Helipad, Heliport, Navigationaid, Runway, Spaceport, Taxiway, Terminal, Windsock, Unclassified]);
     let address = address_from_properties(props);
     let description = property_to_option_string(props, "description");
     let iata = property_to_option_string(props, "iata");

@@ -2,51 +2,15 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, LeisureType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_leisure_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let leisure = props["leisure"].as_str().unwrap();
-    let leisure_type = match leisure {
-        "adult_gaming_centre" => LeisureType::AdultGamingCentre,
-        "amusement_arcade" => LeisureType::AmusementArcade,
-        "beach_resort" => LeisureType::BeachResort,
-        "bandstand" => LeisureType::Bandstand,
-        "bird_hide" => LeisureType::BirdHide,
-        "common" => LeisureType::Common,
-        "dance" => LeisureType::Dance,
-        "disc_golf_course" => LeisureType::DiscGolfCourse,
-        "dog_park" => LeisureType::DogPark,
-        "escape_game" => LeisureType::EscapeGame,
-        "firepit" => LeisureType::Firepit,
-        "fishing" => LeisureType::Fishing,
-        "fitness_centre" => LeisureType::FitnessCentre,
-        "fitness_station" => LeisureType::FitnessStation,
-        "garden" => LeisureType::Garden,
-        "hackerspace" => LeisureType::Hackerspace,
-        "horse_riding" => LeisureType::HorseRiding,
-        "ice_rink" => LeisureType::IceRink,
-        "marina" => LeisureType::Marina,
-        "miniature_golf" => LeisureType::MiniatureGolf,
-        "nature_reserve" => LeisureType::NatureReserve,
-        "park" => LeisureType::Park,
-        "picnic_table" => LeisureType::PicnicTable,
-        "pitch" => LeisureType::Pitch,
-        "playground" => LeisureType::Playground,
-        "slipway" => LeisureType::Slipway,
-        "sports_centre" => LeisureType::SportsCentre,
-        "stadium" => LeisureType::Stadium,
-        "summer_camp" => LeisureType::SummerCamp,
-        "swimming_area" => LeisureType::SwimmingArea,
-        "swimming_pool" => LeisureType::SwimmingPool,
-        "track" => LeisureType::Track,
-        "water_park" => LeisureType::WaterPark,
-        _ => {
-            warn!("Unclassified leisure type {}: {:?}", leisure, props);
-            LeisureType::Unclassified
-        }
-    };
+    let leisure_type_str = props["leisure"].as_str().unwrap();
+    let leisure_type = extract_type_from_string!(leisure_type_str<props> => LeisureType [AdultGamingCentre, AmusementArcade, BeachResort, Bandstand, BirdHide, Common, Dance, DiscGolfCourse, DogPark, EscapeGame, Firepit, Fishing, FitnessCentre, FitnessStation, Garden, Hackerspace, HorseRiding, IceRink, Marina, MiniatureGolf, NatureReserve, Park, PicnicTable, Pitch, Playground, Slipway, SportsCentre, Stadium, SummerCamp, SwimmingArea, SwimmingPool, Track, Unclassified, WaterPark]);
     let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let barrier = property_to_option_string(props, "barrier");

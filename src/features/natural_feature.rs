@@ -2,58 +2,15 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, NaturalType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_natural_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let natural = props["natural"].as_str().unwrap();
-    let natural_type = match natural {
-        "wood" => NaturalType::Wood,
-        "tree_row" => NaturalType::TreeRow,
-        "tree" => NaturalType::Tree,
-        "scrub" => NaturalType::Scrub,
-        "heath" => NaturalType::Heath,
-        "moor" => NaturalType::Moor,
-        "grassland" => NaturalType::Grassland,
-        "fell" => NaturalType::Fell,
-        "bare_rock" => NaturalType::BareRock,
-        "scree" => NaturalType::Scree,
-        "shingle" => NaturalType::Shingle,
-        "sand" => NaturalType::Sand,
-        "mud" => NaturalType::Mud,
-        "water" => NaturalType::Water,
-        "wetland" => NaturalType::Wetland,
-        "glacier" => NaturalType::Glacier,
-        "bay" => NaturalType::Bay,
-        "strait" => NaturalType::Strait,
-        "cape" => NaturalType::Cape,
-        "beach" => NaturalType::Beach,
-        "coastline" => NaturalType::Coastline,
-        "reef" => NaturalType::Reef,
-        "spring" => NaturalType::Spring,
-        "hot_spring" => NaturalType::HotSpring,
-        "geyser" => NaturalType::Geyser,
-        "blowhole" => NaturalType::Blowhole,
-        "peak" => NaturalType::Peak,
-        "volcano" => NaturalType::Volcano,
-        "valley" => NaturalType::Valley,
-        "peninsula" => NaturalType::Peninsula,
-        "isthmus" => NaturalType::Isthmus,
-        "ridge" => NaturalType::Ridge,
-        "arete" => NaturalType::Arete,
-        "cliff" => NaturalType::Cliff,
-        "saddle" => NaturalType::Saddle,
-        "dune" => NaturalType::Dune,
-        "rock" => NaturalType::Rock,
-        "stone" => NaturalType::Stone,
-        "sinkhole" => NaturalType::Sinkhole,
-        "cave_entrance" => NaturalType::CaveEntrance,
-        _ => {
-            warn!("Unclassified natural type {}: {:?}", natural, props);
-            NaturalType::Unclassified
-        }
-    };
+    let natural_type_str = props["natural"].as_str().unwrap();
+    let natural_type = extract_type_from_string!(natural_type_str<props> => NaturalType [Wood, TreeRow, Tree, Scrub, Heath, Moor, Grassland, Fell, BareRock, Scree, Shingle, Sand, Mud, Water, Wetland, Glacier, Bay, Strait, Cape, Beach, Coastline, Reef, Spring, HotSpring, Geyser, Blowhole, Peak, Volcano, Valley, Peninsula, Isthmus, Ridge, Arete, Cliff, Saddle, Dune, Rock, Stone, Sinkhole, CaveEntrance, Unclassified]);
     let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let circumference = property_to_option_string(props, "circumference");

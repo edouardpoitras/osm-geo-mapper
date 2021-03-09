@@ -62,7 +62,7 @@ impl fmt::Display for Address {
 }
 
 /// Helper macro to create the many enums used in this library.
-#[macro_export]
+#[macro_use]
 macro_rules! create_enum {
     ($($enum:ident [$($variant:ident),*$(,)*]),*$(,)*) => {
         $(
@@ -77,6 +77,7 @@ macro_rules! create_enum {
 }
 
 /// You can find all features at https://wiki.openstreetmap.org/wiki/Map_Features
+#[macro_use]
 macro_rules! implement_geotile {
     ($($variant:ident [$($attr:ident),*]),*$(,)*) => {
         paste! {
@@ -126,7 +127,7 @@ macro_rules! implement_geotile {
 /// print_geotile_attributes!(f => field1, field2, ...)
 /// Where f is a &mut fmt::Formatter (available when implementing fmt::Display).
 /// 
-#[macro_export]
+#[macro_use]
 macro_rules! print_geotile_attributes {
     ($f:expr => $($attr: ident),*$(,)*) => {
         {

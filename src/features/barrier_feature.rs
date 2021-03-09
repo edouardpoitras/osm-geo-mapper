@@ -2,56 +2,15 @@ use crate::{
     features::{BarrierType, GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
 pub fn get_barrier_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let barrier = props["barrier"].as_str().unwrap();
-    let barrier_type = match barrier {
-        "cable_barrier" => BarrierType::CableBarrier,
-        "city_wall" => BarrierType::CityWall,
-        "ditch" => BarrierType::Ditch,
-        "fence" => BarrierType::Fence,
-        "guard_rail" => BarrierType::GuardRail,
-        "handrail" => BarrierType::Handrail,
-        "hedge" => BarrierType::Hedge,
-        "kerb" => BarrierType::Kerb,
-        "retaining_wall" => BarrierType::RetainingWall,
-        "wall" => BarrierType::Wall,
-        "block" => BarrierType::Block,
-        "bollard" => BarrierType::Bollard,
-        "border_control" => BarrierType::BorderControl,
-        "bump_gate" => BarrierType::BumpGate,
-        "bus_trap" => BarrierType::BusTrap,
-        "cattle_grid" => BarrierType::CattleGrid,
-        "chain" => BarrierType::Chain,
-        "cycle_barrier" => BarrierType::CycleBarrier,
-        "debris" => BarrierType::Debris,
-        "entrance" => BarrierType::Entrance,
-        "full-height_turnstile" => BarrierType::FullHeightTurnstile,
-        "gate" => BarrierType::Gate,
-        "hampshire_gate" => BarrierType::HampshireGate,
-        "height_restrictor" => BarrierType::HeightRestrictor,
-        "horse_stile" => BarrierType::HorseStile,
-        "jersey_barrier" => BarrierType::JerseyBarrier,
-        "kissing_gate" => BarrierType::KissingGate,
-        "lift_gate" => BarrierType::LiftGate,
-        "log" => BarrierType::Log,
-        "motorcycle_barrier" => BarrierType::MotorcycleBarrier,
-        "rope" => BarrierType::Rope,
-        "sally_port" => BarrierType::SallyPort,
-        "spikes" => BarrierType::Spikes,
-        "stile" => BarrierType::Stile,
-        "sump_buster" => BarrierType::SumpBuster,
-        "swimg_gate" => BarrierType::SwingGate,
-        "toll_booth" => BarrierType::TollBooth,
-        "turnstile" => BarrierType::Turnstile,
-        _ => {
-            warn!("Unclassified barrier type {}: {:?}", barrier, props);
-            BarrierType::Unclassified
-        }
-    };
+    let barrier_type_str = props["barrier"].as_str().unwrap();
+    let barrier_type = extract_type_from_string!(barrier_type_str<props> => BarrierType [Block, Bollard, BorderControl, BumpGate, BusTrap, CableBarrier, CattleGrid, Chain, CityWall, CycleBarrier, Debris, Ditch, Entrance, Fence, FullHeightTurnstile, Gate, GuardRail, HampshireGate, Handrail, Hedge, HeightRestrictor, HorseStile, JerseyBarrier, Kerb, KissingGate, LiftGate, Log, MotorcycleBarrier, RetainingWall, Rope, SallyPort, Spikes, Stile, SumpBuster, SwingGate, TollBooth, Turnstile, Unclassified, Wall]);
     let address = address_from_properties(props);
     let access = property_to_option_string(props, "access");
     let bicycle = property_to_option_string(props, "bicycle");

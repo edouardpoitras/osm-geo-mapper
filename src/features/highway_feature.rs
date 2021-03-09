@@ -2,6 +2,8 @@ use crate::{
     features::{GeoTile, GeoTileProperties, GeoTilesDataStructure, Geometry, HighwayType},
     operations::{line_string_operations::draw_line, address_from_properties, property_to_option_string},
 };
+use osm_geo_mapper_macros::extract_type_from_string;
+use paste::paste; // Required for the extract_type_from_string macro.
 use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
@@ -12,50 +14,12 @@ pub fn get_highway_geo_tile(
     geometry: Geometry,
     driveway: bool,
 ) -> GeoTile {
-    let highway = if driveway {
+    let highway_type_str = if driveway {
         "service"
     } else {
         props["highway"].as_str().unwrap()
     };
-    let highway_type = match highway {
-        "bridleway" => HighwayType::Bridleway,
-        "bus_guideway" => HighwayType::BusGuideway,
-        "bus_stop" => HighwayType::BusStop,
-        "construction" => HighwayType::Construction,
-        "corridor" => HighwayType::Corridor,
-        "crossing" => HighwayType::Crossing,
-        "cycleway" => HighwayType::Cycleway,
-        "escape" => HighwayType::Escape,
-        "footway" => HighwayType::Footway,
-        "living_street" => HighwayType::LivingStreet,
-        "motorway" => HighwayType::Motorway,
-        "motorway_link" => HighwayType::Motorway,
-        "path" => HighwayType::Path,
-        "pedestrian" => HighwayType::Pedestrian,
-        "primary" => HighwayType::Primary,
-        "primary_link" => HighwayType::PrimaryLink,
-        "proposed" => HighwayType::Proposed,
-        "raceway" => HighwayType::Raceway,
-        "residential" => HighwayType::Residential,
-        "road" => HighwayType::Road,
-        "secondary" => HighwayType::Secondary,
-        "secondary_link" => HighwayType::SecondaryLink,
-        "service" => HighwayType::Service,
-        "steps" => HighwayType::Steps,
-        "stop" => HighwayType::Stop,
-        "street_lamp" => HighwayType::StreetLamp,
-        "tertiary" => HighwayType::Tertiary,
-        "tertiary_link" => HighwayType::TertiaryLink,
-        "track" => HighwayType::Track,
-        "traffic_signals" => HighwayType::TrafficSignals,
-        "trunk" => HighwayType::Trunk,
-        "trunk_link" => HighwayType::TrunkLink,
-        "turning_circle" => HighwayType::TurningCircle,
-        _ => {
-            warn!("New highway type {}: {:?}", highway, props);
-            HighwayType::Unclassified
-        }
-    };
+    let highway_type = extract_type_from_string!(highway_type_str<props> => HighwayType [Bridleway, BusGuideway, BusStop, Construction, Corridor, Crossing, Cycleway, Escape, Footway, LivingStreet, Motorway, MotorwayLink, Path, Pedestrian, Primary, PrimaryLink, Proposed, Raceway, Road, Residential, Secondary, SecondaryLink, Service, Steps, Stop, StreetLamp, Tertiary, TertiaryLink, Track, TrafficSignals, Trunk, TrunkLink, TurningCircle, Unclassified]);
     let address = address_from_properties(props);
     let abutters = property_to_option_string(props, "abutters");
     let access = property_to_option_string(props, "access");
