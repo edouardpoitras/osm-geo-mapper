@@ -11,7 +11,7 @@ use std::sync::Arc;
 pub fn get_natural_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
     let natural_type_str = props["natural"].as_str().unwrap();
     let natural_type = extract_type_from_string!(natural_type_str<props> => NaturalType [Wood, TreeRow, Tree, Scrub, Heath, Moor, Grassland, Fell, BareRock, Scree, Shingle, Sand, Mud, Water, Wetland, Glacier, Bay, Strait, Cape, Beach, Coastline, Reef, Spring, HotSpring, Geyser, Blowhole, Peak, Volcano, Valley, Peninsula, Isthmus, Ridge, Arete, Cliff, Saddle, Dune, Rock, Stone, Sinkhole, CaveEntrance, Unclassified]);
-    geotile_from_properties!(geometry<props> => Natural<natural_type> [name, access, circumference, denotation, direction, elevation, height, intermittent, genus, leaf_type, leaf_cycle, managed, operator, salt, species, surface, taxon, width]);
+    geotile_from_properties!(geometry<props> => Natural<natural_type> [name, access, circumference, denotation, direction, ele, height, intermittent, genus, leaf_type, leaf_cycle, managed, operator, salt, species, surface, taxon, width]);
 }
 
 pub fn draw_natural_line_string(

@@ -77,6 +77,10 @@ pub fn get_geo_tile_theme(geo_tile: &GeoTile) -> GeoTileTheme {
             character: 'G',
             style: Style::default(),
         },
+        GeoTile::Healthcare { .. } => GeoTileTheme {
+            character: 'H',
+            style: Style::default(),
+        },
         GeoTile::Highway { highway_type, .. } => match highway_type {
             HighwayType::Track => GeoTileTheme {
                 character: 'T',
@@ -218,6 +222,10 @@ pub fn get_geo_tile_theme(geo_tile: &GeoTile) -> GeoTileTheme {
         GeoTile::Tourism { .. } => GeoTileTheme {
             character: 'T',
             style: Style::default().bg(Color::LightYellow),
+        },
+        GeoTile::Water { .. } => GeoTileTheme {
+            character: ' ',
+            style: Style::default().bg(Color::Blue),
         },
         GeoTile::Waterway { .. } => GeoTileTheme {
             character: ' ',
