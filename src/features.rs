@@ -28,6 +28,7 @@ pub mod office_feature;
 pub mod place_feature;
 pub mod power_feature;
 pub mod public_transport_feature;
+pub mod railway_feature;
 pub mod route_feature;
 pub mod tourism_feature;
 
@@ -92,7 +93,7 @@ create_enum!(
     PlaceType [Allotments, Archipelago, Borough, City, CityBlock, Continent, Country, County, District, Farm, Hamlet, Island, Islet, IsolatedDwelling, Locality, Municipality, Neighbourhood, Ocean, Plot, Province, Quarter, Region, Sea, Square, State, Suburb, Town, Unclassified, Village],
     PowerType [Cable, CatenaryMast, Compensator, Converter, Generator, Heliostat, Insulator, Line, MinorLine, Plant, Pole, Portal, Substation, Switch, Switchgear, Terminal, Tower, Transformer, Unclassified],
     PublicTransportType [Platform, Station, StopArea, StopPosition, Unclassified],
-    RailwayType [Unclassified],
+    RailwayType [Abandoned, BufferStop, Construction, Crossing, Derail, Disused, Funicular, Halt, LevelCrossing, LightRail, Miniature, Monorail, NarrowGauge, Platform, Preserved, Rail, RailwayCrossing, Roundhouse, Signal, Station, Subway, SubwayEntrance, Switch, Tram, TramStop, Traverser, Turntable, Unclassified, Wash],
     RouteType [Bicycle, Bus, Canoe, Detour, Ferry, Foot, Hiking, Horse, IceSkate, InlineSkates, LightRail, MTB, Piste, Power, Railway, Road, Running, Ski, Subway, Train, Tracks, Tram, Trolleybus, Unclassified],
     ShopType [Unclassified],
     SportType [Unclassified],
@@ -125,7 +126,7 @@ implement_geotile!(
     Place [name, admin_level, architect, capital, is_in, population, reference, start_date, state_code],
     Power [name, busbar, cables, circuits, colour, compensator, design, frequency, height, gas_insulated, landuse, line, line_attachment, line_management, location, manufacturer, material, operator, phases, poles, start_date, structure, substation, switch, rating, voltage, windings, wires],
     PublicTransport [name, aerialway, area, bench, bin, building, bus, covered, departures_board, ferry, layer, level, local_ref, monorail, network, operator, passenger_information_display, shelter, subway, surface, tactile_paving, toilet, train, tram, trolleybus, uic_ref, uic_name, wheelchair],
-    Railway [],
+    Railway [access, area, bench, bicycle, bin, bridge, capacity, colour, control, crossing, cutting, disused, electrified, elevator, embankment, embedded_rails, fee, frequency, funicular, gauge, highspeed, incline, layer, length, light_rail, maxspeed, monorail, network, oneway, opening_hours, operator, passenger, public_transport, rack, request_stop, service, shelter, subway, supervised, surface, surveillance, tactile_paving, toilets, tracks, tram, tunnel, usage, voltage, wheelchair, width, workrules],
     Route [name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to],
     Shop [],
     Sport [],

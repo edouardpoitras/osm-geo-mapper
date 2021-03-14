@@ -10,6 +10,7 @@ use crate::{
         route_feature::get_route_geo_tile, geological_feature::get_geological_geo_tile,
         healthcare_feature::get_healthcare_geo_tile, historic_feature::get_historic_geo_tile,
         military_feature::get_military_geo_tile, office_feature::get_office_geo_tile,
+        railway_feature::get_railway_geo_tile,
         GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
     },
     operations::{
@@ -149,6 +150,8 @@ pub fn polygon_feature_to_geo_tile(
         get_office_geo_tile(properties, polygon)
     } else if properties.contains_key("place") {
         get_place_geo_tile(properties, polygon)
+    } else if properties.contains_key("railway") {
+        get_railway_geo_tile(properties, polygon)
     } else if properties.contains_key("route") {
         get_route_geo_tile(properties, polygon, None)
     } else if properties.contains_key("geological") {
