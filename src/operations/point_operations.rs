@@ -12,7 +12,8 @@ use crate::{
         historic_feature::get_historic_geo_tile, military_feature::get_military_geo_tile,
         office_feature::get_office_geo_tile, railway_feature::get_railway_geo_tile,
         shop_feature::get_shop_geo_tile, telecom_feature::get_telecom_geo_tile,
-        water_feature::get_water_geo_tile, waterway_feature::get_waterway_geo_tile,
+        sport_feature::get_sport_geo_tile, water_feature::get_water_geo_tile,
+        waterway_feature::get_waterway_geo_tile,
         GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
     }
 };
@@ -65,6 +66,8 @@ pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Poin
         get_railway_geo_tile(properties, point)
     } else if properties.contains_key("shop") {
         get_shop_geo_tile(properties, point)
+    } else if properties.contains_key("sport") {
+        get_sport_geo_tile(properties, point)
     } else if properties.contains_key("telecom") {
         get_telecom_geo_tile(properties, point)
     } else if properties.contains_key("tourism") {

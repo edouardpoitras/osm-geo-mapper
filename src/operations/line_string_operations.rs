@@ -19,6 +19,7 @@ use crate::{
         railway_feature::{draw_railway_line_string, get_railway_geo_tile},
         route_feature::{draw_route_line_string, get_route_geo_tile},
         shop_feature::{draw_shop_line_string, get_shop_geo_tile},
+        sport_feature::{draw_sport_line_string, get_sport_geo_tile},
         historic_feature::{draw_historic_line_string, get_historic_geo_tile},
         telecom_feature::{draw_telecom_line_string, get_telecom_geo_tile},
         water_feature::{draw_water_line_string, get_water_geo_tile},
@@ -264,6 +265,18 @@ pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStru
             };
             draw_shop_line_string(geo_tile, data_structure, shop_type, line_string)
         }
+        GeoTile::Sport {
+            geometry,
+            sport_type,
+            ..
+        } => {
+            let line_string = match geometry {
+                Geometry::LineString(ls) => ls,
+                Geometry::Point(_) => panic!("sport should not be dealing with a point"),
+                Geometry::Polygon(_) => panic!("sport should not be dealing with a polygon"),
+            };
+            draw_sport_line_string(geo_tile, data_structure, sport_type, line_string)
+        }
         GeoTile::Telecom {
             geometry,
             telecom_type,
@@ -353,6 +366,8 @@ pub fn line_string_feature_to_geo_tile(
         get_route_geo_tile(properties, line_string, None)
     } else if properties.contains_key("shop") {
         get_shop_geo_tile(properties, line_string)
+    } else if properties.contains_key("sport") {
+        get_sport_geo_tile(properties, line_string)
     } else if properties.contains_key("geological") {
         get_geological_geo_tile(properties, line_string)
     } else if properties.contains_key("telecom") {
