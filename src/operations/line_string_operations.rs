@@ -20,6 +20,7 @@ use crate::{
         route_feature::{draw_route_line_string, get_route_geo_tile},
         shop_feature::{draw_shop_line_string, get_shop_geo_tile},
         historic_feature::{draw_historic_line_string, get_historic_geo_tile},
+        telecom_feature::{draw_telecom_line_string, get_telecom_geo_tile},
         GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
     }
 };
@@ -261,6 +262,18 @@ pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStru
             };
             draw_shop_line_string(geo_tile, data_structure, shop_type, line_string)
         }
+        GeoTile::Telecom {
+            geometry,
+            telecom_type,
+            ..
+        } => {
+            let line_string = match geometry {
+                Geometry::LineString(ls) => ls,
+                Geometry::Point(_) => panic!("telecom should not be dealing with a point"),
+                Geometry::Polygon(_) => panic!("telecom should not be dealing with a polygon"),
+            };
+            draw_telecom_line_string(geo_tile, data_structure, telecom_type, line_string)
+        }
         GeoTile::Unclassified { .. } => {
             warn!("Trying to draw a line string for an unclassified feature: {:?}", geo_tile)
         }
@@ -316,6 +329,8 @@ pub fn line_string_feature_to_geo_tile(
         get_shop_geo_tile(properties, line_string)
     } else if properties.contains_key("geological") {
         get_geological_geo_tile(properties, line_string)
+    } else if properties.contains_key("telecom") {
+        get_telecom_geo_tile(properties, line_string)
     } else if properties.contains_key("service") && properties["service"] == "driveway" {
         // Driveways are treated as service roads.
         get_highway_geo_tile(properties, line_string, true)

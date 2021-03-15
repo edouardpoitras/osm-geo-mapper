@@ -31,6 +31,7 @@ pub mod public_transport_feature;
 pub mod railway_feature;
 pub mod route_feature;
 pub mod shop_feature;
+pub mod telecom_feature;
 pub mod tourism_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
@@ -98,7 +99,7 @@ create_enum!(
     RouteType [Bicycle, Bus, Canoe, Detour, Ferry, Foot, Hiking, Horse, IceSkate, InlineSkates, LightRail, MTB, Piste, Power, Railway, Road, Running, Ski, Subway, Train, Tracks, Tram, Trolleybus, Unclassified],
     ShopType [Agrarian, Alcohol, Anime, Antiques, Appliance, Art, Atv, BabyGoods, Bag, Bakery, BathroomFurnishing, Beauty, Bed, Beverages, Bicycle, Boat, Bookmaker, Books, Boutique, BrewingSupplies, Butcher, Camera, Candles, Cannabis, Car, Caravan, CarParts, Carpet, CarRepair, Charity, Cheese, Chemist, Chocolate, Clothes, Coffee, Collector, Computer, Confectionery, Convenience, Copyshop, Cosmetics, Craft, Curtain, Dairy, Deli, DepartmentStore, Doityourself, Doors, Drugstore, DryCleaning, ECigarette, Electrical, Electronics, Energy, Erotic, Fabric, Farm, Fashion, FashionAccessories, Fireplace, Fishing, Flooring, Florist, Frame, FrozenFood, Fuel, FuneralDirectors, Furniture, Games, GardenCentre, GardenFurniture, Gas, General, Gift, Glaziery, Golf, Greengrocer, Groundskeeping, Hairdresser, HairdresserSupply, Hardware, HealthFood, HearingAids, Herbalist, Hifi, HouseholdLinen, Houseware, Hunting, IceCream, InteriorDecoration, Jetski, Jewelry, Kiosk, Kitchen, Lamps, Laundry, Leather, Lighting, Locksmith, Lottery, Mall, Massage, MedicalSupply, MilitarySurplus, MobilePhone, Model, MoneyLender, Motorcycle, Music, MusicalInstrument, Newsagent, NutritionSupplements, Optician, Organic, Outdoor, Outpost, Paint, Party, Pasta, Pastry, Pawnbroker, Perfumery, PestControl, Pet, PetGrooming, Photo, Pyrotechnics, Radiotechnics, Religion, ScubaDiving, Seafood, SecondHand, Security, Sewing, Shoes, Ski, Snowmobile, Spices, Sports, Stationery, StorageRental, Supermarket, SwimmingPool, Tailor, Tattoo, Tea, Ticket, Tiles, Tobacco, Toys, Trade, Trailer, TravelAgency, Trophy, Tyres, Unclassified, User, Vacant, VacuumCleaner, VarietyStore, Video, VideoGames, Watches, Water, Weapons, Wholesale, WindowBlind, Windows, Wine, Wool],
     SportType [Unclassified],
-    TelecomType [Unclassified],
+    TelecomType [ConnectionPoint, DataCenter, DistributionPoint, Exchange, ServiceDevice, Unclassified],
     TourismType [AlpineHut, Apartment, Aquarium, Artwork, Attraction, CampPitch, CampSite, CaravanSite, Chalet, Gallery, GuestHouse, Hostel, Hotel, Information, Motel, Museum, PicnicSite, ThemePark, Tourism, Unclassified, Viewpoint, WildernessHut, Zoo],
     UnclassifiedType [Unclassified],
     WaterType [Unclassified],
@@ -131,7 +132,7 @@ implement_geotile!(
     Route [name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to],
     Shop [agrarian, alcohol, authorization, bakehouse, beauty, books, branch, brand, brewery, bulk_purchase, butcher, cash_withdrawal, clothes, coffee, collector, cuisine, delivery, denomination, description, diet, distillery, drink, dry_cleaning, email, fair_trade, female, fuel, furniture, ice_cream, industrial, laundry_service, lgbtq, licensed, lottery, male, massage, medical_supply, membership, min_age, music, music_genre, musical_instrument, name, opening_hours, operator, organic, origin, oven, ownership, parts, payment, pet, phone, produce, product, religion, rental, repair, reservation, sales, salt, second_hand, self_service, service, shoes, stamps, tobacco, trade, unisex, vending, video_games, website, wheelchair, wholesale, winery],
     Sport [],
-    Telecom [],
+    Telecom [capacity, connection_point, location, manufacturer, name, operator, owner, street_cabinet, support],
     Tourism [name, access, artist_name, artwork_subject, artwork_type, attraction, backcountry, balcony, bar, beds, bbq, brand, cabins, camp_site, capacity, caravans, contact, covered, description, dog, drinking_water, ele, electricity, email, exhibit, fee, fireplace, group_only, heritage, hot_water, information, internet_access, kitchen, lit, material, mattress, motor_vehicle, museum, museum_type, nudism, number_of_apartments, openfire, opening_hours, operator, parking, payment, permanent_camping, picnic_table, phone, power_supply, reservation, rooms, sanitary_dump_station, scout, shower, smoking, stars, start_date, static_caravans, subject, surface, swimming_pool, tents, toilets, washing_machine, waste_disposal, website, wheelchair, wikipedia, winter_room, zoo],
     Water [],
     Waterway [],
