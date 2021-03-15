@@ -11,6 +11,7 @@ use crate::{
         geological_feature::get_geological_geo_tile, healthcare_feature::get_healthcare_geo_tile,
         historic_feature::get_historic_geo_tile, military_feature::get_military_geo_tile,
         office_feature::get_office_geo_tile, railway_feature::get_railway_geo_tile,
+        shop_feature::get_shop_geo_tile,
         GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
     }
 };
@@ -61,6 +62,8 @@ pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Poin
         get_public_transport_geo_tile(properties, point)
     } else if properties.contains_key("railway") {
         get_railway_geo_tile(properties, point)
+    } else if properties.contains_key("shop") {
+        get_shop_geo_tile(properties, point)
     } else if properties.contains_key("tourism") {
         get_tourism_geo_tile(properties, point)
     } else if properties.contains_key("geological") {

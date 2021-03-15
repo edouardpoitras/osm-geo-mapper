@@ -18,6 +18,7 @@ use crate::{
         geological_feature::{draw_geological_line_string, get_geological_geo_tile},
         railway_feature::{draw_railway_line_string, get_railway_geo_tile},
         route_feature::{draw_route_line_string, get_route_geo_tile},
+        shop_feature::{draw_shop_line_string, get_shop_geo_tile},
         historic_feature::{draw_historic_line_string, get_historic_geo_tile},
         GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
     }
@@ -248,6 +249,18 @@ pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStru
             };
             draw_route_line_string(geo_tile, data_structure, route_type, line_string)
         }
+        GeoTile::Shop {
+            geometry,
+            shop_type,
+            ..
+        } => {
+            let line_string = match geometry {
+                Geometry::LineString(ls) => ls,
+                Geometry::Point(_) => panic!("shop should not be dealing with a point"),
+                Geometry::Polygon(_) => panic!("shop should not be dealing with a polygon"),
+            };
+            draw_shop_line_string(geo_tile, data_structure, shop_type, line_string)
+        }
         GeoTile::Unclassified { .. } => {
             warn!("Trying to draw a line string for an unclassified feature: {:?}", geo_tile)
         }
@@ -299,6 +312,8 @@ pub fn line_string_feature_to_geo_tile(
         get_railway_geo_tile(properties, line_string)
     } else if properties.contains_key("route") {
         get_route_geo_tile(properties, line_string, None)
+    } else if properties.contains_key("shop") {
+        get_shop_geo_tile(properties, line_string)
     } else if properties.contains_key("geological") {
         get_geological_geo_tile(properties, line_string)
     } else if properties.contains_key("service") && properties["service"] == "driveway" {
