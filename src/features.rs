@@ -33,6 +33,7 @@ pub mod route_feature;
 pub mod shop_feature;
 pub mod telecom_feature;
 pub mod tourism_feature;
+pub mod water_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
 pub type GeoTilesDataStructure = Arc<RwLock<HashMap<gt::Coordinate<i32>, Arc<GeoTile>>>>;
@@ -102,7 +103,7 @@ create_enum!(
     TelecomType [ConnectionPoint, DataCenter, DistributionPoint, Exchange, ServiceDevice, Unclassified],
     TourismType [AlpineHut, Apartment, Aquarium, Artwork, Attraction, CampPitch, CampSite, CaravanSite, Chalet, Gallery, GuestHouse, Hostel, Hotel, Information, Motel, Museum, PicnicSite, ThemePark, Tourism, Unclassified, Viewpoint, WildernessHut, Zoo],
     UnclassifiedType [Unclassified],
-    WaterType [Unclassified],
+    WaterType [Basin, Canal, Ditch, FishPass, Lagoon, Lake, Lock, Moat, Oxbow, Pond, ReflectingPool, Reservoir, River, StreamPool, Unclassified, Wastewater],
     WaterwayType [Unclassified],
 );
 
@@ -134,7 +135,7 @@ implement_geotile!(
     Sport [],
     Telecom [capacity, connection_point, location, manufacturer, name, operator, owner, street_cabinet, support],
     Tourism [name, access, artist_name, artwork_subject, artwork_type, attraction, backcountry, balcony, bar, beds, bbq, brand, cabins, camp_site, capacity, caravans, contact, covered, description, dog, drinking_water, ele, electricity, email, exhibit, fee, fireplace, group_only, heritage, hot_water, information, internet_access, kitchen, lit, material, mattress, motor_vehicle, museum, museum_type, nudism, number_of_apartments, openfire, opening_hours, operator, parking, payment, permanent_camping, picnic_table, phone, power_supply, reservation, rooms, sanitary_dump_station, scout, shower, smoking, stars, start_date, static_caravans, subject, surface, swimming_pool, tents, toilets, washing_machine, waste_disposal, website, wheelchair, wikipedia, winter_room, zoo],
-    Water [],
+    Water [basin, intermittent, lock, name, reservoir_type, salt, seasonal],
     Waterway [],
     Unclassified [],
 );

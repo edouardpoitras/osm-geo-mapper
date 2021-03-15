@@ -11,7 +11,7 @@ use crate::{
         healthcare_feature::get_healthcare_geo_tile, historic_feature::get_historic_geo_tile,
         military_feature::get_military_geo_tile, office_feature::get_office_geo_tile,
         railway_feature::get_railway_geo_tile, shop_feature::get_shop_geo_tile,
-        telecom_feature::get_telecom_geo_tile,
+        telecom_feature::get_telecom_geo_tile, water_feature::get_water_geo_tile,
         GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
     },
     operations::{
@@ -159,6 +159,8 @@ pub fn polygon_feature_to_geo_tile(
         get_shop_geo_tile(properties, polygon)
     } else if properties.contains_key("telecom") {
         get_telecom_geo_tile(properties, polygon)
+    } else if properties.contains_key("water") {
+        get_water_geo_tile(properties, polygon)
     } else if properties.contains_key("geological") {
         get_geological_geo_tile(properties, polygon)
     } else if properties.contains_key("public_transport") {
