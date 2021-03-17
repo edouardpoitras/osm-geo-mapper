@@ -32,7 +32,7 @@ macro_rules! implement_geotile {
                        )*
                    },
                )*
-           }
+           } 
            // Now generate the display implementation.
            impl fmt::Display for GeoTile {
                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -43,11 +43,13 @@ macro_rules! implement_geotile {
                                    $attr,
                                )*
                                [<$variant:snake _type>],
+                               address,
                                ..
                            } => {
                                let variant_str = stringify!($variant);
                                write!(f, "Feature: {}\n", variant_str)?;
                                write!(f, "Type: {:?}\n", [<$variant:snake _type>])?;
+                               if (address.is_some()) { write!(f, "Address: {}\n", address.as_ref().unwrap())?; }
                                print_geotile_attributes!(f => $($attr),*);
                                Ok(())
                            },

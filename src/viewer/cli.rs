@@ -8,30 +8,6 @@ use structopt::StructOpt;
 )]
 pub struct CLIOptions {
     #[structopt(
-        long = "show-landuse",
-        help = "Display all landuse areas - can take a while and cover up overlapping features like buildings"
-    )]
-    pub landuse: bool,
-
-    #[structopt(
-        long = "show-leisure",
-        help = "Display all leisure areas - can cover up overlapping features like buildings"
-    )]
-    pub leisure: bool,
-
-    #[structopt(
-        long = "show-amenities",
-        help = "Display all amenities - can take a while and cover up overlapping features like buildings"
-    )]
-    pub amenity: bool,
-
-    #[structopt(
-        long = "show-boundaries",
-        help = "Display all boundaries - can take a while and cover up overlapping features like roads"
-    )]
-    pub boundary: bool,
-
-    #[structopt(
         short = "g",
         long = "geojson-file",
         parse(from_os_str),

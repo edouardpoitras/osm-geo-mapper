@@ -165,7 +165,7 @@ fn process_feature(
             let poly: gt::Polygon<f64> =
                 TryInto::<gt::Polygon<f64>>::try_into(geometry.value.clone()).unwrap();
             let geo_tile = Arc::new(polygon_feature_to_geo_tile(properties, poly.clone()));
-            draw_polygon(&poly, geo_tile, data_structure, false, false, false, false);
+            draw_polygon(&poly, geo_tile, data_structure);
         }
         gj::Value::MultiPolygon(_) => {
             let multi_polygon: gt::MultiPolygon<f64> =
@@ -174,7 +174,7 @@ fn process_feature(
                 let poly: gt::Polygon<f64> =
                     TryInto::<gt::Polygon<f64>>::try_into(polygon).unwrap();
                 let geo_tile = Arc::new(polygon_feature_to_geo_tile(properties, poly.clone()));
-                draw_polygon(&poly, geo_tile, data_structure.clone(), false, false, false, false);
+                draw_polygon(&poly, geo_tile, data_structure.clone());
             }
         }
         gj::Value::GeometryCollection(ref gc) => {

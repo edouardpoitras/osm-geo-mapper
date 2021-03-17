@@ -24,7 +24,7 @@ use crate::{
         telecom_feature::{draw_telecom_line_string, get_telecom_geo_tile},
         water_feature::{draw_water_line_string, get_water_geo_tile},
         waterway_feature::{draw_waterway_line_string, get_waterway_geo_tile},
-        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE,
+        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry, TILE_SCALE, geotile_sort, geotile_dedup
     }
 };
 
@@ -455,8 +455,15 @@ pub fn draw_line(
             x: start_x as i32 + (step_x * (i as f64)) as i32,
             y: start_y as i32 + (step_y * (i as f64)) as i32,
         };
-        locked_data_structure.insert(coord, geo_tile.clone());
+        let vec = locked_data_structure
+            .entry(coord)
+            .or_insert(Vec::new());
+        vec.push(geo_tile.clone());
+        // TODO: May need to revisit this for performance reasons. Maybe only sort and dedup once all loading is complete?
+        vec.sort_by(geotile_sort);
+        vec.dedup_by(geotile_dedup);
     }
+    
 }
 
 // Does NOT draw the middle line provided, only draws the expanded lines.

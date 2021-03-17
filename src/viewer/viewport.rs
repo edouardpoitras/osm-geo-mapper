@@ -49,10 +49,13 @@ impl Widget for &mut Viewport {
                 };
                 let mut character = ' ';
                 let mut style = Style::default();
-                if let Some(tile) = locked_data_structure.get(&current_coordinates) {
-                    let theme = get_geo_tile_theme(&tile);
-                    character = theme.character;
-                    style = theme.style;
+                if let Some(geo_tiles) = locked_data_structure.get(&current_coordinates) {
+                    if geo_tiles.len() > 0 {
+                        let geo_tile = geo_tiles[0].clone();
+                        let theme = get_geo_tile_theme(&geo_tile);
+                        character = theme.character;
+                        style = theme.style;
+                    }
                 }
                 buf.get_mut(x + left, y + top)
                    .set_char(character)

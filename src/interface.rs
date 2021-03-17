@@ -1,6 +1,7 @@
 use log::warn;
 use geo_types;
-use crate::{features, nominatim, operations};
+use std::sync::Arc;
+use crate::{features::{ GeoTile, GeoTilesDataStructure }, nominatim, operations};
 
 #[derive(Debug, Clone)]
 pub enum Location {
@@ -13,7 +14,7 @@ pub enum Location {
 
 #[derive(Debug, Clone)]
 pub struct OSMGeoMapper {
-    pub data_structure: features::GeoTilesDataStructure,
+    pub data_structure: GeoTilesDataStructure,
     pub coordinates: geo_types::Coordinate<i32>,
     pub radius: u32
 }
@@ -82,17 +83,15 @@ impl OSMGeoMapper {
         Ok(())
     }
 
-    pub fn get(&self, lat: i32, lon: i32) -> Option<features::GeoTile> {
+    pub fn get(&self, lat: i32, lon: i32) -> Option<Vec<Arc<GeoTile>>> {
         let locked_data_structure = self.data_structure.read().unwrap();
-        let option_arc_geo_tile = locked_data_structure.get(&geo_types::Coordinate { x: lon, y: lat });
-        if let Some(arc_geo_tile) = option_arc_geo_tile {
-            Some(arc_geo_tile.as_ref().clone())
-        } else {
-            None
+        if let Some(geo_tiles) = locked_data_structure.get(&geo_types::Coordinate { x: lon, y: lat }) {
+            return Some(geo_tiles.clone());
         }
+        None
     }
 
-    pub fn get_real(&self, lat: f64, lon: f64) -> Option<features::GeoTile> {
+    pub fn get_real(&self, lat: f64, lon: f64) -> Option<Vec<Arc<GeoTile>>> {
         let lat = operations::to_tile_scale(lat);
         let lon = operations::to_tile_scale(lon);
         self.get(lat, lon)

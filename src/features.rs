@@ -5,7 +5,7 @@ use osm_geo_mapper_macros::{ create_enum, implement_geotile, print_geotile_attri
 use geo_types as gt;
 use serde_json::{Map, Value as JsonValue};
 use std::collections::HashMap;
-use std::{fmt, sync::{Arc, RwLock}};
+use std::{fmt, cmp::Ordering, sync::{Arc, RwLock}};
 
 pub mod aerialway_feature;
 pub mod aeroway_feature;
@@ -38,7 +38,7 @@ pub mod water_feature;
 pub mod waterway_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
-pub type GeoTilesDataStructure = Arc<RwLock<HashMap<gt::Coordinate<i32>, Arc<GeoTile>>>>;
+pub type GeoTilesDataStructure = Arc<RwLock<HashMap<gt::Coordinate<i32>, Vec<Arc<GeoTile>>>>>;
 pub type GeoTileProperties = Map<String, JsonValue>;
 
 #[derive(Debug, Clone)]
@@ -141,3 +141,174 @@ implement_geotile!(
     Water [basin, intermittent, lock, name, reservoir_type, salt, seasonal],
     Waterway [access, boat, canoe, cemt, depth, diameter, dock, draft, fuel, height, industrial, intermittent, layer, location, lock, maxheight, maxlength, maxspeed, maxwidth, motorboat, name, operator, salt, ship, tidal, tunnel, usage, width],
 );
+
+// Another option for sorting is to have add a "priority" int field to GeoTile types and sort by that int.
+pub fn geotile_sort(a: &Arc<GeoTile>, b: &Arc<GeoTile>) -> Ordering {
+    match a.as_ref() {
+        // These geotiles should always be displayed no matter what.
+        GeoTile::Amenity { amenity_type: AmenityType::ATM | // Only certain amenities have high priority.
+                                         AmenityType::AmeBBQ |
+                                         AmenityType::Bench |
+                                         AmenityType::BicycleParking |
+                                         AmenityType::BusStation |
+                                         AmenityType::Clock |
+                                         AmenityType::FerryTerminal |
+                                         AmenityType::Firepit |
+                                         AmenityType::Fountain |
+                                         AmenityType::Fuel |
+                                         AmenityType::GiveBox |
+                                         AmenityType::HuntingStand |
+                                         AmenityType::MotorcycleParking |
+                                         AmenityType::PhotoBooth |
+                                         AmenityType::PostBox |
+                                         AmenityType::SanitaryDumpStation |
+                                         AmenityType::Shower |
+                                         AmenityType::Taxi |
+                                         AmenityType::Telephone |
+                                         AmenityType::Unclassified |
+                                         AmenityType::VendingMachine |
+                                         AmenityType::WasteBasket |
+                                         AmenityType::WateringPlace |
+                                         AmenityType::WaterPoint, .. } |
+        GeoTile::Barrier { .. } |
+        GeoTile::Highway { .. } |
+        GeoTile::Leisure { leisure_type: LeisureType::Firepit |
+                                         LeisureType::IceRink |
+                                         LeisureType::PicnicTable |
+                                         LeisureType::SwimmingPool, .. } |
+        GeoTile::Place { .. } |
+        GeoTile::Railway { .. } |
+        GeoTile::Route { .. } |
+        GeoTile::Unclassified { .. } => Ordering::Less,
+        // 2nd highest priority for display.
+        GeoTile::Building { .. } |
+        GeoTile::Boundary { .. } |
+        GeoTile::Craft { .. } |
+        GeoTile::Emergency { .. } |
+        GeoTile::Healthcare { .. } |
+        GeoTile::Historic { .. } |
+        GeoTile::ManMade { .. } |
+        GeoTile::Military { .. } |
+        GeoTile::Natural { .. } |
+        GeoTile::Office { .. } |
+        GeoTile::Power { .. } |
+        GeoTile::PublicTransport { .. } |
+        GeoTile::Shop { .. } |
+        GeoTile::Sport { .. } |
+        GeoTile::Telecom { .. } |
+        GeoTile::Tourism { .. } => {
+            match b.as_ref() {
+                GeoTile::Aerialway { .. } |
+                GeoTile::Aeroway { .. } |
+                GeoTile::Amenity { amenity_type: AmenityType::AnimalShelter |
+                                                 AmenityType::Casino |
+                                                 AmenityType::Cinema |
+                                                 AmenityType::College |
+                                                 AmenityType::CommunityCentre |
+                                                 AmenityType::ConferenceCentre |
+                                                 AmenityType::DrivingSchool |
+                                                 AmenityType::FoodCourt |
+                                                 AmenityType::Hospital |
+                                                 AmenityType::LanguageSchool |
+                                                 AmenityType::MusicSchool |
+                                                 AmenityType::Prison |
+                                                 AmenityType::School |
+                                                 AmenityType::SocialCentre |
+                                                 AmenityType::SocialFacility |
+                                                 AmenityType::Townhall |
+                                                 AmenityType::University, .. } |
+                GeoTile::Geological { .. } |
+                GeoTile::Landuse { .. } |
+                GeoTile::Leisure { .. } |
+                GeoTile::Water { .. } |
+                GeoTile::Waterway { .. } => Ordering::Less,
+                _ => Ordering::Greater,
+            }
+        },
+        // Everything else should always be displayed last.
+        // GeoTile::Aerialway { .. } |
+        // GeoTile::Aeroway { .. } |
+        // GeoTile::Geological { .. } |
+        // GeoTile::Landuse { .. } |
+        // GeoTile::Leisure { .. } |
+        // GeoTile::Water { .. } |
+        // GeoTile::Waterway { .. } |
+        _ => Ordering::Greater,
+    }
+}
+
+// For now, same GeoTile variant means duplicate.
+pub fn geotile_dedup(a: &mut Arc<GeoTile>, b: &mut Arc<GeoTile>) -> bool {
+    std::mem::discriminant(a.as_ref()) == std::mem::discriminant(b.as_ref())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_geotile_dedup() {
+        let a = GeoTile::Building {
+            osm_id: "osm_id_a".to_owned(),
+            geometry: Geometry::Point(geo_types::Point::new(0.0, 0.0)),
+            building_type: BuildingType::Apartments,
+            address: None,
+            access: None,
+            amenity: None,
+            capacity: None,
+            covered: None,
+            entrance: None,
+            height: None,
+            levels: None,
+            name: Some("Building A".to_owned()),
+            office: None,
+            operator: None,
+            power: None,
+            public_transport: None,
+            shop: None,
+            sport: None,
+        };
+        let b = GeoTile::Building {
+            osm_id: "osm_id_b".to_owned(),
+            geometry: Geometry::Point(geo_types::Point::new(0.0, 0.0)),
+            building_type: BuildingType::Apartments,
+            address: None,
+            access: None,
+            amenity: None,
+            capacity: None,
+            covered: None,
+            entrance: None,
+            height: None,
+            levels: None,
+            name: Some("Building B".to_owned()),
+            office: None,
+            operator: None,
+            power: None,
+            public_transport: None,
+            shop: None,
+            sport: None,
+        };
+        let c = GeoTile::Water {
+            osm_id: "osm_id_c".to_owned(),
+            geometry: Geometry::Point(geo_types::Point::new(0.0, 0.0)),
+            water_type: WaterType::Basin,
+            address: None,
+            basin: None,
+            intermittent: None,
+            lock: None,
+            name: None,
+            reservoir_type: None,
+            salt: None,
+            seasonal: None,
+        };
+        let mut vec = Vec::new();
+        vec.push(Arc::new(a));
+        vec.push(Arc::new(b));
+        assert_eq!(vec.len(), 2);
+        vec.dedup_by(geotile_dedup);
+        assert_eq!(vec.len(), 1);
+        vec.push(Arc::new(c));
+        vec.dedup_by(geotile_dedup);
+        assert_eq!(vec.len(), 2);
+    }
+}

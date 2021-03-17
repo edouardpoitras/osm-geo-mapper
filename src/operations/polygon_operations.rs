@@ -13,7 +13,7 @@ use crate::{
         railway_feature::get_railway_geo_tile, shop_feature::get_shop_geo_tile,
         sport_feature::get_sport_geo_tile, telecom_feature::get_telecom_geo_tile,
         water_feature::get_water_geo_tile, waterway_feature::get_waterway_geo_tile,
-        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
+        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry, geotile_sort, geotile_dedup
     },
     operations::{
         self,
@@ -34,32 +34,7 @@ pub fn draw_polygon(
     poly: &gt::Polygon<f64>,
     geo_tile: Arc<GeoTile>,
     data_structure: GeoTilesDataStructure,
-    landuse: bool,
-    leisure: bool,
-    amenity: bool,
-    boundary: bool,
 ) {
-    // Hide obnoxious feature types that are mostly redundant.
-    if !landuse {
-        if let GeoTile::Landuse { .. } = *geo_tile {
-            return;
-        };
-    }
-    if !leisure {
-        if let GeoTile::Leisure { .. } = *geo_tile {
-            return;
-        };
-    }
-    if !amenity {
-        if let GeoTile::Amenity { .. } = *geo_tile {
-            return;
-        };
-    }
-    if !boundary {
-        if let GeoTile::Boundary { .. } = *geo_tile {
-            return;
-        };
-    }
     // Establish coordinate system first.
     let bounding_rect = poly.bounding_rect().unwrap();
     let min_x = operations::to_tile_scale(bounding_rect.min().x) - 1;
@@ -106,7 +81,13 @@ pub fn draw_polygon(
                 if corner2 > max_x { corner2 = max_x; }
                 // We have our two corners that need geotiles in-between.
                 for x in corner1..corner2 { // Do we need to use (corner2 + 1) here?
-                    locked_data_structure.insert(gt::Coordinate { x, y }, geo_tile.clone());
+                    let vec = locked_data_structure
+                        .entry(gt::Coordinate { x, y })
+                        .or_insert(Vec::new());
+                    vec.push(geo_tile.clone());
+                    // TODO: May need to revisit this for performance reasons. Maybe only sort and dedup once all loading is complete?
+                    vec.sort_by(geotile_sort);
+                    vec.dedup_by(geotile_dedup);
                 }
             }
         }

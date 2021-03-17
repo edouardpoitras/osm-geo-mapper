@@ -76,6 +76,9 @@ pub fn draw_highway_line_string(
             geo_tile.clone(),
             data_structure.clone(),
         );
+
+        
+
         last_point = point;
     }
 }

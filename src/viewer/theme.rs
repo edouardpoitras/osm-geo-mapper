@@ -1,4 +1,4 @@
-use crate::features::{BuildingType, GeoTile, HighwayType, ManMadeType, NaturalType};
+use crate::features::{BuildingType, GeoTile, HighwayType, LanduseType, LeisureType, ManMadeType, NaturalType};
 use tui::style::{Color, Style};
 
 pub struct GeoTileTheme {
@@ -115,13 +115,25 @@ pub fn get_geo_tile_theme(geo_tile: &GeoTile) -> GeoTileTheme {
             character: 'H',
             style: Style::default().bg(Color::Yellow),
         },
-        GeoTile::Landuse { .. } => GeoTileTheme {
-            character: ' ',
-            style: Style::default().bg(Color::LightGreen),
+        GeoTile::Landuse { landuse_type, .. } => match landuse_type {
+            LanduseType::Farmland | LanduseType::Farmyard | LanduseType::Forest | LanduseType::Grass | LanduseType::Greenfield => GeoTileTheme {
+                character: ' ',
+                style: Style::default().bg(Color::Green),
+            },
+            _ => GeoTileTheme {
+                character: ' ',
+                style: Style::default().bg(Color::LightGreen),
+            }
         },
-        GeoTile::Leisure { .. } => GeoTileTheme {
-            character: ' ',
-            style: Style::default().bg(Color::Cyan),
+        GeoTile::Leisure { leisure_type, .. } => match leisure_type {
+            LeisureType::DogPark | LeisureType::MiniatureGolf | LeisureType::NatureReserve | LeisureType::Park => GeoTileTheme {
+                character: ' ',
+                style: Style::default().bg(Color::Green),
+            },
+            _ => GeoTileTheme {
+                character: ' ',
+                style: Style::default().bg(Color::Cyan),
+            }
         },
         GeoTile::ManMade { man_made_type, .. } => match man_made_type {
             ManMadeType::Bridge => GeoTileTheme {

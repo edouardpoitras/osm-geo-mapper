@@ -14,7 +14,7 @@ use crate::{
         shop_feature::get_shop_geo_tile, telecom_feature::get_telecom_geo_tile,
         sport_feature::get_sport_geo_tile, water_feature::get_water_geo_tile,
         waterway_feature::get_waterway_geo_tile,
-        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry,
+        GeoTile, UnclassifiedType, GeoTileProperties, GeoTilesDataStructure, Geometry, geotile_sort, geotile_dedup
     }
 };
 use geo_types as gt;
@@ -27,7 +27,14 @@ pub fn draw_point(
     data_structure: GeoTilesDataStructure,
 ) {
     let coord = point_to_coordinates(point);
-    data_structure.write().unwrap().insert(coord, geo_tile);
+    let mut locked_data_structure = data_structure.write().unwrap();
+    let vec = locked_data_structure
+        .entry(coord)
+        .or_insert(Vec::new());
+    vec.push(geo_tile);
+    // TODO: May need to revisit this for performance reasons. Maybe only sort and dedup once all loading is complete?
+    vec.sort_by(geotile_sort);
+    vec.dedup_by(geotile_dedup);
 }
 
 pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Point<f64>) -> GeoTile {

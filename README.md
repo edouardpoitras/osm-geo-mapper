@@ -21,10 +21,6 @@ Turns out, just parsing and enumerating all types of OpenStreetMap data is a sig
 
 This library exposes a thread-safe data structure used for querying OSM data by 2D coordinates roughly mimicking latitude and longitude degrees.
 
-## Warning
-
-This library isn't complete yet. There are OSM features/properties/details that I haven't implemented yet and results in unclassified/missing data. If you encounter such a case, please submit a issue with the address/lat/lon or geojsonfile attempted and I'll fix those issues as they arise.
-
 Usage
 =====
 
@@ -109,9 +105,10 @@ See the `test_multiple_threads()` test function in `tests/lib_tests.rs` to see a
 TODO
 ====
 
+- Implement vector of GeoTiles at each coordinate (multiple feature types per tile)
 - Implement logic to choose a lat/lon in the middle of a geojson file if none is provided via command line
 - Implement (binary?) serialization of map data to be loaded/cached
-- Continue adding missing properties/details/themes
+- Continue tweaking the themes
 - Need logic to handle rate-limited Overpass API calls (need to parse XML response)
 
 ISSUES
