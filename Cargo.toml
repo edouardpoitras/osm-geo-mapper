@@ -21,8 +21,15 @@ path = "src/lib.rs"
 name = "osm-geo-mapper"
 path = "src/main.rs"
 
-[profile.release] # Generate debug symbols so we can profile the code and use tools like flamegraph.
-debug = true
+[profile.release]
+#debug = true # Generate debug symbols so we can profile the code and use tools like flamegraph.
+# Sacrifice compile time and execution speed to generate smaller binary size (can get from ~11MB to ~1MB as of June 2021):
+#opt-level = 'z' # Optimize for size.
+codegen-units = 1 # Reduce parallel code generation units to increase potential size optimizations - 11MB to 8MB as of June 2021.
+lto = true # Enable link time optimization which can remove binary bloat - 8MB to 6MB as of June 2021.
+# Other options:
+# 1) Use the strip command post-build to strip out unnecessary symbols - Saves ~35% binary size as of June 2021.
+# 2) Use the upx command to pack the binary - Saves ~65% binary size as of June 2021.
 
 [dependencies]
 tui = { version = "0.13.0", default-features = false, features = ["crossterm"] }
