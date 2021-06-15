@@ -34,13 +34,9 @@ Usage
         osm-geo-mapper [FLAGS] [OPTIONS]
 
     FLAGS:
-            --show-amenities     Display all amenities - can take a while and cover up overlapping features like buildings
-            --show-boundaries    Display all boundaries - can take a while and cover up overlapping features like roads
         -h, --help               Prints help information
-            --show-landuse       Display all landuse areas - can take a while and cover up overlapping features like buildings
-            --show-leisure       Display all leisure areas - can cover up overlapping features like buildings
         -V, --version            Prints version information
-    
+
     OPTIONS:
         -a, --address <address>              The address that will be used when fetching OpenStreetMap data
         -g, --geojson-file <geojson-file>    Optionally provide a geojson file directly to be parsed and displayed in the terminal
@@ -48,9 +44,13 @@ Usage
             --longitude <longitude>          The longitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
         -r, --radius <radius>                The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter at the equator) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times
 
-    ./osm-geo-mapper --address "110 laurier avenue west ottawa ontario"
+    ./osm-geo-mapper --address "ottawa canada"
 
-![OSM Geo Mapper](/osm-geo-mapper.png?raw=true)
+![OSM Geo Mapper](/ottawa.png?raw=true)
+
+    ./osm-geo-mapper --address "vancouver canada"
+
+![OSM Geo Mapper](/vancouver.png?raw=true)
 
 ## Library
 
@@ -73,7 +73,7 @@ See the tests/ folder for example usage, but it boils down to the following OSMG
 The `OSMGeoMapper` type is defined as follows:
 
     pub struct OSMGeoMapper {
-        pub data_structure: Arc<RwLock<HashMap<geo_types::Coordinate<i32>, Arc<GeoTile>>>>,
+        pub data_structure: Arc<RwLock<HashMap<geo_types::Coordinate<i32>, Vec<Arc<GeoTile>>>>>,
         pub coordinates: geo_types::Coordinate<i32>,
         pub radius: u32
     }
@@ -84,9 +84,9 @@ The `OSMGeoMapper` type is defined as follows:
 
 `radius` is the chosen radius for the original fetching of data (if `OSMGeoMapper::from_address` or `OSMGeoMapper::from_lat_lon` was used).
 
-If you wanted to get the GeoTile at the real-world lat/lon of -75.6903082/45.4211063, you would use the following method call - `OSMGeoMapper::get_real(45.4211063, -75.6903082)`. Note that granularity is only to 6 decimal places. The method call above is the same as `OSMGeoMapper::get(45421106, -75690308)`
+If you wanted to get the GeoTile(s) at the real-world lat/lon of -75.6903082/45.4211063, you would use the following method call - `OSMGeoMapper::get_real(45.4211063, -75.6903082)`. Note that granularity is only to 6 decimal places. The method call above is the same as `OSMGeoMapper::get(45421106, -75690308)`
 
-You can also get GeoTiles directly from the `OSMGeoMapper.data_structure` field (once read-locked) like this: `data_structure.get(geo_types::Coordinate { x: -7569031, y: 4542111 })`
+You can also get GeoTile(s) directly from the `OSMGeoMapper.data_structure` field (once read-locked) like this: `data_structure.get(geo_types::Coordinate { x: -7569031, y: 4542111 })`
 
 You can convert to/from real and OSMGeoMapper coordinates using the following helper functions: `osm_geo_mapper::operations::to_tile_scale(f64) -> i32` and `osm_geo_mapper::operations::from_tile_scale(i32) -> f64`.
 
@@ -99,13 +99,12 @@ You can also load more data into your `OSMGeoMapper.data_structure` using one of
     OSMGeoMapper::load_more_from_address(&mut self, address: String, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>>
 
     OSMGeoMapper::load_more_from_geojson_file(&mut self, geojson_file: String) -> Result<(), Box<dyn std::error::Error>>
-    
+
 See the `test_multiple_threads()` test function in `tests/lib_tests.rs` to see an example of loading data in multiple threads simultaneously.
 
 TODO
 ====
 
-- Implement vector of GeoTiles at each coordinate (multiple feature types per tile)
 - Implement logic to choose a lat/lon in the middle of a geojson file if none is provided via command line
 - Implement (binary?) serialization of map data to be loaded/cached
 - Continue tweaking the themes
