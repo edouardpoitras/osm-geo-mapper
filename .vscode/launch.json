@@ -39,7 +39,7 @@
                 }
             },
             "program": "${workspaceRoot}/target/debug/osm-geo-mapper",
-            "args": ["--address", "ottawa ontario"],
+            "args": ["--pbf-file", "/temp"],
             "cwd": "${workspaceFolder}"
         },
         {

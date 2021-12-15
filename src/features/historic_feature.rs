@@ -9,8 +9,8 @@ use log::warn;
 use std::sync::Arc;
 
 // Driveways are treated specially because some cases only provide the "service" key without the "historic" key.
-pub fn get_historic_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let historic_type_str = props["historic"].as_str().unwrap();
+pub fn get_historic_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let historic_type_str = props.fetch("historic").unwrap();
     let historic_type = extract_type_from_string!(historic_type_str<props> => HistoricType [Aircraft, Aqueduct, ArchaeologicalSite, Battlefield, BombCrater, BoundaryStone, Building, Cannon, Castle, CastleWall, CharcoalPile, Church, CityGate, Citywalls, Farm, Fort, Gallows, HighwaterMark, Locomotive, Manor, Memorial, Milestone, Monastery, Monument, OpticalTelegraph, Pillory, RailwayCar, Ruins, RuneStone, Ship, Tank, Tomb, Tower, Unclassified, WaysideCross, WaysideShrine, Wreck]);
     geotile_from_properties!(geometry<props> => Historic<historic_type> [architect, artist_name, bridge, castle_type, collection, date, denomination, depth, description, disused, ele, flood_date, format, gauge, height, heritage, image, inscription, location, manufacturer, material, memorial, moved, name, network, operator, optical_telegraph, railway_car, religion, ruins, site_type, start_date, support, tomb, website, wikipedia, year]);
 }

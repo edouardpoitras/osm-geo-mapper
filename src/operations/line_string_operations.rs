@@ -321,70 +321,70 @@ pub fn draw_line_string(geo_tile: Arc<GeoTile>, data_structure: GeoTilesDataStru
 }
 
 pub fn line_string_feature_to_geo_tile(
-    properties: &GeoTileProperties,
+    properties: &dyn GeoTileProperties,
     line_string: gt::LineString<f64>,
 ) -> GeoTile {
     let line_string = Geometry::LineString(line_string);
-    if properties.contains_key("aerialway") {
+    if properties.has("aerialway") {
         get_aerialway_geo_tile(properties, line_string)
-    } else if properties.contains_key("aeroway") {
+    } else if properties.has("aeroway") {
         get_aeroway_geo_tile(properties, line_string)
-    } else if properties.contains_key("amenity") {
+    } else if properties.has("amenity") {
         get_amenity_geo_tile(properties, line_string)
-    } else if properties.contains_key("barrier") {
+    } else if properties.has("barrier") {
         get_barrier_geo_tile(properties, line_string)
-    } else if properties.contains_key("highway") {
+    } else if properties.has("highway") {
         get_highway_geo_tile(properties, line_string, false)
-    } else if properties.contains_key("healthcare") {
+    } else if properties.has("healthcare") {
         get_healthcare_geo_tile(properties, line_string)
-    } else if properties.contains_key("historic") {
+    } else if properties.has("historic") {
         get_historic_geo_tile(properties, line_string)
-    } else if properties.contains_key("landcover") {
+    } else if properties.has("landcover") {
         get_landuse_geo_tile(properties, line_string, true)
-    } else if properties.contains_key("landuse") {
+    } else if properties.has("landuse") {
         get_landuse_geo_tile(properties, line_string, false)
-    } else if properties.contains_key("leisure") {
+    } else if properties.has("leisure") {
         get_leisure_geo_tile(properties, line_string)
-    } else if properties.contains_key("man_made") {
+    } else if properties.has("man_made") {
         get_man_made_geo_tile(properties, line_string)
-    } else if properties.contains_key("military") {
+    } else if properties.has("military") {
         get_military_geo_tile(properties, line_string)
-    } else if properties.contains_key("natural") {
+    } else if properties.has("natural") {
         get_natural_geo_tile(properties, line_string)
-    } else if properties.contains_key("office") {
+    } else if properties.has("office") {
         get_office_geo_tile(properties, line_string)
     // Weird corner-cases.
-    } else if properties.contains_key("piste:type") {
+    } else if properties.has("piste:type") {
         get_route_geo_tile(properties, line_string, Some("piste"))
-    } else if properties.contains_key("power") {
+    } else if properties.has("power") {
         get_power_geo_tile(properties, line_string)
-    } else if properties.contains_key("public_transport") {
+    } else if properties.has("public_transport") {
         get_public_transport_geo_tile(properties, line_string)
-    } else if properties.contains_key("railway") {
+    } else if properties.has("railway") {
         get_railway_geo_tile(properties, line_string)
-    } else if properties.contains_key("route") {
+    } else if properties.has("route") {
         get_route_geo_tile(properties, line_string, None)
-    } else if properties.contains_key("shop") {
+    } else if properties.has("shop") {
         get_shop_geo_tile(properties, line_string)
-    } else if properties.contains_key("sport") {
+    } else if properties.has("sport") {
         get_sport_geo_tile(properties, line_string)
-    } else if properties.contains_key("geological") {
+    } else if properties.has("geological") {
         get_geological_geo_tile(properties, line_string)
-    } else if properties.contains_key("telecom") {
+    } else if properties.has("telecom") {
         get_telecom_geo_tile(properties, line_string)
-    } else if properties.contains_key("water") {
+    } else if properties.has("water") {
         get_water_geo_tile(properties, line_string)
-    } else if properties.contains_key("waterway") {
+    } else if properties.has("waterway") {
         get_waterway_geo_tile(properties, line_string)
-    } else if properties.contains_key("service") && properties["service"] == "driveway" {
+    } else if properties.has("service") && properties.fetch("service").unwrap() == "driveway" {
         // Driveways are treated as service roads.
         get_highway_geo_tile(properties, line_string, true)
     } else {
         warn!(
-            "Unclassified line string feature geo tile found: {:?}",
-            properties
+            "Unclassified line string feature geo tile found: {}",
+            properties.print_debug(),
         );
-        let osm_id = properties["id"].to_string();
+        let osm_id = properties.fetch("id").unwrap_or_default().to_string();
         GeoTile::Unclassified {
             unclassified_type: UnclassifiedType::Unclassified,
             address: None,

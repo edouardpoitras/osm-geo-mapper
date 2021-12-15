@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_geological_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let geological_type_str = props["geological"].as_str().unwrap();
+pub fn get_geological_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let geological_type_str = props.fetch("geological").unwrap();
     let geological_type = extract_type_from_string!(geological_type_str<props> => GeologicalType [Moraine, Outcrop, PalaeontologicalSite, Unclassified]);
     geotile_from_properties!(geometry<props> => Geological<geological_type> [name, surface]);
 }

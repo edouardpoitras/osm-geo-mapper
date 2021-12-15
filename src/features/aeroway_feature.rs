@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_aeroway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let aeroway_type_str = props["aeroway"].as_str().unwrap();
+pub fn get_aeroway_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let aeroway_type_str = props.fetch("aeroway").unwrap();
     let aeroway_type = extract_type_from_string!(aeroway_type_str<props> => AerowayType [Aerodrome, Apron, Gate, Hangar, Helipad, Heliport, Navigationaid, Runway, Spaceport, Taxiway, Terminal, Windsock, Unclassified]);
     geotile_from_properties!(geometry<props> => Aeroway<aeroway_type> [name, description, iata, icao, operator, surface]);
 }

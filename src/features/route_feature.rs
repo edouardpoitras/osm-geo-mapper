@@ -8,12 +8,12 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_route_geo_tile(props: &GeoTileProperties, geometry: Geometry, route: Option<&str>) -> GeoTile {
+pub fn get_route_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry, route: Option<&str>) -> GeoTile {
     let mut route_type_key = "route";
     if route.is_some() {
         route_type_key = route.unwrap();
     }
-    let route_type_str = props[route_type_key].as_str().unwrap();
+    let route_type_str = props.fetch(route_type_key).unwrap_or("route");
     let route_type = extract_type_from_string!(route_type_str<props> => RouteType [Bicycle, Bus, Canoe, Detour, Ferry, Foot, Hiking, Horse, IceSkate, InlineSkates, LightRail, MTB, Piste, Power, Railway, Road, Running, Ski, Subway, Train, Tracks, Tram, Trolleybus, Unclassified]);
     geotile_from_properties!(geometry<props> => Route<route_type> [name, area, bicycle, colour, description, distance, duration, fee, foot, from, lit, network, oneway, operator, piste_difficulty, piste_type, roundtrip, seasonal, symbol, to]);
 }

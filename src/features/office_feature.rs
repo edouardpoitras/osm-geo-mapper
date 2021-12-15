@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_office_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let office_type_str = props["office"].as_str().unwrap();
+pub fn get_office_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let office_type_str = props.fetch("office").unwrap();
     let office_type = extract_type_from_string!(office_type_str<props> => OfficeType [Accountant, AdvertisingAgency, Architect, Association, Charity, Company, Consulting, Courier, Coworking, Diplomatic, EducationalInstitution, EmploymentAgency, EnergySupplier, Engineer, EstateAgent, Financial, FinancialAdvisor, Forestry, Foundation, Government, Guide, Insurance, It, Lawyer, Logistics, MovingCompany, Newspaper, Ngo, Notary, PoliticalParty, PropertyManagement, Quango, Religion, Research, Surveyor, TaxAdvisor, Telecommunication, Unclassified, Visa, WaterUtility]);
     geotile_from_properties!(geometry<props> => Office<office_type> [admin_level, advertising, association, brand, cargo, club, consulate, consulting, country, denomination, department, diplomatic, email, embassy, faculty, fax, fee, function, government, hgv, industrial, insurance, internet_access, liaison, name, opening_hours, operator, owner, payment, phone, religion, research, social_facility, target, website, wheelchair]);
 }

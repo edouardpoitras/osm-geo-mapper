@@ -1193,7 +1193,7 @@ dependencies = [
 
 [[package]]
 name = "osm-geo-mapper"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "criterion",
  "crossterm",
@@ -1217,8 +1217,6 @@ dependencies = [
 [[package]]
 name = "osm-geo-mapper-macros"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c286dc9d2d455cddd0410723c2cca67292d7f3b50be67989a7d89eda0b61bc70"
 dependencies = [
  "paste",
 ]

@@ -1,11 +1,16 @@
+use std::{
+    collections::{ BTreeMap, HashMap },
+    convert::TryInto,
+    fs::File,
+    io::{ BufReader, Read },
+    sync::{ Arc, RwLock },
+};
+use log::warn;
 use geo_types as gt;
 use geojson as gj;
-use std::collections::HashMap;
-use std::convert::TryInto;
-use std::fs::File;
-use std::io::{BufReader, Read};
-use std::sync::{Arc, RwLock};
-use log::warn;
+use osmpbfreader::{
+    objects::{ OsmId, OsmObj },
+};
 
 use crate::{
     features::{Address, GeoTileProperties, GeoTilesDataStructure, TILE_SCALE},
@@ -16,6 +21,7 @@ use crate::{
     },
     openstreetmap,
     osmtogeojson,
+    pbf_parser::HasCoordinates,
 };
 
 pub mod line_string_operations;
@@ -40,33 +46,33 @@ pub fn from_tile_scale_u8(unit : u8) -> f64 {
     return (unit as f64) / TILE_SCALE;
 }
 
-pub fn property_to_option_string(props: &GeoTileProperties, key: &str) -> Option<String> {
-    match props.get(key) {
-        Some(value) => Some(value.as_str().unwrap().to_string()),
+pub fn property_to_option_string(props: &dyn GeoTileProperties, key: &str) -> Option<String> {
+    match props.fetch(key) {
+        Some(value) => Some(value.to_string()),
         _ => None,
     }
 }
 
-pub fn address_from_properties(props: &GeoTileProperties) -> Option<Address> {
-    if props.contains_key("addr:housenumber")
-        || props.contains_key("addr:unit")
-        || props.contains_key("addr:street")
-        || props.contains_key("addr:postcode")
+pub fn address_from_properties(props: &dyn GeoTileProperties) -> Option<Address> {
+    if props.has("addr:housenumber")
+        || props.has("addr:unit")
+        || props.has("addr:street")
+        || props.has("addr:postcode")
     {
-        let house_number = match props.get("addr:housenumber") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let house_number = match props.fetch("addr:housenumber") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
-        let unit = match props.get("addr:unit") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let unit = match props.fetch("addr:unit") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
-        let street = match props.get("addr:street") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let street = match props.fetch("addr:street") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
-        let postal_code = match props.get("addr:postcode") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let postal_code = match props.fetch("addr:postcode") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
         Some(Address {
@@ -119,6 +125,12 @@ pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
     data_structure
 }
 
+pub fn process_pbf(pbf_data: &BTreeMap<OsmId, OsmObj>) -> GeoTilesDataStructure {
+    let data_structure = GeoTilesDataStructure::new(RwLock::new(HashMap::new()));
+    process_pbf_with_data_structure(pbf_data, data_structure.clone());
+    data_structure
+}
+
 pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure: GeoTilesDataStructure) {
     match *geojson {
         gj::GeoJson::FeatureCollection(ref ctn) => {
@@ -126,7 +138,7 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
                 // Only process features that have properties and a geometry.
                 if feature.properties.is_some() && feature.geometry.is_some() {
                     process_feature(
-                        &feature.properties.as_ref().unwrap(),
+                        feature.properties.as_ref().unwrap(),
                         &feature.geometry.as_ref().unwrap(),
                         data_structure.clone(),
                     )
@@ -139,7 +151,7 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
             // Only process features that have properties and a geometry.
             if feature.properties.is_some() && feature.geometry.is_some() {
                 process_feature(
-                    &feature.properties.as_ref().unwrap(),
+                    feature.properties.as_ref().unwrap(),
                     &feature.geometry.as_ref().unwrap(),
                     data_structure,
                 )
@@ -155,8 +167,38 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
     }
 }
 
+pub fn process_pbf_with_data_structure(pbf_data: &BTreeMap<OsmId, OsmObj>, data_structure: GeoTilesDataStructure) {
+    for obj in pbf_data.values() {
+        let mut tags = obj.tags().clone();
+        tags.insert("id".to_string(), obj.id().inner_id().to_string());
+        match obj {
+            OsmObj::Node(obj) => {
+                let point: gt::Point<f64> = (obj.lat(), obj.lon()).try_into().unwrap();
+                let geo_tile = Arc::new(point_feature_to_geo_tile(&tags, point));
+                draw_point(&point, geo_tile, data_structure.clone());
+            }
+            OsmObj::Way(obj) => {
+                let coordinates = obj.get_coordinates(&pbf_data);
+                if obj.is_open() { // LineString
+                    let line_string: gt::LineString<f64> = coordinates.into();
+                    let geo_tile = Arc::new(line_string_feature_to_geo_tile(&tags, line_string));
+                    draw_line_string(geo_tile, data_structure.clone());
+                } else { // Polygon
+                    let poly: gt::Polygon<f64> = gt::Polygon::new(coordinates.into(), vec![]);
+                    let geo_tile = Arc::new(polygon_feature_to_geo_tile(&tags, poly.clone()));
+                    draw_polygon(&poly, geo_tile, data_structure.clone());
+                }
+            }
+            OsmObj::Relation(_obj) => {
+                //let coordinates = obj.get_coordinates(&pbf_data, &mut vec![]);
+                // TODO: INCOMPLETE - not sure yet how to handle this scenario yet.
+            }
+        }
+    }
+}
+
 fn process_feature(
-    properties: &GeoTileProperties,
+    properties: &dyn GeoTileProperties,
     geometry: &gj::Geometry,
     data_structure: GeoTilesDataStructure,
 ) {

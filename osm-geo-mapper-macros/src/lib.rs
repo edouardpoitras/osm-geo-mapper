@@ -99,7 +99,7 @@ macro_rules! extract_type_from_string {
                     stringify!([<$variant:snake>]) => $enum::$variant,
                 )*
                 _ => {
-                    warn!("Unclassified {} {}: {:?}", stringify!($enum), $type_str, $props);
+                    warn!("Unclassified {} {}: {}", stringify!($enum), $type_str, $props.print_debug());
                     $enum::Unclassified
                 }
             }
@@ -111,7 +111,7 @@ macro_rules! extract_type_from_string {
 macro_rules! geotile_from_properties {
     ($geometry:ident<$props:ident> => $geotile_type:ident<$type:ident> [$($property:ident),*$(,)*]) => {
         let address = address_from_properties($props);
-        let osm_id = $props["id"].to_string();
+        let osm_id = $props.fetch("id").unwrap_or_default().to_string();
         $(
             let $property = property_to_option_string($props, stringify!($property));
         )*

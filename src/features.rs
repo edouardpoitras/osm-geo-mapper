@@ -2,9 +2,11 @@
 
 use paste::paste;
 use osm_geo_mapper_macros::{ create_enum, implement_geotile, print_geotile_attributes };
+use osmpbfreader::Tags;
 use geo_types as gt;
 use serde_json::{Map, Value as JsonValue};
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::{fmt, cmp::Ordering, sync::{Arc, RwLock}};
 
 pub mod aerialway_feature;
@@ -39,7 +41,59 @@ pub mod waterway_feature;
 
 pub const TILE_SCALE: f64 = 100_000.0;
 pub type GeoTilesDataStructure = Arc<RwLock<HashMap<gt::Coordinate<i32>, Vec<Arc<GeoTile>>>>>;
-pub type GeoTileProperties = Map<String, JsonValue>;
+
+pub trait GeoTileProperties {
+    fn has(&self, key: &str) -> bool;
+    fn fetch(&self, key: &str) -> Option<&str>;
+    fn print_debug(&self) -> String;
+}
+
+impl GeoTileProperties for Map<String, JsonValue> {
+    fn has(&self, key: &str) -> bool {
+        self.contains_key(key)
+    }
+    fn fetch(&self, key: &str) -> Option<&str> {
+        match self.get(key) {
+            Some(value) => value.as_str(),
+            _ => None
+        }
+    }
+    fn print_debug(&self) -> String {
+        let mut output: String = "{".to_string();
+        for (k, v) in self {
+            output.push_str(k);
+            output.push_str(": ");
+            output.push_str(&v.to_string());
+            output.push_str(",");
+        }
+        output.push_str("}");
+        output
+    }
+}
+
+impl GeoTileProperties for Tags {
+    fn has(&self, key: &str) -> bool {
+        self.contains_key(key)
+    }
+    fn fetch(&self, key: &str) -> Option<&str> {
+        match self.get(key) {
+            Some(value) => Some(value.as_str()),
+            _ => None
+        }
+    }
+    fn print_debug(&self) -> String {
+        let mut output: String = "{".to_string();
+        for k in self.keys() {
+            let v = self.get(k).unwrap();
+            output.push_str(k.as_str());
+            output.push_str(": ");
+            output.push_str(&v.to_string());
+            output.push_str(",");
+        }
+        output.push_str("}");
+        output
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum Geometry {

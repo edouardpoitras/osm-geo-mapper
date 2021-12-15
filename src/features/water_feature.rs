@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_water_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let water_type_str = props["water"].as_str().unwrap();
+pub fn get_water_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let water_type_str = props.fetch("water").unwrap();
     let water_type = extract_type_from_string!(water_type_str<props> => WaterType [Basin, Canal, Ditch, FishPass, Lagoon, Lake, Lock, Moat, Oxbow, Pond, ReflectingPool, Reservoir, River, StreamPool, Unclassified, Wastewater]);
     geotile_from_properties!(geometry<props> => Water<water_type> [basin, intermittent, lock, name, reservoir_type, salt, seasonal]);
 }

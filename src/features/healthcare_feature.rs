@@ -9,8 +9,8 @@ use log::warn;
 use std::sync::Arc;
 
 // Driveways are treated specially because some cases only provide the "service" key without the "healthcare" key.
-pub fn get_healthcare_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let healthcare_type_str = props["healthcare"].as_str().unwrap();
+pub fn get_healthcare_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let healthcare_type_str = props.fetch("healthcare").unwrap();
     let healthcare_type = extract_type_from_string!(healthcare_type_str<props> => HealthcareType [Alternative, Audiologist, BirthingCenter, BloodBank, BloodDonation, Counselling, Dialysis, Hospice, Laboratory, Midwife, Nurse, OccupationalTherapist, Optometrist, Physiotherapist, Podiatrist, Psychotherapist, Rehabilitation, SampleCollection, SpeechTherapist, VaccinationCentre, Unclassified]);
     geotile_from_properties!(geometry<props> => Healthcare<healthcare_type> [name, opening_hours, operator, phone, vaccination, website, wheelchair]);
 }

@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_power_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let power_type_str = props["power"].as_str().unwrap();
+pub fn get_power_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let power_type_str = props.fetch("power").unwrap();
     let power_type = extract_type_from_string!(power_type_str<props> => PowerType [Cable, CatenaryMast, Compensator, Converter, Generator, Heliostat, Insulator, Line, MinorLine, Plant, Pole, Portal, Substation, Switch, Switchgear, Terminal, Tower, Transformer, Unclassified]);
     geotile_from_properties!(geometry<props> => Power<power_type> [name, busbar, cables, circuits, colour, compensator, design, frequency, height, gas_insulated, landuse, line, line_attachment, line_management, location, manufacturer, material, operator, phases, poles, start_date, structure, substation, switch, rating, voltage, windings, wires]);
 }
