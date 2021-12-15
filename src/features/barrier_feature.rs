@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_barrier_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let barrier_type_str = props["barrier"].as_str().unwrap();
+pub fn get_barrier_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let barrier_type_str = props.fetch("barrier").unwrap();
     let barrier_type = extract_type_from_string!(barrier_type_str<props> => BarrierType [Block, Bollard, BorderControl, BumpGate, BusTrap, CableBarrier, CattleGrid, Chain, CityWall, CycleBarrier, Debris, Ditch, Entrance, Fence, FullHeightTurnstile, Gate, GuardRail, HampshireGate, Handrail, Hedge, HeightRestrictor, HorseStile, JerseyBarrier, Kerb, KissingGate, LiftGate, Log, MotorcycleBarrier, RetainingWall, Rope, SallyPort, Spikes, Stile, SumpBuster, SwingGate, TollBooth, Turnstile, Unclassified, Wall]);
     geotile_from_properties!(geometry<props> => Barrier<barrier_type> [access, bicycle, fee, foot, two_sided, handrail, height, highway, historic, intermittent, lanes, locked, maxheight, maxwidth, motor_vehicle, operator, wheelchair, width]);
 }

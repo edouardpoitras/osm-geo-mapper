@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_railway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let railway_type_str = props["railway"].as_str().unwrap();
+pub fn get_railway_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let railway_type_str = props.fetch("railway").unwrap();
     let railway_type = extract_type_from_string!(railway_type_str<props> => RailwayType [Abandoned, BufferStop, Construction, Crossing, Derail, Disused, Funicular, Halt, LevelCrossing, LightRail, Miniature, Monorail, NarrowGauge, Platform, Preserved, Rail, RailwayCrossing, Roundhouse, Signal, Station, Subway, SubwayEntrance, Switch, Tram, TramStop, Traverser, Turntable, Unclassified, Wash]);
     geotile_from_properties!(geometry<props> => Railway<railway_type> [access, area, bench, bicycle, bin, bridge, capacity, colour, control, crossing, cutting, disused, electrified, elevator, embankment, embedded_rails, fee, frequency, funicular, gauge, highspeed, incline, layer, length, light_rail, maxspeed, monorail, network, oneway, opening_hours, operator, passenger, public_transport, rack, request_stop, service, shelter, subway, supervised, surface, surveillance, tactile_paving, toilets, tracks, tram, tunnel, usage, voltage, wheelchair, width, workrules]);
 }

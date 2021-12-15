@@ -1,11 +1,13 @@
+use std::{
+    collections::{ BTreeMap, HashMap },
+    convert::TryInto,
+    sync::{ Arc, RwLock },
+};
+use log::warn;
 use geo_types as gt;
 use geojson as gj;
-use std::collections::HashMap;
-use std::convert::TryInto;
-use std::fs::File;
-use std::io::{BufReader, Read};
-use std::sync::{Arc, RwLock};
-use log::warn;
+use osmpbfreader::objects::{ OsmId, OsmObj };
+use osm_xml;
 
 use crate::{
     features::{Address, GeoTileProperties, GeoTilesDataStructure, TILE_SCALE},
@@ -16,6 +18,7 @@ use crate::{
     },
     openstreetmap,
     osmtogeojson,
+    pbf_parser::HasCoordinates,
 };
 
 pub mod line_string_operations;
@@ -40,33 +43,33 @@ pub fn from_tile_scale_u8(unit : u8) -> f64 {
     return (unit as f64) / TILE_SCALE;
 }
 
-pub fn property_to_option_string(props: &GeoTileProperties, key: &str) -> Option<String> {
-    match props.get(key) {
-        Some(value) => Some(value.as_str().unwrap().to_string()),
+pub fn property_to_option_string(props: &dyn GeoTileProperties, key: &str) -> Option<String> {
+    match props.fetch(key) {
+        Some(value) => Some(value.to_string()),
         _ => None,
     }
 }
 
-pub fn address_from_properties(props: &GeoTileProperties) -> Option<Address> {
-    if props.contains_key("addr:housenumber")
-        || props.contains_key("addr:unit")
-        || props.contains_key("addr:street")
-        || props.contains_key("addr:postcode")
+pub fn address_from_properties(props: &dyn GeoTileProperties) -> Option<Address> {
+    if props.has("addr:housenumber")
+        || props.has("addr:unit")
+        || props.has("addr:street")
+        || props.has("addr:postcode")
     {
-        let house_number = match props.get("addr:housenumber") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let house_number = match props.fetch("addr:housenumber") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
-        let unit = match props.get("addr:unit") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let unit = match props.fetch("addr:unit") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
-        let street = match props.get("addr:street") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let street = match props.fetch("addr:street") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
-        let postal_code = match props.get("addr:postcode") {
-            Some(value) => Some(String::from(value.as_str().unwrap_or_default())),
+        let postal_code = match props.fetch("addr:postcode") {
+            Some(value) => Some(String::from(value)),
             _ => None,
         };
         Some(Address {
@@ -95,27 +98,21 @@ pub fn get_geojson_file_by_lat_lon(
     Ok(geojson_file)
 }
 
-pub fn parse_geojson_file(geojson_file: &str) -> gj::GeoJson {
-    let mut input_file =
-        BufReader::new(File::open(geojson_file).expect("Could not open input file"));
-    let mut geojson_str = "".to_owned();
-    input_file
-        .read_to_string(&mut geojson_str)
-        .expect("Could not read geojson data to string");
-    geojson_str.parse::<gj::GeoJson>().unwrap()
-    // TODO: Running into issues on Windows where osmtogeojson produces non UTF-8 files.
-    //let mut geojson_data = b"".to_owned();
-    //input_file
-    //.read(&mut geojson_data)
-    //.expect("Could not read geojson data");
-    //let geojson_str = UTF_8.decode(&geojson_data, DecoderTrap::Strict).ok().unwrap();
-    //let geojson_str_encoded = UTF_8.encode(&geojson_str, DecoderTrap::Strict).unwrap();
-    //geojson_str_encoded.parse::<gj::GeoJson>().unwrap()
-}
-
 pub fn process_geojson(geojson: &gj::GeoJson) -> GeoTilesDataStructure {
     let data_structure = GeoTilesDataStructure::new(RwLock::new(HashMap::new()));
     process_geojson_with_data_structure(geojson, data_structure.clone());
+    data_structure
+}
+
+pub fn process_osm(osm_data: &osm_xml::OSM) -> GeoTilesDataStructure {
+    let data_structure = GeoTilesDataStructure::new(RwLock::new(HashMap::new()));
+    process_osm_with_data_structure(osm_data, data_structure.clone());
+    data_structure
+}
+
+pub fn process_pbf(pbf_data: &BTreeMap<OsmId, OsmObj>) -> GeoTilesDataStructure {
+    let data_structure = GeoTilesDataStructure::new(RwLock::new(HashMap::new()));
+    process_pbf_with_data_structure(pbf_data, data_structure.clone());
     data_structure
 }
 
@@ -126,7 +123,7 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
                 // Only process features that have properties and a geometry.
                 if feature.properties.is_some() && feature.geometry.is_some() {
                     process_feature(
-                        &feature.properties.as_ref().unwrap(),
+                        feature.properties.as_ref().unwrap(),
                         &feature.geometry.as_ref().unwrap(),
                         data_structure.clone(),
                     )
@@ -139,7 +136,7 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
             // Only process features that have properties and a geometry.
             if feature.properties.is_some() && feature.geometry.is_some() {
                 process_feature(
-                    &feature.properties.as_ref().unwrap(),
+                    feature.properties.as_ref().unwrap(),
                     &feature.geometry.as_ref().unwrap(),
                     data_structure,
                 )
@@ -155,8 +152,72 @@ pub fn process_geojson_with_data_structure(geojson: &gj::GeoJson, data_structure
     }
 }
 
+pub fn process_osm_with_data_structure(osm_data: &osm_xml::OSM, data_structure: GeoTilesDataStructure) {
+    // Nodes
+    for (_, node) in osm_data.nodes.iter() {
+        let point: gt::Point<f64> = (node.lat, node.lon).try_into().unwrap();
+        let geo_tile = Arc::new(point_feature_to_geo_tile(&node.tags, point));
+        draw_point(&point, geo_tile, data_structure.clone());
+    }
+    // Ways
+    for (_, way) in osm_data.ways.iter() {
+        let mut coordinates: Vec<(f64, f64)> = Vec::new();
+        for node in way.nodes.iter() {
+            match osm_data.resolve_reference(&node) {
+                osm_xml::Reference::Node(n) => coordinates.push((n.lat, n.lon)),
+                osm_xml::Reference::Unresolved  |
+                osm_xml::Reference::Way(_)      |
+                osm_xml::Reference::Relation(_) => {
+                    warn!("Found a non-node as part of way {}'s node list: {:?}", way.id, node);
+                }
+            }
+        }
+        if way.is_polygon() { // Polygon
+            let poly: gt::Polygon<f64> = gt::Polygon::new(coordinates.into(), vec![]);
+            let geo_tile = Arc::new(polygon_feature_to_geo_tile(&way.tags, poly.clone()));
+            draw_polygon(&poly, geo_tile, data_structure.clone());
+        } else { // LineString
+            let line_string: gt::LineString<f64> = coordinates.into();
+            let geo_tile = Arc::new(line_string_feature_to_geo_tile(&way.tags, line_string));
+            draw_line_string(geo_tile, data_structure.clone());
+        }
+    }
+    // Relations
+    // TODO: INCOMPLETE - not sure how to handle this scenario yet.
+}
+
+pub fn process_pbf_with_data_structure(pbf_data: &BTreeMap<OsmId, OsmObj>, data_structure: GeoTilesDataStructure) {
+    for obj in pbf_data.values() {
+        let mut tags = obj.tags().clone();
+        tags.insert("id".to_string(), obj.id().inner_id().to_string());
+        match obj {
+            OsmObj::Node(obj) => {
+                let point: gt::Point<f64> = (obj.lat(), obj.lon()).try_into().unwrap();
+                let geo_tile = Arc::new(point_feature_to_geo_tile(&tags, point));
+                draw_point(&point, geo_tile, data_structure.clone());
+            }
+            OsmObj::Way(obj) => {
+                let coordinates = obj.get_coordinates(&pbf_data);
+                if obj.is_open() { // LineString
+                    let line_string: gt::LineString<f64> = coordinates.into();
+                    let geo_tile = Arc::new(line_string_feature_to_geo_tile(&tags, line_string));
+                    draw_line_string(geo_tile, data_structure.clone());
+                } else { // Polygon
+                    let poly: gt::Polygon<f64> = gt::Polygon::new(coordinates.into(), vec![]);
+                    let geo_tile = Arc::new(polygon_feature_to_geo_tile(&tags, poly.clone()));
+                    draw_polygon(&poly, geo_tile, data_structure.clone());
+                }
+            }
+            OsmObj::Relation(_obj) => {
+                //let coordinates = obj.get_coordinates(&pbf_data, &mut vec![]);
+                // TODO: INCOMPLETE - not sure how to handle this scenario yet.
+            }
+        }
+    }
+}
+
 fn process_feature(
-    properties: &GeoTileProperties,
+    properties: &dyn GeoTileProperties,
     geometry: &gj::Geometry,
     data_structure: GeoTilesDataStructure,
 ) {
@@ -219,10 +280,11 @@ fn process_feature(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::geojson_parser;
 
     #[test]
     fn test_parse_and_process_geojson_file() {
-        let geojson = parse_geojson_file("resources/ottawa.xml.geojson");
+        let geojson = geojson_parser::parse_geojson_file("resources/ottawa.xml.geojson");
         process_geojson(&geojson);
     }
 }

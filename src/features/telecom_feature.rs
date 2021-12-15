@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_telecom_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let telecom_type_str = props["telecom"].as_str().unwrap();
+pub fn get_telecom_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let telecom_type_str = props.fetch("telecom").unwrap();
     let telecom_type = extract_type_from_string!(telecom_type_str<props> => TelecomType [ConnectionPoint, DataCenter, DistributionPoint, Exchange, ServiceDevice, Unclassified]);
     geotile_from_properties!(geometry<props> => Telecom<telecom_type> [capacity, connection_point, location, manufacturer, name, operator, owner, street_cabinet, support]);
 }

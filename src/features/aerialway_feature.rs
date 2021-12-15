@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_aerialway_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let aerialway_type_str = props["aerialway"].as_str().unwrap();
+pub fn get_aerialway_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let aerialway_type_str = props.fetch("aerialway").unwrap();
     let aerialway_type = extract_type_from_string!(aerialway_type_str<props> => AerialwayType [CableCar, ChairLift, DragLift, Gondola, Goods, JBar, MagicCarpet, MixedLift, Platter, Pylon, RopeTow, TBar, Station, Unclassified, ZipLine]);
     geotile_from_properties!(geometry<props> => Aerialway<aerialway_type> [access, duration, ele, fee, foot, incline, maxspeed, maxweight, name, oneway, opening_hours, operator, toll, usage, website]);
 }

@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_public_transport_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let public_transport_type_str = props["public_transport"].as_str().unwrap();
+pub fn get_public_transport_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let public_transport_type_str = props.fetch("public_transport").unwrap();
     let public_transport_type = extract_type_from_string!(public_transport_type_str<props> => PublicTransportType [Platform, Station, StopArea, StopPosition, Unclassified]);
     geotile_from_properties!(geometry<props> => PublicTransport<public_transport_type> [name, aerialway, area, bench, bin, building, bus, covered, departures_board, ferry, layer, level, local_ref, monorail, network, operator, passenger_information_display, shelter, subway, surface, tactile_paving, toilet, train, tram, trolleybus, uic_ref, uic_name, wheelchair]);
 }

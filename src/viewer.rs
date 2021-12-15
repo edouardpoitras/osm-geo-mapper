@@ -8,7 +8,11 @@ use tui::{
 };
 
 use crate::{
-    nominatim, interface, operations, viewer::details::geo_tile_text_lines
+    geojson_parser,
+    interface,
+    nominatim,
+    operations,
+    viewer::details::geo_tile_text_lines
 };
 
 mod actions;
@@ -31,9 +35,6 @@ impl fmt::Display for MissingConfigurationError {
 }
 
 pub fn cli_options_to_mapper(options: cli::CLIOptions) -> Result<interface::OSMGeoMapper, Box<dyn std::error::Error>> {
-    let geojson_file: String;
-    let lat: f64;
-    let lon: f64;
     let radius: u32;
     if let Some(r) = options.radius {
         radius = r;
@@ -41,32 +42,52 @@ pub fn cli_options_to_mapper(options: cli::CLIOptions) -> Result<interface::OSMG
         radius = 200;
     }
     if options.geojson_file.is_some() {
-        lat = options.latitude.unwrap();
-        lon = options.longitude.unwrap();
-        geojson_file = format!("{:?}", options.geojson_file.unwrap());
-    } else if options.latitude.is_some() && options.longitude.is_some() {
-        lat = options.latitude.unwrap();
-        lon = options.longitude.unwrap();
-        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, operations::from_tile_scale(radius as i32))?;
-    } else if options.address.is_some() {
-        let (latitude, longitude) =
-            nominatim::get_address_lat_lon(options.address.unwrap())?;
-        lat = latitude;
-        lon = longitude;
-        geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, operations::from_tile_scale(radius as i32))?;
-    } else {
-        return Err(Box::new(MissingConfigurationError { message: "Need to provide one of geojson_file, latitude/longitude, or address (try --help)".to_string() }));
-    }
-    interface::OSMGeoMapper::from_geojson_file_with_radius(
-        geojson_file,
-        radius,
-        Some(
-            interface::Location::Coordinates {
-                latitude: lat,
-                longitude: lon
-            }
+        let geojson_file = format!("{}", options.geojson_file.unwrap().to_str().unwrap());
+        interface::OSMGeoMapper::from_geojson_file_with_radius(
+            geojson_file,
+            radius,
+            Some(
+                interface::Location::Coordinates {
+                    latitude: options.latitude.unwrap(),
+                    longitude: options.longitude.unwrap()
+                }
+            )
         )
-    )
+    } else if options.osm_file.is_some() {
+        let osm_file = format!("{}", options.osm_file.unwrap().to_str().unwrap());
+        interface::OSMGeoMapper::from_osm_file(osm_file, None)
+    } else if options.pbf_file.is_some() {
+        let pbf_file = format!("{}", options.pbf_file.unwrap().to_str().unwrap());
+        interface::OSMGeoMapper::from_pbf_file(pbf_file, None)
+    } else if options.latitude.is_some() && options.longitude.is_some() {
+        let lat = options.latitude.unwrap();
+        let lon = options.longitude.unwrap();
+        let geojson_file = operations::get_geojson_file_by_lat_lon(lat, lon, operations::from_tile_scale(radius as i32))?;
+        interface::OSMGeoMapper::from_geojson_file_with_radius(
+            geojson_file,
+            radius,
+            Some(
+                interface::Location::Coordinates {
+                    latitude: lat,
+                    longitude: lon
+                }
+            )
+        )
+    } else if options.address.is_some() {
+        let (latitude, longitude) = nominatim::get_address_lat_lon(options.address.unwrap())?;
+        interface::OSMGeoMapper::from_geojson_file_with_radius(
+            operations::get_geojson_file_by_lat_lon(latitude, longitude, operations::from_tile_scale(radius as i32))?,
+            radius,
+            Some(
+                interface::Location::Coordinates {
+                    latitude,
+                    longitude
+                }
+            )
+        )
+    } else {
+        return Err(Box::new(MissingConfigurationError { message: "Need to provide one of osm_file, pbf_file, geojson_file, latitude/longitude, or address (try --help)".to_string() }));
+    }
 }
 
 pub fn run_crossterm(
@@ -97,7 +118,7 @@ pub fn run_crossterm(
                 operations::from_tile_scale(mapper.coordinates.x),
                 operations::from_tile_scale(mapper.radius as i32)
             )?;
-            let geojson = operations::parse_geojson_file(&geojson_file.to_string());
+            let geojson = geojson_parser::parse_geojson_file(&geojson_file.to_string());
             operations::process_geojson_with_data_structure(&geojson, mapper.data_structure.clone());
             loading = false;
             continue; // Go back to drawing with new data.

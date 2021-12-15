@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_man_made_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let man_made_type_str= props["man_made"].as_str().unwrap();
+pub fn get_man_made_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let man_made_type_str= props.fetch("man_made").unwrap();
     let man_made_type = extract_type_from_string!(man_made_type_str<props> => ManMadeType [Adit, Beacon, Breakwater, Bridge, BunkerSilo, CarpetHanger, Chimney, CommunicationsTower, Crane, Cross, Cutline, Clearcut, Dovecote, Dyke, Embankment, Flagpole, Gasometer, GoodsConveyor, Groyne, Kiln, Lighthouse, Mast, Mineshaft, MonitoringStation, Obelisk, Observatory, OffshorePlatform, PetroleumWell, Pier, Pipeline, PumpingStation, ReservoirCovered, Silo, SnowFence, SnowNet, StorageTank, StreetCabinet, Surveillance, SurveyPoint, Telescope, Tower, Unclassified, WastewaterPlant, Watermill, WaterTower, WaterWell, WaterTap, WaterWorks, WildlifeCrossing, Windmill, Works]);
     geotile_from_properties!(geometry<props> => ManMade<man_made_type> [name, access, bridge, capacity, color, content, country, covered, cutline, depth, direction, display, disused, drinking_water, ele, floating, height, headframe, inscription, layer, landuse, length, location, material, mine, mineshaft_type, monitoring, mooring, operator, oven, power, product, pump, pumping_station, resource, species, start_date, street_cabinet, submerged, substance, support, surveillance, survey_point, tidal, tourism, tunnel, width]);
 }

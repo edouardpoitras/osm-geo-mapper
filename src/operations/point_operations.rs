@@ -37,69 +37,70 @@ pub fn draw_point(
     vec.dedup_by(geotile_dedup);
 }
 
-pub fn point_feature_to_geo_tile(properties: &GeoTileProperties, point: gt::Point<f64>) -> GeoTile {
+//pub fn point_feature_to_geo_tile(properties: &dyn GeoTileProperties, point: gt::Point<f64>) -> GeoTile {
+pub fn point_feature_to_geo_tile(properties: &dyn GeoTileProperties, point: gt::Point<f64>) -> GeoTile {
     let point = Geometry::Point(point);
-    if properties.contains_key("aerialway") {
+    if properties.has("aerialway") {
         get_aerialway_geo_tile(properties, point)
-    } else if properties.contains_key("amenity") {
+    } else if properties.has("amenity") {
         get_amenity_geo_tile(properties, point)
-    } else if properties.contains_key("barrier") {
+    } else if properties.has("barrier") {
         get_barrier_geo_tile(properties, point)
-    } else if properties.contains_key("craft") {
+    } else if properties.has("craft") {
         get_craft_geo_tile(properties, point)
-    } else if properties.contains_key("leisure") {
+    } else if properties.has("leisure") {
         get_leisure_geo_tile(properties, point)
-    } else if properties.contains_key("man_made") {
+    } else if properties.has("man_made") {
         get_man_made_geo_tile(properties, point)
-    } else if properties.contains_key("military") {
+    } else if properties.has("military") {
         get_military_geo_tile(properties, point)
-    } else if properties.contains_key("natural") {
+    } else if properties.has("natural") {
         get_natural_geo_tile(properties, point)
-    } else if properties.contains_key("office") {
+    } else if properties.has("office") {
         get_office_geo_tile(properties, point)
-    } else if properties.contains_key("place") {
+    } else if properties.has("place") {
         get_place_geo_tile(properties, point)
-    } else if properties.contains_key("healthcare") {
+    } else if properties.has("healthcare") {
         get_healthcare_geo_tile(properties, point)
-    } else if properties.contains_key("historic") {
+    } else if properties.has("historic") {
         get_historic_geo_tile(properties, point)
-    } else if properties.contains_key("emergency") {
+    } else if properties.has("emergency") {
         get_emergency_geo_tile(properties, point)
-    } else if properties.contains_key("power") {
+    } else if properties.has("power") {
         get_power_geo_tile(properties, point)
-    } else if properties.contains_key("public_transport") {
+    } else if properties.has("public_transport") {
         get_public_transport_geo_tile(properties, point)
-    } else if properties.contains_key("railway") {
+    } else if properties.has("railway") {
         get_railway_geo_tile(properties, point)
-    } else if properties.contains_key("shop") {
+    } else if properties.has("shop") {
         get_shop_geo_tile(properties, point)
-    } else if properties.contains_key("sport") {
+    } else if properties.has("sport") {
         get_sport_geo_tile(properties, point)
-    } else if properties.contains_key("telecom") {
+    } else if properties.has("telecom") {
         get_telecom_geo_tile(properties, point)
-    } else if properties.contains_key("tourism") {
+    } else if properties.has("tourism") {
         get_tourism_geo_tile(properties, point)
-    } else if properties.contains_key("water") {
+    } else if properties.has("water") {
         get_water_geo_tile(properties, point)
-    } else if properties.contains_key("waterway") {
+    } else if properties.has("waterway") {
         get_waterway_geo_tile(properties, point)
-    } else if properties.contains_key("geological") {
+    } else if properties.has("geological") {
         get_geological_geo_tile(properties, point)
     // Less common corner cases.
-    } else if properties.contains_key("highway") {
+    } else if properties.has("highway") {
         get_highway_geo_tile(properties, point, false)
     // We need to check for office before we check for addr::* because all office
     // features should have the addr::* properties, like any other building.
-    //} else if properties.contains_key("office") {
+    //} else if properties.has("office") {
         //get_office_geo_tile(properties, polygon)
-    } else if properties.contains_key("addr:housenumber") {
+    } else if properties.has("addr:housenumber") {
         get_building_geo_tile(properties, point, "yes")
     } else {
         warn!(
-            "Unclassified point feature geo tile found: {:?}",
-            properties
+            "Unclassified point feature geo tile found: {}",
+            properties.print_debug(),
         );
-        let osm_id = properties["id"].to_string();
+        let osm_id = properties.fetch("id").unwrap_or_default().to_string();
         GeoTile::Unclassified {
             unclassified_type: UnclassifiedType::Unclassified,
             address: None,

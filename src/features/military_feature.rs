@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_military_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let military_type_str= props["military"].as_str().unwrap();
+pub fn get_military_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let military_type_str = props.fetch("military").unwrap();
     let military_type = extract_type_from_string!(military_type_str<props> => MilitaryType [Airfield, Bunker, Barracks, Checkpoint, DangerArea, NavalBase, NuclearExplosionSite, ObstacleCourse, Office, Range, TrainingArea, Trench, Unclassified]);
     geotile_from_properties!(geometry<props> => Military<military_type> [access, bunker_type, description, distance, end_date, gun_turret, iata, icao, location, military_service, name, office, opening_hours, operator, start_date, surface, trench]);
 }

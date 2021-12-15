@@ -1,7 +1,14 @@
 use log::warn;
 use geo_types;
 use std::sync::Arc;
-use crate::{features::{ GeoTile, GeoTilesDataStructure }, nominatim, operations};
+use crate::{
+    features::{ GeoTile, GeoTilesDataStructure },
+    geojson_parser,
+    nominatim,
+    operations,
+    osm_parser,
+    pbf_parser,
+};
 
 #[derive(Debug, Clone)]
 pub enum Location {
@@ -21,7 +28,7 @@ pub struct OSMGeoMapper {
 
 impl OSMGeoMapper {
     pub fn from_geojson_file_with_radius(geojson_file: String, radius: u32, location: Option<Location>) -> Result<OSMGeoMapper, Box<dyn std::error::Error>> {
-        let geojson = operations::parse_geojson_file(&geojson_file);
+        let geojson = geojson_parser::parse_geojson_file(&geojson_file);
         let data_structure = operations::process_geojson(&geojson);
         let coordinates = match location {
             Some(Location::Coordinates { latitude, longitude }) => {
@@ -34,13 +41,70 @@ impl OSMGeoMapper {
                 warn!("Finding center location of geojson file not supported yet");
                 geo_types::Coordinate { x: 0, y: 0 }
             },
-            None => geo_types::Coordinate { x: 0, y: 0 }
+            None => {
+                let (x, y) = data_structure.read().unwrap().keys().nth(0).unwrap().x_y();
+                geo_types::Coordinate { x, y }
+            }
         };
         Ok(OSMGeoMapper { data_structure, coordinates, radius })
     }
 
     pub fn from_geojson_file(geojson_file: String, location: Option<Location>) -> Result<OSMGeoMapper, Box<dyn std::error::Error>> {
         OSMGeoMapper::from_geojson_file_with_radius(geojson_file, 0, location)
+    }
+
+    pub fn from_osm_file(osm_file: String, location: Option<Location>) -> Result<OSMGeoMapper, Box<dyn std::error::Error>> {
+        let osm_data = osm_parser::parse_osm_file(osm_file.to_string())?;
+        let radius = 0;
+        let data_structure = operations::process_osm(&osm_data);
+        let coordinates = match location {
+            Some(Location::Coordinates { latitude, longitude }) => {
+                geo_types::Coordinate {
+                    x: operations::to_tile_scale(longitude),
+                    y: operations::to_tile_scale(latitude)
+                }
+            },
+            Some(Location::Center) => {
+                warn!("Finding center location of osm file not supported yet");
+                geo_types::Coordinate { x: 0, y: 0 }
+            },
+            None => {
+                let (x, y) = data_structure.read().unwrap().keys().nth(0).unwrap().x_y();
+                geo_types::Coordinate { x, y }
+            }
+        };
+        Ok(OSMGeoMapper {
+            data_structure,
+            coordinates,
+            radius,
+        })
+    }
+
+    pub fn from_pbf_file(pbf_file: String, location: Option<Location>) -> Result<OSMGeoMapper, Box<dyn std::error::Error>> {
+        let pbf_data = pbf_parser::parse_pbf_file(pbf_file.to_string())?;
+        let radius = 0;
+        let data_structure = operations::process_pbf(&pbf_data);
+        let coordinates = match location {
+            Some(Location::Coordinates { latitude, longitude }) => {
+                geo_types::Coordinate {
+                    x: operations::to_tile_scale(longitude),
+                    y: operations::to_tile_scale(latitude)
+                }
+            },
+            Some(Location::Center) => {
+                warn!("Finding center location of pbf file not supported yet");
+                geo_types::Coordinate { x: 0, y: 0 }
+            },
+            None => {
+                let (x, y) = data_structure.read().unwrap().keys().nth(0).unwrap().x_y();
+                geo_types::Coordinate { x, y }
+            }
+        };
+        Ok(OSMGeoMapper {
+            data_structure,
+            coordinates,
+            radius,
+        })
     }
 
     pub fn from_address(address: String, radius: Option<u32>) -> Result<OSMGeoMapper, Box<dyn std::error::Error>> {
@@ -67,7 +131,7 @@ impl OSMGeoMapper {
     pub fn load_more_from_lat_lon(&mut self, latitude: f64, longitude: f64, radius: Option<u32>) -> Result<(), Box<dyn std::error::Error>> {
         let radiusf = operations::from_tile_scale(radius.unwrap_or(200) as i32);
         let geojson_file = operations::get_geojson_file_by_lat_lon(latitude, longitude, radiusf)?;
-        let geojson = operations::parse_geojson_file(&geojson_file.to_string());
+        let geojson = geojson_parser::parse_geojson_file(&geojson_file.to_string());
         operations::process_geojson_with_data_structure(&geojson, self.data_structure.clone());
         Ok(())
     }
@@ -78,8 +142,20 @@ impl OSMGeoMapper {
     }
 
     pub fn load_more_from_geojson_file(&mut self, geojson_file: String) -> Result<(), Box<dyn std::error::Error>> {
-        let geojson = operations::parse_geojson_file(&geojson_file.to_string());
+        let geojson = geojson_parser::parse_geojson_file(&geojson_file.to_string());
         operations::process_geojson_with_data_structure(&geojson, self.data_structure.clone());
+        Ok(())
+    }
+
+    pub fn load_more_from_osm_file(&mut self, osm_file: String) -> Result<(), Box<dyn std::error::Error>> {
+        let osm_data = osm_parser::parse_osm_file(osm_file.to_string())?;
+        operations::process_osm_with_data_structure(&osm_data, self.data_structure.clone());
+        Ok(())
+    }
+
+    pub fn load_more_from_pbf_file(&mut self, pbf_file: String) -> Result<(), Box<dyn std::error::Error>> {
+        let pbf_data = pbf_parser::parse_pbf_file(pbf_file.to_string())?;
+        operations::process_pbf_with_data_structure(&pbf_data, self.data_structure.clone());
         Ok(())
     }
 

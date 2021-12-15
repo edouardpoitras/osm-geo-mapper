@@ -1193,7 +1193,7 @@ dependencies = [
 
 [[package]]
 name = "osm-geo-mapper"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "criterion",
  "crossterm",
@@ -1204,6 +1204,7 @@ dependencies = [
  "log4rs",
  "noise",
  "osm-geo-mapper-macros",
+ "osm-xml",
  "osmpbfreader",
  "paste",
  "reqwest",
@@ -1216,11 +1217,19 @@ dependencies = [
 
 [[package]]
 name = "osm-geo-mapper-macros"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c286dc9d2d455cddd0410723c2cca67292d7f3b50be67989a7d89eda0b61bc70"
+version = "0.3.0"
 dependencies = [
  "paste",
+]
+
+[[package]]
+name = "osm-xml"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2d16bb3b0e1f74c601ef115874e9e2ad585873fb2a1e8b308a99a8e4a51aed8"
+dependencies = [
+ "fnv",
+ "xml-rs",
 ]
 
 [[package]]
@@ -2354,6 +2363,15 @@ checksum = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 dependencies = [
  "winapi 0.2.8",
  "winapi-build",
+]
+
+[[package]]
+name = "xml-rs"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c1cb601d29fe2c2ac60a2b2e5e293994d87a1f6fa9687a31a15270f909be9c2"
+dependencies = [
+ "bitflags",
 ]
 
 [[package]]

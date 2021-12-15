@@ -2,9 +2,7 @@ OSM Geo Mapper
 ==============
 
 Rust library for querying OpenStreetMap data by coordinates and a terminal application to browse OpenStreeMap data in the terminal.
-Will fetch OSM data using the address or latitude/longitude provided, convert to GeoJSON (requires dependencies), and display the resulting lines/points/polygons in the terminal.
-
-You can optionally provide a GeoJSON file directly for viewing.
+Will parse OSM/PBF/GeoJSON files or fetch OSM data using an address or lat/lon, and display the resulting lines/points/polygons in the terminal.
 
 Allows for moving around the map:
  - Arrow keys for directional movement (also supports vi keys h,j,k,l)
@@ -28,21 +26,25 @@ Usage
 
     ./osm-geo-mapper --help
 
-    Will fetch OpenStreetMap data, convert to GeoJSON, and display the resulting lines/points/polygons in the terminal.
+    osm-geo-mapper 0.8.0
+
+    Will display OpenStreeMap data (PBF/OSM/GeoJSON) lines/points/polygons in the terminal.
 
     USAGE:
-        osm-geo-mapper [FLAGS] [OPTIONS]
+        osm-geo-mapper [OPTIONS]
 
     FLAGS:
-        -h, --help               Prints help information
-        -V, --version            Prints version information
+        -h, --help       Prints help information
+        -V, --version    Prints version information
 
     OPTIONS:
-        -a, --address <address>              The address that will be used when fetching OpenStreetMap data
-        -g, --geojson-file <geojson-file>    Optionally provide a geojson file directly to be parsed and displayed in the terminal
-            --latitude <latitude>            The latitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
-            --longitude <longitude>          The longitude that will be used when fetching OpenStreetMap data (ignored if address is provided)
-        -r, --radius <radius>                The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter at the equator) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times
+    -a, --address <address>              The address that will be used when fetching OpenStreetMap data (ignored if OSM/PBF/GeoJSON file is provided)
+    -g, --geojson-file <geojson-file>    Optionally provide a GeoJSON file directly to be parsed and displayed in the terminal
+    --latitude <latitude>            The latitude that will be used when fetching OpenStreetMap data (ignored if address or OSM/PBF/GeoJSON file is provided)
+    --longitude <longitude>          The longitude that will be used when fetching OpenStreetMap data (ignored if address or OSM/PBF/GeoJSON file is provided)
+    -o, --osm-file <osm-file>            Optionally provide a OSM file directly to be parsed and displayed in the terminal
+    -p, --pbf-file <pbf-file>            Optionally provide a PBF file directly to be parsed and displayed in the terminal
+    -r, --radius <radius>                The radius of the area of land to retrieve in 100,000th of a lat/lon degree (roughly a meter at the equator) - defaults to 200 (0.002 degrees or ~200m). Significantly impacts loading times. Ignored if PBF/GeoJSON file is provided
 
     ./osm-geo-mapper --address "ottawa canada"
 

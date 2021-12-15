@@ -8,8 +8,8 @@ use geo_types as gt;
 use log::warn;
 use std::sync::Arc;
 
-pub fn get_leisure_geo_tile(props: &GeoTileProperties, geometry: Geometry) -> GeoTile {
-    let leisure_type_str = props["leisure"].as_str().unwrap();
+pub fn get_leisure_geo_tile(props: &dyn GeoTileProperties, geometry: Geometry) -> GeoTile {
+    let leisure_type_str = props.fetch("leisure").unwrap();
     let leisure_type = extract_type_from_string!(leisure_type_str<props> => LeisureType [AdultGamingCentre, AmusementArcade, BeachResort, Bandstand, BirdHide, Common, Dance, DiscGolfCourse, DogPark, EscapeGame, Firepit, Fishing, FitnessCentre, FitnessStation, Garden, Hackerspace, HorseRiding, IceRink, Marina, MiniatureGolf, NatureReserve, Park, PicnicTable, Pitch, Playground, Slipway, SportsCentre, Stadium, SummerCamp, SwimmingArea, SwimmingPool, Track, Unclassified, WaterPark]);
     geotile_from_properties!(geometry<props> => Leisure<leisure_type> [name, access, barrier, building, covered, fee, lit, seasonal, shelter, sport, surface]);
 }
