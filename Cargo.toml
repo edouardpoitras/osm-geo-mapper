@@ -8,9 +8,10 @@ readme = "README.md"
 repository = "https://github.com/edouardpoitras/osm-geo-mapper"
 homepage = "https://crates.io/crates/osm-geo-mapper"
 description = """
-Navigate OpenStreetMap data in the terminal.
+Library to easily access OpenStreetMap data using world lat/lon coordinates.
+Can also be used to navigate OpenStreetMap data in the terminal.
 """
-keywords = ["openstreetmap", "osm", "geojson"]
+keywords = ["openstreetmap", "osm", "pbf", "geojson"]
 include = ["src/", "LICENSE", "README.md"]
 
 [lib]
